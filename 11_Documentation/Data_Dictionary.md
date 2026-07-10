@@ -22,10 +22,10 @@ It serves as the official reference for database developers, data analysts, BI d
 
 | Category | Count |
 |----------|------:|
-| Lookup Tables | 6 |
+| Lookup Tables | 9 |
 | Master Tables | 4 |
 | Transaction Tables | 5 |
-| Total Tables | 15 |
+| Total Tables | 18 |
 
 ---
 
@@ -181,11 +181,74 @@ Stores predefined reasons for product returns.
 
 ---
 
+# 7. OrderStatus
+
+## Description
+
+Stores the predefined statuses that can be assigned to customer orders.
+
+### Columns
+
+| Column | Data Type | Constraints | Description |
+|---------|-----------|-------------|-------------|
+| OrderStatusID | INT | PK, IDENTITY | Unique order status identifier |
+| StatusName | VARCHAR(50) | NOT NULL, UNIQUE | Order status name |
+| Description | VARCHAR(255) | NULL | Description of the status |
+| IsActive | BIT | DEFAULT 1 | Status availability |
+
+### Relationships
+
+- One Order Status can be assigned to many Orders.
+
+---
+
+# 8. PaymentStatus
+
+## Description
+
+Stores the predefined statuses for customer payments.
+
+### Columns
+
+| Column | Data Type | Constraints | Description |
+|---------|-----------|-------------|-------------|
+| PaymentStatusID | INT | PK, IDENTITY | Unique payment status identifier |
+| StatusName | VARCHAR(50) | NOT NULL, UNIQUE | Payment status name |
+| Description | VARCHAR(255) | NULL | Description of the status |
+| IsActive | BIT | DEFAULT 1 | Status availability |
+
+### Relationships
+
+- One Payment Status can be assigned to many Payments.
+
+---
+
+# 9. ReturnStatus
+
+## Description
+
+Stores the predefined statuses for customer returns.
+
+### Columns
+
+| Column | Data Type | Constraints | Description |
+|---------|-----------|-------------|-------------|
+| ReturnStatusID | INT | PK, IDENTITY | Unique return status identifier |
+| StatusName | VARCHAR(50) | NOT NULL, UNIQUE | Return status name |
+| Description | VARCHAR(255) | NULL | Description of the status |
+| IsActive | BIT | DEFAULT 1 | Status availability |
+
+### Relationships
+
+- One Return Status can be assigned to many Returns.
+
+---
+
 # Master Tables
 
 ---
 
-# 7. Store
+# 10. Store
 
 ## Description
 
@@ -217,7 +280,7 @@ Stores information about all retail store locations where products are sold and 
 
 ---
 
-# 8. Employee
+# 11. Employee
 
 ## Description
 
@@ -251,7 +314,7 @@ Stores employee details responsible for sales and customer order processing.
 
 ---
 
-# 9. Customer
+# 12. Customer
 
 ## Description
 
@@ -285,7 +348,7 @@ Stores customer information used for sales analysis and order history.
 
 ---
 
-# 10. Product
+# 13. Product
 
 ## Description
 
@@ -328,7 +391,7 @@ Stores detailed information about products available for sale.
 
 ---
 
-# 11. Inventory
+# 14. Inventory
 
 ## Description
 
@@ -358,7 +421,7 @@ Stores the current stock quantity of each product available at every store.
 
 ---
 
-# 12. Order
+# 15. Order
 
 ## Description
 
@@ -373,7 +436,7 @@ Stores customer order information.
 | EmployeeID | INT | FK, NOT NULL | References Employee |
 | OrderDate | DATETIME2 | DEFAULT GETDATE() | Order date and time |
 | TotalAmount | DECIMAL(12,2) | NOT NULL | Total order amount |
-| OrderStatus | VARCHAR(30) | NOT NULL | Pending, Completed, Cancelled, Returned |
+| OrderStatusID | INT | FK, NOT NULL | References OrderStatus |
 | Remarks | VARCHAR(255) | NULL | Additional notes |
 
 ### Relationships
@@ -382,6 +445,7 @@ Stores customer order information.
 - One Employee can process many Orders.
 - One Order can contain many OrderItems.
 - One Order can have many Payments.
+- Many Orders belong to one Order Status.
 
 ### Business Rules
 
@@ -390,7 +454,7 @@ Stores customer order information.
 
 ---
 
-# 13. OrderItem
+# 16. OrderItem
 
 ## Description
 
@@ -423,7 +487,7 @@ Stores individual products included in each customer order.
 
 ---
 
-# 14. Payment
+# 17. Payment
 
 ## Description
 
@@ -439,7 +503,7 @@ Stores payment information for customer orders.
 | PaymentDate | DATETIME2 | DEFAULT GETDATE() | Payment date and time |
 | PaymentAmount | DECIMAL(12,2) | NOT NULL | Amount paid |
 | TransactionReference | VARCHAR(100) | NULL | Payment gateway reference |
-| PaymentStatus | VARCHAR(30) | NOT NULL | Success, Failed, Pending |
+| PaymentStatusID | INT | FK, NOT NULL | References PaymentStatus |
 
 ### Relationships
 
@@ -450,10 +514,11 @@ Stores payment information for customer orders.
 
 - PaymentAmount must be greater than zero.
 - PaymentDate cannot be in the future.
+- Many Payments belong to one Payment Status.
 
 ---
 
-# 15. Return
+# 18. Return
 
 ## Description
 
@@ -469,12 +534,13 @@ Stores details of products returned by customers.
 | ReturnDate | DATETIME2 | DEFAULT GETDATE() | Return date |
 | ReturnQuantity | INT | NOT NULL | Quantity returned |
 | RefundAmount | DECIMAL(12,2) | NOT NULL | Refund amount |
-| ReturnStatus | VARCHAR(30) | NOT NULL | Requested, Approved, Rejected, Refunded |
+| ReturnStatusID | INT | FK, NOT NULL | References ReturnStatus |
 
 ### Relationships
 
 - Many Returns belong to one OrderItem.
 - Many Returns use one ReturnReason.
+- Many Returns belong to one Return Status.
 
 ### Business Rules
 
@@ -488,8 +554,8 @@ Stores details of products returned by customers.
 
 This Data Dictionary defines the structure, purpose, data types, constraints, and relationships of all tables within the Retail Sales Analytics & Inventory Management System. It serves as the primary reference for database development, reporting, and future maintenance.
 
-**Total Tables:** 15
+**Total Tables:** 18
 
-- Lookup Tables: 6
+- Lookup Tables: 9
 - Master Tables: 4
 - Transaction Tables: 5

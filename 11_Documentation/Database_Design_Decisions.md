@@ -16,6 +16,17 @@ This document explains the key database design decisions made during the develop
 
 ---
 
+# Database Summary
+
+| Category | Count |
+|----------|------:|
+| Lookup Tables | 9 |
+| Master Tables | 4 |
+| Transaction Tables | 5 |
+| **Total Tables** | **18** |
+
+---
+
 # 1. Database Architecture
 
 The database is organized into three logical layers:
@@ -30,7 +41,16 @@ This separation improves maintainability, scalability, and readability.
 
 # 2. Normalization
 
-The database is designed according to **Third Normal Form (3NF)**.
+The database is designed according to **Third Normal Form (3NF)** to eliminate redundancy and maintain data integrity.
+
+### Key Normalization Decisions
+
+- Categories and SubCategories are stored separately.
+- Brands are maintained independently of products.
+- Suppliers are stored in a dedicated master table.
+- Payment methods are managed through a lookup table.
+- Return reasons are maintained in a lookup table.
+- Order, Payment, and Return statuses are stored in dedicated lookup tables instead of text fields.
 
 ### Benefits
 
@@ -39,6 +59,7 @@ The database is designed according to **Third Normal Form (3NF)**.
 - Improves data consistency
 - Reduces storage redundancy
 - Simplifies maintenance
+- Supports scalable database growth
 
 ---
 
@@ -84,15 +105,38 @@ Lookup tables are used for reusable business values such as:
 - Supplier
 - PaymentMethod
 - ReturnReason
+- OrderStatus
+- PaymentStatus
+- ReturnStatus
 
 ### Why?
 
-Instead of storing repeated text values, lookup tables:
+Instead of storing status values as text (VARCHAR), dedicated lookup tables are used.
 
-- Reduce redundancy
-- Improve consistency
-- Simplify updates
-- Reduce storage requirements
+Example:
+
+Order
+
+| OrderID | OrderStatusID |
+|---------:|--------------:|
+| 1001 | 3 |
+
+OrderStatus
+
+| OrderStatusID | StatusName |
+|--------------:|------------|
+| 1 | Pending |
+| 2 | Processing |
+| 3 | Completed |
+| 4 | Cancelled |
+| 5 | Returned |
+
+This approach:
+
+- Prevents inconsistent status values
+- Enforces referential integrity
+- Improves reporting performance
+- Supports future business changes without modifying the schema
 
 ---
 
@@ -266,7 +310,25 @@ Techniques include:
 
 ---
 
-# 15. Scalability
+# 15. Audit Columns
+
+Transaction tables include audit columns to support operational tracking.
+
+Standard audit fields include:
+
+- CreatedDate
+- ModifiedDate
+
+### Benefits
+
+- Tracks when records are created and updated
+- Supports future ETL processes
+- Enables auditing and troubleshooting
+- Improves enterprise readiness
+
+---
+
+# 16. Scalability
 
 The design supports future expansion.
 
@@ -279,6 +341,11 @@ Possible future enhancements include:
 - Loyalty Program
 - Online Orders
 - Shipment Tracking
+
+Additionally, the database has been designed to support future business growth without requiring structural changes:
+
+- Additional order statuses can be added without changing the database schema.
+- New payment and return statuses can be introduced by inserting records into their respective lookup tables.
 
 These features can be added without major structural changes.
 
