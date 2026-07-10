@@ -1,0 +1,60 @@
+# ==========================================
+# Retail Sales Analytics
+# .gitignore
+# ==========================================
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+
+# SQL Server
+*.ldf
+*.mdf
+*.ndf
+
+# SQL Server Backup Files
+*.bak
+*.trn
+
+# Power BI
+*.pbix.autosave
+*.tmp
+
+# Log Files
+*.log
+
+# Temporary Files
+*.tmp
+*.temp
+
+# Python Cache (if used later)
+__pycache__/
+*.py[cod]
+
+# Environment Files
+.env
+
+# Zip Files
+*.zip
+*.rar
+*.7z
+
+# OS Generated Files
+ehthumbs.db
+Icon?
+
+# Git
+*.orig
