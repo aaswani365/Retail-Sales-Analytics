@@ -43,7 +43,9 @@ CREATE TABLE dbo.Category
 
     IsActive        BIT NOT NULL
                     CONSTRAINT DF_Category_IsActive DEFAULT (1),
-	CreatedDate		DATETIME2 NOT NULL,
+	CreatedDate		DATETIME2 NOT NULL
+					CONSTRAINT DF_Category_CreatedDate
+					DEFAULT (SYSDATETIME()),
 
 	ModifiedDate	DATETIME2 NULL,
 
@@ -73,7 +75,9 @@ CREATE TABLE dbo.SubCategory
     IsActive           BIT NOT NULL
                        CONSTRAINT DF_SubCategory_IsActive DEFAULT (1),
 
-	CreatedDate		DATETIME2 NOT NULL,
+	CreatedDate		DATETIME2 NOT NULL
+					CONSTRAINT DF_SubCategory_CreatedDate
+					DEFAULT (SYSDATETIME()),
 
 	ModifiedDate	DATETIME2 NULL,
 
@@ -101,7 +105,9 @@ CREATE TABLE dbo.Brand
     IsActive       BIT NOT NULL
                    CONSTRAINT DF_Brand_IsActive DEFAULT (1),
 				   
-	CreatedDate		DATETIME2 NOT NULL,
+	CreatedDate		DATETIME2 NOT NULL
+					CONSTRAINT DF_Brand_CreatedDate
+					DEFAULT (SYSDATETIME()),
 
 	ModifiedDate	DATETIME2 NULL,
 
@@ -143,7 +149,9 @@ CREATE TABLE dbo.Supplier
     IsActive        BIT NOT NULL
                     CONSTRAINT DF_Supplier_IsActive DEFAULT (1),
 					
-	CreatedDate		DATETIME2 NOT NULL,
+	CreatedDate		DATETIME2 NOT NULL
+					CONSTRAINT DF_Supplier_CreatedDate
+					DEFAULT (SYSDATETIME()),
 
 	ModifiedDate	DATETIME2 NULL,
 
@@ -171,7 +179,9 @@ CREATE TABLE dbo.PaymentMethod
     IsActive             BIT NOT NULL
                          CONSTRAINT DF_PaymentMethod_IsActive DEFAULT (1),
 						 
-	CreatedDate		DATETIME2 NOT NULL,
+	CreatedDate		DATETIME2 NOT NULL
+					CONSTRAINT DF_PaymentMethod_CreatedDate
+					DEFAULT (SYSDATETIME()),
 
 	ModifiedDate	DATETIME2 NULL,
 
@@ -199,7 +209,9 @@ CREATE TABLE dbo.ReturnReason
     IsActive            BIT NOT NULL
                         CONSTRAINT DF_ReturnReason_IsActive DEFAULT (1),
 						
-	CreatedDate		DATETIME2 NOT NULL,
+	CreatedDate		DATETIME2 NOT NULL
+					CONSTRAINT DF_ReturnReason_CreatedDate
+					DEFAULT (SYSDATETIME()),
 
 	ModifiedDate	DATETIME2 NULL,
 
@@ -227,7 +239,9 @@ CREATE TABLE dbo.OrderStatus
     IsActive           BIT NOT NULL
                        CONSTRAINT DF_OrderStatus_IsActive DEFAULT (1),
 					   
-	CreatedDate		DATETIME2 NOT NULL,
+	CreatedDate		DATETIME2 NOT NULL
+					CONSTRAINT DF_OrderStatus_CreatedDate
+					DEFAULT (SYSDATETIME()),
 
 	ModifiedDate	DATETIME2 NULL,
 
@@ -255,7 +269,9 @@ CREATE TABLE dbo.PaymentStatus
     IsActive           BIT NOT NULL
                        CONSTRAINT DF_PaymentStatus_IsActive DEFAULT (1),
 					   
-	CreatedDate		DATETIME2 NOT NULL,
+	CreatedDate		DATETIME2 NOT NULL
+					CONSTRAINT DF_PaymentStatus_CreatedDate
+					DEFAULT (SYSDATETIME()),
 
 	ModifiedDate	DATETIME2 NULL,
 
@@ -283,7 +299,9 @@ CREATE TABLE dbo.ReturnStatus
     IsActive           BIT NOT NULL
                        CONSTRAINT DF_ReturnStatus_IsActive DEFAULT (1),
 					   
-	CreatedDate		DATETIME2 NOT NULL,
+	CreatedDate		DATETIME2 NOT NULL
+					CONSTRAINT DF_ReturnStatus_CreatedDate
+					DEFAULT (SYSDATETIME()),
 
 	ModifiedDate	DATETIME2 NULL,
 
@@ -332,7 +350,9 @@ CREATE TABLE dbo.Store
     IsActive        BIT NOT NULL
                     CONSTRAINT DF_Store_IsActive DEFAULT (1),
 					
-	CreatedDate		DATETIME2 NOT NULL,
+	CreatedDate		DATETIME2 NOT NULL
+					CONSTRAINT DF_Store_CreatedDate
+					DEFAULT (SYSDATETIME()),
 
 	ModifiedDate	DATETIME2 NULL,
 
@@ -374,7 +394,9 @@ CREATE TABLE dbo.Employee
     IsActive        BIT NOT NULL
                     CONSTRAINT DF_Employee_IsActive DEFAULT (1),
 					
-	CreatedDate		DATETIME2 NOT NULL,
+	CreatedDate		DATETIME2 NOT NULL
+					CONSTRAINT DF_Employee_CreatedDate
+					DEFAULT (SYSDATETIME()),
 
 	ModifiedDate	DATETIME2 NULL,
 
@@ -418,7 +440,9 @@ CREATE TABLE dbo.Customer
     IsActive            BIT NOT NULL
                         CONSTRAINT DF_Customer_IsActive DEFAULT (1),
 						
-	CreatedDate		DATETIME2 NOT NULL,
+	CreatedDate		DATETIME2 NOT NULL
+					CONSTRAINT DF_Customer_CreatedDate
+					DEFAULT (SYSDATETIME()),
 
 	ModifiedDate	DATETIME2 NULL,
 
@@ -463,7 +487,9 @@ CREATE TABLE dbo.Product
     IsActive            BIT NOT NULL
                         CONSTRAINT DF_Product_IsActive DEFAULT (1),
 						
-	CreatedDate		DATETIME2 NOT NULL,
+	CreatedDate		DATETIME2 NOT NULL
+					CONSTRAINT DF_Product_CreatedDate
+					DEFAULT (SYSDATETIME()),
 
 	ModifiedDate	DATETIME2 NULL,
 
