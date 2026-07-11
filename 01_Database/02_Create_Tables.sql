@@ -3,8 +3,9 @@ Project      : Retail Sales Analytics & Inventory Management System
 Database     : RetailSalesDB
 File Name    : 02_Create_Tables.sql
 Author       : Akshay Aswani
-Version      : 1.0
+Version      : 2.0
 Created On   : July 2026
+Last Updated : July 2026
 
 Description:
 Creates all database tables for the Retail Sales Analytics &
@@ -42,6 +43,9 @@ CREATE TABLE dbo.Category
 
     IsActive        BIT NOT NULL
                     CONSTRAINT DF_Category_IsActive DEFAULT (1),
+	CreatedDate		DATETIME2 NOT NULL,
+
+	ModifiedDate	DATETIME2 NULL,
 
     CONSTRAINT PK_Category
         PRIMARY KEY CLUSTERED (CategoryID),
@@ -69,6 +73,10 @@ CREATE TABLE dbo.SubCategory
     IsActive           BIT NOT NULL
                        CONSTRAINT DF_SubCategory_IsActive DEFAULT (1),
 
+	CreatedDate		DATETIME2 NOT NULL,
+
+	ModifiedDate	DATETIME2 NULL,
+
     CONSTRAINT PK_SubCategory
         PRIMARY KEY CLUSTERED (SubCategoryID),
 
@@ -92,6 +100,10 @@ CREATE TABLE dbo.Brand
 
     IsActive       BIT NOT NULL
                    CONSTRAINT DF_Brand_IsActive DEFAULT (1),
+				   
+	CreatedDate		DATETIME2 NOT NULL,
+
+	ModifiedDate	DATETIME2 NULL,
 
     CONSTRAINT PK_Brand
         PRIMARY KEY CLUSTERED (BrandID),
@@ -130,6 +142,10 @@ CREATE TABLE dbo.Supplier
 
     IsActive        BIT NOT NULL
                     CONSTRAINT DF_Supplier_IsActive DEFAULT (1),
+					
+	CreatedDate		DATETIME2 NOT NULL,
+
+	ModifiedDate	DATETIME2 NULL,
 
     CONSTRAINT PK_Supplier
         PRIMARY KEY CLUSTERED (SupplierID),
@@ -154,6 +170,10 @@ CREATE TABLE dbo.PaymentMethod
 
     IsActive             BIT NOT NULL
                          CONSTRAINT DF_PaymentMethod_IsActive DEFAULT (1),
+						 
+	CreatedDate		DATETIME2 NOT NULL,
+
+	ModifiedDate	DATETIME2 NULL,
 
     CONSTRAINT PK_PaymentMethod
         PRIMARY KEY CLUSTERED (PaymentMethodID),
@@ -178,6 +198,10 @@ CREATE TABLE dbo.ReturnReason
 
     IsActive            BIT NOT NULL
                         CONSTRAINT DF_ReturnReason_IsActive DEFAULT (1),
+						
+	CreatedDate		DATETIME2 NOT NULL,
+
+	ModifiedDate	DATETIME2 NULL,
 
     CONSTRAINT PK_ReturnReason
         PRIMARY KEY CLUSTERED (ReturnReasonID),
@@ -186,6 +210,92 @@ CREATE TABLE dbo.ReturnReason
         UNIQUE (ReasonName)
 );
 GO
+
+/*==============================================================================
+Table: OrderStatus
+Description: Stores predefined order statuses.
+==============================================================================*/
+
+CREATE TABLE dbo.OrderStatus
+(
+    OrderStatusID      INT IDENTITY(1,1) NOT NULL,
+
+    StatusName         VARCHAR(50) NOT NULL,
+
+    Description        VARCHAR(255) NULL,
+
+    IsActive           BIT NOT NULL
+                       CONSTRAINT DF_OrderStatus_IsActive DEFAULT (1),
+					   
+	CreatedDate		DATETIME2 NOT NULL,
+
+	ModifiedDate	DATETIME2 NULL,
+
+    CONSTRAINT PK_OrderStatus
+        PRIMARY KEY CLUSTERED (OrderStatusID),
+
+    CONSTRAINT UQ_OrderStatus_StatusName
+        UNIQUE (StatusName)
+);
+GO
+
+/*==============================================================================
+Table: PaymentStatus
+Description: Stores predefined payment statuses.
+==============================================================================*/
+
+CREATE TABLE dbo.PaymentStatus
+(
+    PaymentStatusID    INT IDENTITY(1,1) NOT NULL,
+
+    StatusName         VARCHAR(50) NOT NULL,
+
+    Description        VARCHAR(255) NULL,
+
+    IsActive           BIT NOT NULL
+                       CONSTRAINT DF_PaymentStatus_IsActive DEFAULT (1),
+					   
+	CreatedDate		DATETIME2 NOT NULL,
+
+	ModifiedDate	DATETIME2 NULL,
+
+    CONSTRAINT PK_PaymentStatus
+        PRIMARY KEY CLUSTERED (PaymentStatusID),
+
+    CONSTRAINT UQ_PaymentStatus_StatusName
+        UNIQUE (StatusName)
+);
+GO
+
+/*==============================================================================
+Table: ReturnStatus
+Description: Stores predefined return statuses.
+==============================================================================*/
+
+CREATE TABLE dbo.ReturnStatus
+(
+    ReturnStatusID     INT IDENTITY(1,1) NOT NULL,
+
+    StatusName         VARCHAR(50) NOT NULL,
+
+    Description        VARCHAR(255) NULL,
+
+    IsActive           BIT NOT NULL
+                       CONSTRAINT DF_ReturnStatus_IsActive DEFAULT (1),
+					   
+	CreatedDate		DATETIME2 NOT NULL,
+
+	ModifiedDate	DATETIME2 NULL,
+
+    CONSTRAINT PK_ReturnStatus
+        PRIMARY KEY CLUSTERED (ReturnStatusID),
+
+    CONSTRAINT UQ_ReturnStatus_StatusName
+        UNIQUE (StatusName)
+);
+GO
+
+
 
 PRINT 'Lookup tables created successfully.';
 GO
@@ -205,6 +315,8 @@ CREATE TABLE dbo.Store
 
     StoreName       VARCHAR(100) NOT NULL,
 
+	ManagerEmployeeID INT NULL,
+
     Address         VARCHAR(255) NOT NULL,
 
     City            VARCHAR(100) NOT NULL,
@@ -219,6 +331,10 @@ CREATE TABLE dbo.Store
 
     IsActive        BIT NOT NULL
                     CONSTRAINT DF_Store_IsActive DEFAULT (1),
+					
+	CreatedDate		DATETIME2 NOT NULL,
+
+	ModifiedDate	DATETIME2 NULL,
 
     CONSTRAINT PK_Store
         PRIMARY KEY CLUSTERED (StoreID),
@@ -239,6 +355,8 @@ CREATE TABLE dbo.Employee
 
     StoreID         INT NOT NULL,
 
+	ManagerEmployeeID INT NULL,
+
     FirstName       VARCHAR(50) NOT NULL,
 
     LastName        VARCHAR(50) NOT NULL,
@@ -255,6 +373,10 @@ CREATE TABLE dbo.Employee
 
     IsActive        BIT NOT NULL
                     CONSTRAINT DF_Employee_IsActive DEFAULT (1),
+					
+	CreatedDate		DATETIME2 NOT NULL,
+
+	ModifiedDate	DATETIME2 NULL,
 
     CONSTRAINT PK_Employee
         PRIMARY KEY CLUSTERED (EmployeeID),
@@ -295,6 +417,13 @@ CREATE TABLE dbo.Customer
 
     IsActive            BIT NOT NULL
                         CONSTRAINT DF_Customer_IsActive DEFAULT (1),
+						
+	CreatedDate		DATETIME2 NOT NULL,
+
+	ModifiedDate	DATETIME2 NULL,
+
+	LoyaltyPoints INT NOT NULL
+    CONSTRAINT DF_Customer_LoyaltyPoints DEFAULT (0),
 
     CONSTRAINT PK_Customer
         PRIMARY KEY CLUSTERED (CustomerID),
@@ -333,6 +462,13 @@ CREATE TABLE dbo.Product
 
     IsActive            BIT NOT NULL
                         CONSTRAINT DF_Product_IsActive DEFAULT (1),
+						
+	CreatedDate		DATETIME2 NOT NULL,
+
+	ModifiedDate	DATETIME2 NULL,
+
+	ReorderLevel INT NOT NULL
+    CONSTRAINT DF_Product_ReorderLevel DEFAULT (10),
 
     CONSTRAINT PK_Product
         PRIMARY KEY CLUSTERED (ProductID),
@@ -400,7 +536,7 @@ CREATE TABLE dbo.[Order]
 
     TotalAmount        DECIMAL(12,2) NOT NULL,
 
-    OrderStatus        VARCHAR(30) NOT NULL,
+    OrderStatusID      INT NOT NULL,
 
     Remarks            VARCHAR(255) NULL,
 
@@ -470,7 +606,7 @@ CREATE TABLE dbo.Payment
 
     TransactionReference   VARCHAR(100) NULL,
 
-    PaymentStatus          VARCHAR(30) NOT NULL,
+    PaymentStatusID		INT NOT NULL,
 
     CreatedDate            DATETIME2 NOT NULL
                            CONSTRAINT DF_Payment_CreatedDate
@@ -504,7 +640,7 @@ CREATE TABLE dbo.[Return]
 
     RefundAmount        DECIMAL(12,2) NOT NULL,
 
-    ReturnStatus        VARCHAR(30) NOT NULL,
+    ReturnStatusID     INT NOT NULL,
 
     CreatedDate         DATETIME2 NOT NULL
                         CONSTRAINT DF_Return_CreatedDate
