@@ -1,8 +1,32 @@
 # Business Requirements Document (BRD)
 
-# Retail Sales Analytics & Inventory Management System
+## Retail Sales Analytics & Inventory Management System
 
-Version: 1.0
+**Project:** Retail Sales Analytics & Inventory Management System  
+**Database:** RetailSalesDB  
+**Version:** 1.0  
+**Author:** Akshay Aswani  
+**Created On:** July 2026  
+**Last Updated:** July 2026
+
+---
+
+## Table of Contents
+
+1. [Introduction](#1-introduction)
+2. [Business Problem](#2-business-problem)
+3. [Project Objectives](#3-project-objectives)
+4. [Stakeholders](#4-stakeholders)
+5. [Project Scope](#5-project-scope)
+6. [Out of Scope](#6-out-of-scope)
+7. [Key Performance Indicators](#7-key-performance-indicators-kpis)
+8. [Expected Reports](#8-expected-reports)
+9. [Expected Dataset](#9-expected-dataset)
+10. [Success Criteria](#10-success-criteria)
+11. [Assumptions](#11-assumptions)
+12. [Business Benefits](#12-business-benefits)
+13. [Future Enhancements](#13-future-enhancements)
+14. [Conclusion](#14-conclusion)
 
 ---
 
@@ -157,23 +181,26 @@ The solution should support reports such as:
 
 # 9. Expected Dataset
 
-| Table | Records |
-|--------|--------:|
-| Categories | 20 |
-| SubCategories | 100 |
-| Brands | 100 |
-| Suppliers | 100 |
-| Products | 500 |
-| Stores | 10 |
-| Employees | 25 |
-| Customers | 5,000 |
-| Orders | 25,000 |
-| OrderItems | 75,000 |
-| Payments | 25,000 |
-| Inventory | 5,000 |
-| Returns | 2,500 |
-
-Approximate Total Records: 138,000+
+| Table         |             Records |
+| ------------- | ------------------: |
+| Category      |                  10 |
+| SubCategory   |                  30 |
+| Brand         |                  30 |
+| Supplier      |                  20 |
+| PaymentMethod |                   8 |
+| OrderStatus   |                   7 |
+| PaymentStatus |                   5 |
+| ReturnReason  |                  10 |
+| ReturnStatus  |                   5 |
+| Store         |                  20 |
+| Employee      |                 200 |
+| Customer      |              10,000 |
+| Product       |               5,000 |
+| Inventory     |  15,000 *(planned)* |
+| Order         | 100,000 *(planned)* |
+| OrderItem     | 300,000 *(planned)* |
+| Payment       | 100,000 *(planned)* |
+| Return        |   8,000 *(planned)* |
 
 ---
 
@@ -191,5 +218,57 @@ The project will be considered successful if it:
 
 ---
 
-Document Version: 1.0
-Status: Approved
+# 11. Assumptions
+
+- The system supports multiple retail stores.
+- Each product belongs to one subcategory.
+- Each subcategory belongs to one category.
+- Each order is placed by one customer.
+- Payments are associated with orders.
+- Inventory is maintained separately for each store.
+- Returns are processed at the order item level.
+
+---
+
+# 12. Business Benefits
+
+The proposed solution provides the following benefits:
+
+- Centralized retail data management
+- Improved reporting accuracy
+- Faster business decision-making
+- Better inventory control
+- Enhanced customer insights
+- Performance monitoring across stores
+- Scalable architecture for future expansion
+
+---
+
+# 13. Future Enhancements
+
+Potential future enhancements include:
+
+- Warehouse Management
+- Shipment Tracking
+- Loyalty Program
+- Product Reviews
+- Promotional Campaigns
+- Coupon Management
+- Online Ordering
+- Multi-Currency Support
+
+---
+
+## Conclusion
+
+This Business Requirements Document defines the functional scope and objectives of the Retail Sales Analytics & Inventory Management System.
+
+The proposed solution delivers a scalable, normalized, and analytics-ready SQL Server database capable of supporting day-to-day retail operations as well as advanced reporting and business intelligence through SQL and Power BI.
+
+The project follows industry-standard database design practices and serves as a strong portfolio project demonstrating database design, SQL development, and analytical reporting skills.
+
+---
+
+**Document Version:** 1.0
+
+**Status:** Approved

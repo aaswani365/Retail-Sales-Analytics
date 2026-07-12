@@ -2,28 +2,54 @@
 
 ## Retail Sales Analytics & Inventory Management System
 
-**Document Version:** 1.0  
 **Project:** Retail Sales Analytics & Inventory Management System  
 **Database:** RetailSalesDB  
+**Version:** 1.0  
 **Author:** Akshay Aswani  
+**Created On:** July 2026  
 **Last Updated:** July 2026
 
 ---
 
-# Purpose
+## Table of Contents
 
-This document defines the naming standards used throughout the project to ensure consistency, readability, maintainability, and alignment with SQL Server best practices.
+1. [Purpose](#1-purpose)
+2. [General Naming Rules](#2-general-naming-rules)
+3. [Database Naming](#3-database-naming)
+4. [Schema Naming](#4-schema-naming)
+5. [Table Naming](#5-table-naming)
+6. [Column Naming](#6-column-naming)
+7. [Primary Key Naming](#7-primary-key-naming)
+8. [Foreign Key Naming](#8-foreign-key-naming)
+9. [Constraint Naming](#9-constraint-naming)
+10. [Index Naming](#10-index-naming)
+11. [Stored Procedure Naming](#11-stored-procedure-naming)
+12. [View Naming](#12-view-naming)
+13. [User Defined Function Naming](#13-user-defined-function-naming)
+14. [Trigger Naming](#14-trigger-naming)
+15. [Variable Naming](#15-variable-naming)
+16. [Temporary Tables](#16-temporary-tables)
+17. [File Naming](#17-file-naming)
+18. [SQL Formatting Standards](#18-sql-formatting-standards)
+19. [Documentation Standards](#19-documentation-standards)
+20. [Naming Convention Checklist](#20-naming-convention-checklist)
+21. [Approval](#21-approval)
 
 ---
 
-# General Naming Rules
+# 1. Purpose
+
+This document defines the naming conventions used throughout the Retail Sales Analytics & Inventory Management System. Following consistent naming standards improves readability, maintainability, collaboration, and long-term scalability of the database project.
+
+---
+
+# 2. General Naming Rules
 
 - Use **PascalCase** for all database objects.
 - Use meaningful and descriptive names.
 - Avoid abbreviations unless they are industry standard.
 - Use singular names for tables.
-- Do not use spaces or special characters.
-- Avoid SQL reserved keywords.
+- Avoid spaces and special characters.
 - Maintain consistent naming across the project.
 
 **Example**
@@ -36,9 +62,31 @@ This document defines the naming standards used throughout the project to ensure
 
 ❌ tblCustomer
 
+## Reserved Keywords
+
+Avoid using SQL Server reserved keywords as object names.
+
+Examples to avoid:
+
+- User
+- Table
+- Group
+- Order
+- Select
+- Index
+
+If a business requirement requires a reserved keyword (for example, `Order`), use square brackets when referencing the object in SQL statements.
+
+Example:
+
+```sql
+SELECT *
+FROM dbo.[Order];
+```
+
 ---
 
-# Database Naming
+# 3. Database Naming
 
 Format
 
@@ -54,7 +102,7 @@ RetailSalesDB
 
 ---
 
-# Schema Naming
+# 4. Schema Naming
 
 Default schema
 
@@ -64,7 +112,7 @@ dbo
 
 ---
 
-# Table Naming
+# 5. Table Naming
 
 Use singular nouns.
 
@@ -90,7 +138,7 @@ ReturnReason
 
 ---
 
-# Column Naming
+# 6. Column Naming
 
 Use PascalCase.
 
@@ -118,7 +166,7 @@ prodName
 
 ---
 
-# Primary Key Naming
+# 7. Primary Key Naming
 
 Every table uses
 
@@ -138,7 +186,7 @@ SupplierID
 
 ---
 
-# Foreign Key Naming
+# 8. Foreign Key Naming
 
 Use the exact primary key name from the referenced table.
 
@@ -158,7 +206,7 @@ StoreID
 
 ---
 
-# Constraint Naming
+# 9. Constraint Naming
 
 ## Primary Key
 
@@ -227,17 +275,17 @@ DF_Order_OrderDate
 Format
 
 ```
-CHK_<TableName>_<ColumnName>
+CK_<TableName>_<ColumnName>
 ```
 
 Examples
 
 ```
-CHK_Product_SellingPrice
+CK_Product_SellingPrice
 
-CHK_Product_Stock
+CK_Product_Stock
 
-CHK_Employee_Salary
+CK_Employee_Salary
 ```
 
 ---
@@ -260,7 +308,7 @@ UQ_Customer_Email
 
 ---
 
-# Index Naming
+# 10. Index Naming
 
 ## Clustered Index
 
@@ -294,27 +342,7 @@ IX_Customer_City
 
 ---
 
-# View Naming
-
-Format
-
-```
-vw_<Description>
-```
-
-Examples
-
-```
-vw_SalesSummary
-
-vw_ProductInventory
-
-vw_CustomerRevenue
-```
-
----
-
-# Stored Procedure Naming
+# 11. Stored Procedure Naming
 
 Format
 
@@ -336,7 +364,27 @@ usp_InsertOrder
 
 ---
 
-# User Defined Function Naming
+# 12. View Naming
+
+Format
+
+```
+vw_<Description>
+```
+
+Examples
+
+```
+vw_SalesSummary
+
+vw_ProductInventory
+
+vw_CustomerRevenue
+```
+
+---
+
+# 13. User Defined Function Naming
 
 Format
 
@@ -356,7 +404,7 @@ fn_OrderCount
 
 ---
 
-# Trigger Naming
+# 14. Trigger Naming
 
 Format
 
@@ -376,7 +424,7 @@ trg_Inventory_Delete
 
 ---
 
-# Variable Naming
+# 15. Variable Naming
 
 Local variables
 
@@ -400,7 +448,7 @@ Table variables
 
 ---
 
-# Temporary Tables
+# 16. Temporary Tables
 
 Local
 
@@ -418,7 +466,7 @@ Global
 
 ---
 
-# File Naming
+# 17. File Naming
 
 Use numeric prefixes to maintain execution order.
 
@@ -433,16 +481,14 @@ Examples
 
 04_Create_Indexes.sql
 
-05_Insert_Categories.sql
+05_Insert_Lookup_Data.sql
 
-06_Insert_SubCategories.sql
-
-07_Insert_Brands.sql
+06_Generate_Master_Data.sql
 ```
 
 ---
 
-# SQL Formatting Standards
+# 18. SQL Formatting Standards
 
 - SQL keywords in **UPPERCASE**
 - One column per line in `SELECT`
@@ -466,32 +512,39 @@ ORDER BY ProductName;
 
 ---
 
-# Documentation Standards
+# 19. Documentation Standards
 
-Every SQL file must include:
+Every SQL script should include the following standardized header:
 
-- Project Name
+Every SQL script should include the following standardized header:
+
+- Project
+- Database
 - File Name
 - Author
 - Version
-- Description
+- Created On
 - Last Updated
+- Description
 
 Example
 
 ```sql
 /*============================================================
-Project     : Retail Sales Analytics & Inventory Management System
-File Name   : 02_Create_Tables.sql
-Author      : Akshay Aswani
-Version     : 1.0
-Description : Creates all database tables.
+Project      : Retail Sales Analytics & Inventory Management System
+Database     : RetailSalesDB
+File Name    : 02_Create_Tables.sql
+Author       : Akshay Aswani
+Version      : 2.0
+Created On   : July 2026
+Last Updated : July 2026
+Description	 : Creates all database tables for the Retail Sales Analytics & Inventory Management System.
 ============================================================*/
 ```
 
 ---
 
-# Naming Convention Checklist
+# 20. Naming Convention Checklist
 
 - PascalCase naming
 - Singular table names
@@ -499,13 +552,17 @@ Description : Creates all database tables.
 - Standardized constraints
 - Consistent index names
 - Consistent procedure names
+- Consistent audit column names
+- Consistent file naming
 - Professional SQL formatting
 - Standardized documentation headers
 
 ---
 
-# Approval
+**Document Version:** 1.0
 
 **Status:** Approved
 
-This document serves as the official naming standard for the Retail Sales Analytics & Inventory Management System project.
+**Approved By:** Project Author
+
+This document defines the official SQL Server naming conventions for the Retail Sales Analytics & Inventory Management System.
