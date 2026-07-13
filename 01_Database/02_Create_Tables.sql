@@ -505,43 +505,11 @@ CREATE TABLE dbo.Product
 GO
 
 PRINT 'Master tables created successfully.';
-GO
+
 
 /*==============================================================================
 Transaction Tables
 ==============================================================================*/
-
-/*==============================================================================
-Table: Inventory
-Description: Stores product inventory for each store.
-==============================================================================*/
-
-CREATE TABLE dbo.Inventory
-(
-    InventoryID        INT IDENTITY(1,1) NOT NULL,
-
-    StoreID            INT NOT NULL,
-
-    ProductID          INT NOT NULL,
-
-    QuantityOnHand     INT NOT NULL,
-
-    ReorderLevel       INT NOT NULL,
-
-    LastStockUpdate    DATETIME2 NOT NULL
-                       CONSTRAINT DF_Inventory_LastStockUpdate
-                       DEFAULT (SYSDATETIME()),
-
-    CreatedDate        DATETIME2 NOT NULL
-                       CONSTRAINT DF_Inventory_CreatedDate
-                       DEFAULT (SYSDATETIME()),
-
-    ModifiedDate       DATETIME2 NULL,
-
-    CONSTRAINT PK_Inventory
-        PRIMARY KEY CLUSTERED (InventoryID)
-);
-GO
 
 /*==============================================================================
 Table: Order
@@ -550,32 +518,52 @@ Description: Stores customer order information.
 
 CREATE TABLE dbo.[Order]
 (
-    OrderID            INT IDENTITY(1,1) NOT NULL,
+    OrderID             INT IDENTITY(1,1) NOT NULL,
 
-    CustomerID         INT NOT NULL,
+    OrderNumber         VARCHAR(20) NOT NULL,
 
-    EmployeeID         INT NOT NULL,
+    CustomerID          INT NOT NULL,
 
-    OrderDate          DATETIME2 NOT NULL
-                       CONSTRAINT DF_Order_OrderDate
-                       DEFAULT (SYSDATETIME()),
+    StoreID             INT NOT NULL,
 
-    TotalAmount        DECIMAL(12,2) NOT NULL,
+    EmployeeID          INT NOT NULL,
 
-    OrderStatusID      INT NOT NULL,
+    OrderDate           DATETIME2 NOT NULL
+                         CONSTRAINT DF_Order_OrderDate
+                         DEFAULT (SYSDATETIME()),
 
-    Remarks            VARCHAR(255) NULL,
+    SubTotalAmount      DECIMAL(12,2) NOT NULL
+                         CONSTRAINT DF_Order_SubTotalAmount
+                         DEFAULT (0),
 
-    CreatedDate        DATETIME2 NOT NULL
-                       CONSTRAINT DF_Order_CreatedDate
-                       DEFAULT (SYSDATETIME()),
+    DiscountAmount      DECIMAL(12,2) NOT NULL
+                         CONSTRAINT DF_Order_DiscountAmount
+                         DEFAULT (0),
 
-    ModifiedDate       DATETIME2 NULL,
+    TaxAmount           DECIMAL(12,2) NOT NULL
+                         CONSTRAINT DF_Order_TaxAmount
+                         DEFAULT (0),
+
+    NetAmount           DECIMAL(12,2) NOT NULL
+                         CONSTRAINT DF_Order_NetAmount
+                         DEFAULT (0),
+
+    OrderStatusID       INT NOT NULL,
+
+    Remarks             VARCHAR(255) NULL,
+
+    CreatedDate         DATETIME2 NOT NULL
+                         CONSTRAINT DF_Order_CreatedDate
+                         DEFAULT (SYSDATETIME()),
+
+    ModifiedDate        DATETIME2 NULL,
 
     CONSTRAINT PK_Order
-        PRIMARY KEY CLUSTERED (OrderID)
+        PRIMARY KEY CLUSTERED (OrderID),
+
+    CONSTRAINT UQ_Order_OrderNumber
+        UNIQUE (OrderNumber)
 );
-GO
 
 /*==============================================================================
 Table: OrderItem
@@ -591,11 +579,17 @@ CREATE TABLE dbo.OrderItem
     ProductID          INT NOT NULL,
 
     Quantity           INT NOT NULL,
+	
+	CostPrice		   DECIMAL(12,2) NOT NULL,
 
-    UnitPrice          DECIMAL(10,2) NOT NULL,
+    UnitPrice          DECIMAL(12,2) NOT NULL,
 
-    Discount           DECIMAL(10,2) NOT NULL
-                       CONSTRAINT DF_OrderItem_Discount
+    DiscountAmount     DECIMAL(12,2) NOT NULL
+                       CONSTRAINT DF_OrderItem_DiscountAmount
+                       DEFAULT (0),
+
+    TaxAmount          DECIMAL(12,2) NOT NULL
+                       CONSTRAINT DF_OrderItem_TaxAmount
                        DEFAULT (0),
 
     LineTotal          DECIMAL(12,2) NOT NULL,
@@ -609,7 +603,6 @@ CREATE TABLE dbo.OrderItem
     CONSTRAINT PK_OrderItem
         PRIMARY KEY CLUSTERED (OrderItemID)
 );
-GO
 
 /*==============================================================================
 Table: Payment
@@ -624,15 +617,17 @@ CREATE TABLE dbo.Payment
 
     PaymentMethodID        INT NOT NULL,
 
+    PaymentStatusID        INT NOT NULL,
+
     PaymentDate            DATETIME2 NOT NULL
                            CONSTRAINT DF_Payment_PaymentDate
                            DEFAULT (SYSDATETIME()),
 
-    PaymentAmount          DECIMAL(12,2) NOT NULL,
+    Amount                 DECIMAL(12,2) NOT NULL,
 
     TransactionReference   VARCHAR(100) NULL,
 
-    PaymentStatusID		INT NOT NULL,
+    Remarks                VARCHAR(255) NULL,
 
     CreatedDate            DATETIME2 NOT NULL
                            CONSTRAINT DF_Payment_CreatedDate
@@ -643,7 +638,36 @@ CREATE TABLE dbo.Payment
     CONSTRAINT PK_Payment
         PRIMARY KEY CLUSTERED (PaymentID)
 );
-GO
+
+/*==============================================================================
+Table: Inventory
+Description: Stores product inventory for each store.
+==============================================================================*/
+
+CREATE TABLE dbo.Inventory
+(
+    InventoryID          INT IDENTITY(1,1) NOT NULL,
+
+    ProductID            INT NOT NULL,
+
+    StoreID              INT NOT NULL,
+
+    QuantityInStock      INT NOT NULL,
+
+    LastRestockedDate    DATETIME2 NULL,
+
+    CreatedDate          DATETIME2 NOT NULL
+                         CONSTRAINT DF_Inventory_CreatedDate
+                         DEFAULT (SYSDATETIME()),
+
+    ModifiedDate         DATETIME2 NULL,
+
+    CONSTRAINT PK_Inventory
+        PRIMARY KEY CLUSTERED (InventoryID),
+
+    CONSTRAINT UQ_Inventory_Product_Store
+        UNIQUE (ProductID, StoreID)
+);
 
 /*==============================================================================
 Table: Return
@@ -652,32 +676,33 @@ Description: Stores returned products.
 
 CREATE TABLE dbo.[Return]
 (
-    ReturnID            INT IDENTITY(1,1) NOT NULL,
+    ReturnID             INT IDENTITY(1,1) NOT NULL,
 
-    OrderItemID         INT NOT NULL,
+    OrderItemID          INT NOT NULL,
 
-    ReturnReasonID      INT NOT NULL,
+    ReturnReasonID       INT NOT NULL,
 
-    ReturnDate          DATETIME2 NOT NULL
-                        CONSTRAINT DF_Return_ReturnDate
-                        DEFAULT (SYSDATETIME()),
+    ReturnStatusID       INT NOT NULL,
 
-    ReturnQuantity      INT NOT NULL,
+    ReturnDate           DATETIME2 NOT NULL
+                         CONSTRAINT DF_Return_ReturnDate
+                         DEFAULT (SYSDATETIME()),
 
-    RefundAmount        DECIMAL(12,2) NOT NULL,
+    QuantityReturned     INT NOT NULL,
 
-    ReturnStatusID     INT NOT NULL,
+    RefundAmount         DECIMAL(12,2) NOT NULL,
 
-    CreatedDate         DATETIME2 NOT NULL
-                        CONSTRAINT DF_Return_CreatedDate
-                        DEFAULT (SYSDATETIME()),
+    Remarks              VARCHAR(255) NULL,
 
-    ModifiedDate        DATETIME2 NULL,
+    CreatedDate          DATETIME2 NOT NULL
+                         CONSTRAINT DF_Return_CreatedDate
+                         DEFAULT (SYSDATETIME()),
+
+    ModifiedDate         DATETIME2 NULL,
 
     CONSTRAINT PK_Return
         PRIMARY KEY CLUSTERED (ReturnID)
 );
-GO
+
 
 PRINT 'Transaction tables created successfully.';
-GO
