@@ -1,7 +1,7 @@
 /*==============================================================================
 Project      : Retail Sales Analytics & Inventory Management System
 Database     : RetailSalesDB
-File Name    : 05_Insert_Lookup_Data.sql
+File Name    : 05_Generate_Lookup_Data.sql
 Author       : Akshay Aswani
 Version      : 1.0
 Created On   : July 2026
@@ -11,16 +11,37 @@ Description:
 This script populates all lookup tables with predefined business reference
 data required for the Retail Sales Analytics & Inventory Management System.
 
+The lookup data provides standardized business values used throughout the
+database to ensure consistency, maintain referential integrity, and support
+master data generation, transaction processing, reporting, and analytics.
+
 The script includes:
 1. Product Categories
 2. Product Subcategories
 3. Brands
-4. Suppliers
-5. Payment Methods
-6. Return Reasons
-7. Order Statuses
-8. Payment Statuses
-9. Return Statuses
+4. Payment Methods
+5. Return Reasons
+6. Order Statuses
+7. Payment Statuses
+8. Return Statuses
+
+Features:
+- Inserts predefined business reference data
+- Maintains referential integrity
+- Uses dynamic lookup techniques where required
+- Prevents duplicate data generation
+- Includes validation after data generation
+- Suitable for development, testing, and analytics
+
+Execution Order:
+1. Product Categories
+2. Product Subcategories
+3. Brands
+4. Payment Methods
+5. Return Reasons
+6. Order Statuses
+7. Payment Statuses
+8. Return Statuses
 
 ==============================================================================*/
 
@@ -28,7 +49,6 @@ USE RetailSalesDB;
 GO
 
 SET NOCOUNT ON;
-GO
 
 /*==============================================================================
 					Section 1 : Product Categories
@@ -68,10 +88,15 @@ BEGIN
         ('Health & Personal Care',      'Healthcare and personal care products');
 
 END;
-GO
 
-SELECT *
-FROM dbo.Category;
+PRINT 'Product Categories generated successfully.';
+
+SELECT
+    CategoryID,
+    CategoryName,
+    Description
+FROM dbo.Category
+ORDER BY CategoryID;
 
 
 /*==============================================================================
@@ -275,13 +300,14 @@ BEGIN
     WHERE CategoryName = 'Health & Personal Care';
 
 END;
-GO
 
-SELECT *
+PRINT 'Product SubCategory generated successfully.';
+
+SELECT count(*) as TotalSubCategory
 FROM dbo.SubCategory;
 
 /*==============================================================================
-					Section 3 : Product Brands
+					Section 3 : Brands
 ==============================================================================
 
 Description:
@@ -338,74 +364,99 @@ BEGIN
         ('Amul',        'Dairy and food products');
 
 END;
-GO
 
-select *
+PRINT 'Product Brand generated successfully.';
+
+select count(*) as TotalBrand
 from dbo.Brand;
 
+
 /*==============================================================================
-					Section 4 : Suppliers
+                    Section 4 : Payment Methods
 ==============================================================================
 
 Description:
 ------------
-Populates the Supplier lookup table with fictional supplier companies that
-provide products across various retail categories.
+Populates the PaymentMethod lookup table with predefined payment methods
+accepted across the retail business.
 
 Business Rules:
 ---------------
-- Each supplier name must be unique.
-- Suppliers are referenced by the Product table.
-- CreatedDate is populated automatically using the default constraint.
+- Each payment method represents a valid payment option.
+- Payment method names must be unique.
+- Payment methods are referenced by the Payment table.
+- Payment methods remain static and are managed by the business.
 
 ==============================================================================*/
 
-IF NOT EXISTS (SELECT 1 FROM dbo.Supplier)
+IF NOT EXISTS (SELECT 1 FROM dbo.PaymentMethod)
 BEGIN
 
-    INSERT INTO dbo.Supplier
+    INSERT INTO dbo.PaymentMethod
     (
-        SupplierName,
-        ContactName,
-        Phone,
-        Email,
-        Address,
-        City,
-        State,
-        Country,
-        PostalCode
+        MethodName,
+        Description,
+        IsActive
     )
     VALUES
-        ('TechVision Distributors', 'Rahul Sharma', '9876543210', 'rahul.sharma@techvision.com', '101 Business Park', 'Jaipur', 'Rajasthan', 'India', '302017'),
-        ('Global Retail Supplies', 'Amit Verma', '9876543211', 'amit.verma@globalretail.com', '22 Industrial Area', 'Delhi', 'Delhi', 'India', '110020'),
-        ('Prime Electronics Ltd.', 'Neha Gupta', '9876543212', 'neha.gupta@primeelectronics.com', '45 Tech Hub', 'Bengaluru', 'Karnataka', 'India', '560001'),
-        ('Smart Trade Solutions', 'Vikram Singh', '9876543213', 'vikram.singh@smarttrade.com', '12 Commerce Street', 'Mumbai', 'Maharashtra', 'India', '400001'),
-        ('Metro Wholesale Pvt. Ltd.', 'Priya Mehta', '9876543214', 'priya.mehta@metrowholesale.com', '88 Market Road', 'Ahmedabad', 'Gujarat', 'India', '380001'),
-        ('Elite Supply Chain', 'Karan Kapoor', '9876543215', 'karan.kapoor@elitechain.com', '14 Logistics Park', 'Pune', 'Maharashtra', 'India', '411001'),
-        ('National Traders', 'Sanjay Kumar', '9876543216', 'sanjay.kumar@nationaltraders.com', '73 Business Centre', 'Lucknow', 'Uttar Pradesh', 'India', '226001'),
-        ('Future Retail Distributors', 'Anjali Jain', '9876543217', 'anjali.jain@futureretail.com', '17 Distribution Hub', 'Indore', 'Madhya Pradesh', 'India', '452001'),
-        ('Apex Imports', 'Deepak Mishra', '9876543218', 'deepak.mishra@apeximports.com', '39 Import Zone', 'Chennai', 'Tamil Nadu', 'India', '600001'),
-        ('Infinity Wholesale', 'Rohit Arora', '9876543219', 'rohit.arora@infinitywholesale.com', '64 Trade Plaza', 'Hyderabad', 'Telangana', 'India', '500001'),
-        ('Urban Supply Hub', 'Sneha Patel', '9876543220', 'sneha.patel@urbansupply.com', '91 Retail Street', 'Surat', 'Gujarat', 'India', '395003'),
-        ('Bright Commerce', 'Nitin Joshi', '9876543221', 'nitin.joshi@brightcommerce.com', '56 Business Avenue', 'Nagpur', 'Maharashtra', 'India', '440001'),
-        ('Reliable Distribution Co.', 'Megha Soni', '9876543222', 'megha.soni@reliabledist.com', '78 Warehouse Road', 'Bhopal', 'Madhya Pradesh', 'India', '462001'),
-        ('Sunrise Trading', 'Arun Yadav', '9876543223', 'arun.yadav@sunrisetrading.com', '23 Sunrise Estate', 'Kanpur', 'Uttar Pradesh', 'India', '208001'),
-        ('NextGen Suppliers', 'Pooja Agarwal', '9876543224', 'pooja.agarwal@nextgen.com', '48 Innovation Park', 'Noida', 'Uttar Pradesh', 'India', '201301'),
-        ('Pinnacle Distribution', 'Gaurav Malhotra', '9876543225', 'gaurav.malhotra@pinnacle.com', '31 Corporate Tower', 'Gurugram', 'Haryana', 'India', '122001'),
-        ('Vertex Supply Solutions', 'Ritika Bansal', '9876543226', 'ritika.bansal@vertexsupply.com', '27 Tech City', 'Chandigarh', 'Chandigarh', 'India', '160017'),
-        ('Capital Traders', 'Mohit Khanna', '9876543227', 'mohit.khanna@capitaltraders.com', '102 Central Market', 'Bhubaneswar', 'Odisha', 'India', '751001'),
-        ('BlueSky Wholesale', 'Shreya Nair', '9876543228', 'shreya.nair@bluesky.com', '15 Sky Business Park', 'Kochi', 'Kerala', 'India', '682001'),
-        ('United Retail Partners', 'Ajay Saxena', '9876543229', 'ajay.saxena@unitedretail.com', '67 Enterprise Zone', 'Jaipur', 'Rajasthan', 'India', '302019');
+    ('Cash',
+     'Payment made using physical currency at the store.',
+     1),
+
+    ('Credit Card',
+     'Payment processed using a credit card.',
+     1),
+
+    ('Debit Card',
+     'Payment processed using a debit card.',
+     1),
+
+    ('UPI',
+     'Payment made through Unified Payments Interface.',
+     1),
+
+    ('Net Banking',
+     'Payment made through internet banking.',
+     1),
+
+    ('Mobile Wallet',
+     'Payment made using digital wallets such as Paytm, PhonePe Wallet or Amazon Pay Wallet.',
+     1),
+
+    ('Gift Card',
+     'Payment made using store-issued or promotional gift cards.',
+     1),
+
+    ('Store Credit',
+     'Payment made using store credit issued after returns or promotions.',
+     1),
+
+    ('Bank Transfer',
+     'Payment transferred directly from a customer bank account.',
+     1),
+
+    ('Cash on Delivery',
+     'Payment collected when products are delivered.',
+     1);
 
 END;
-GO
 
-SELECT *
-FROM dbo.Supplier
-ORDER BY SupplierID;
+PRINT 'Payment Methods generated successfully.';
+
+------------------------------------------------------------
+-- Validate Payment Methods
+------------------------------------------------------------
+
+SELECT
+    PaymentMethodID,
+    MethodName,
+    Description,
+    IsActive
+FROM dbo.PaymentMethod
+ORDER BY PaymentMethodID;
 
 /*==============================================================================
-					Section 6 : Return Reasons
+					Section 5 : Return Reasons
 ==============================================================================
 
 Description:
@@ -442,14 +493,15 @@ BEGIN
         ('Other',                'Other reason not listed above');
 
 END;
-GO
+
+PRINT 'ReturnReason generated successfully.';
 
 SELECT *
 FROM dbo.ReturnReason
 ORDER BY ReturnReasonID;
 
 /*==============================================================================
-					Section 7 : Order Statuses
+					Section 6 : Order Statuses
 ==============================================================================
 
 Description:
@@ -483,14 +535,15 @@ BEGIN
         ('Returned',    'Order has been returned by the customer');
 
 END;
-GO
+
+PRINT 'OrderStatus generated successfully.';
 
 SELECT *
 FROM dbo.OrderStatus
 ORDER BY OrderStatusID;
 
 /*==============================================================================
-					Section 8 : Payment Statuses
+					Section 7 : Payment Statuses
 ==============================================================================
 
 Description:
@@ -522,14 +575,15 @@ BEGIN
         ('Cancelled', 'Payment was cancelled before completion');
 
 END;
-GO
+
+PRINT 'PaymentStatus generated successfully.';
 
 SELECT *
 FROM dbo.PaymentStatus
 ORDER BY PaymentStatusID;
 
 /*==============================================================================
-				Section 9 : Return Statuses
+				Section 8 : Return Statuses
 ==============================================================================
 
 Description:
@@ -561,8 +615,13 @@ BEGIN
         ('Refunded',  'Refund has been processed successfully');
 
 END;
-GO
+
+PRINT 'ReturnStatus generated successfully.';
 
 SELECT *
 FROM dbo.ReturnStatus
 ORDER BY ReturnStatusID;
+
+PRINT '===============================================';
+PRINT 'Lookup Data Generation Completed Successfully.';
+PRINT '===============================================';

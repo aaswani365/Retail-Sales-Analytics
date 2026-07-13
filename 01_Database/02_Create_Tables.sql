@@ -120,50 +120,6 @@ CREATE TABLE dbo.Brand
 GO
 
 /*==============================================================================
-Table: Supplier
-Description: Stores supplier information.
-==============================================================================*/
-
-CREATE TABLE dbo.Supplier
-(
-    SupplierID      INT IDENTITY(1,1) NOT NULL,
-
-    SupplierName    VARCHAR(150) NOT NULL,
-
-    ContactName     VARCHAR(100) NULL,
-
-    Phone           VARCHAR(20) NULL,
-
-    Email           VARCHAR(100) NULL,
-
-    Address         VARCHAR(255) NULL,
-
-    City            VARCHAR(100) NULL,
-
-    State           VARCHAR(100) NULL,
-
-    Country         VARCHAR(100) NULL,
-
-    PostalCode      VARCHAR(20) NULL,
-
-    IsActive        BIT NOT NULL
-                    CONSTRAINT DF_Supplier_IsActive DEFAULT (1),
-					
-	CreatedDate		DATETIME2 NOT NULL
-					CONSTRAINT DF_Supplier_CreatedDate
-					DEFAULT (SYSDATETIME()),
-
-	ModifiedDate	DATETIME2 NULL,
-
-    CONSTRAINT PK_Supplier
-        PRIMARY KEY CLUSTERED (SupplierID),
-
-    CONSTRAINT UQ_Supplier_Name
-        UNIQUE (SupplierName)
-);
-GO
-
-/*==============================================================================
 Table: PaymentMethod
 Description: Stores supported payment methods.
 ==============================================================================*/
@@ -454,6 +410,50 @@ CREATE TABLE dbo.Customer
 
     CONSTRAINT UQ_Customer_Email
         UNIQUE (Email)
+);
+GO
+
+/*==============================================================================
+Table: Supplier
+Description: Stores supplier information.
+==============================================================================*/
+
+CREATE TABLE dbo.Supplier
+(
+    SupplierID      INT IDENTITY(1,1) NOT NULL,
+
+    SupplierName    VARCHAR(150) NOT NULL,
+
+    ContactName     VARCHAR(100) NULL,
+
+    Phone           VARCHAR(20) NULL,
+
+    Email           VARCHAR(100) NULL,
+
+    Address         VARCHAR(255) NULL,
+
+    City            VARCHAR(100) NULL,
+
+    State           VARCHAR(100) NULL,
+
+    Country         VARCHAR(100) NULL,
+
+    PostalCode      VARCHAR(20) NULL,
+
+    IsActive        BIT NOT NULL
+                    CONSTRAINT DF_Supplier_IsActive DEFAULT (1),
+					
+	CreatedDate		DATETIME2 NOT NULL
+					CONSTRAINT DF_Supplier_CreatedDate
+					DEFAULT (SYSDATETIME()),
+
+	ModifiedDate	DATETIME2 NULL,
+
+    CONSTRAINT PK_Supplier
+        PRIMARY KEY CLUSTERED (SupplierID),
+
+    CONSTRAINT UQ_Supplier_Name
+        UNIQUE (SupplierName)
 );
 GO
 

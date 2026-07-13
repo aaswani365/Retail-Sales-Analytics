@@ -1,29 +1,69 @@
-/*============================================================
-Project     : Retail Sales Analytics & Inventory Management System
-Database    : RetailSalesDB
-File Name   : 06_Generate_Master_Data.sql
-Author      : Akshay Aswani
-Version     : 1.0
-Description : Inserts sample data into all master tables.
-============================================================*/
+/*==============================================================================
+Project      : Retail Sales Analytics & Inventory Management System
+Database     : RetailSalesDB
+File Name    : 06_Generate_Master_Data.sql
+Author       : Akshay Aswani
+Version      : 1.0
+Created On   : July 2026
+Last Updated : July 2026
+
+Description:
+This script populates all master tables with realistic business data required
+for the Retail Sales Analytics & Inventory Management System.
+
+The generated data is designed to simulate a real-world retail environment
+and serves as the foundation for transaction generation, reporting,
+analytics, and Power BI dashboards.
+
+The script includes:
+1. Stores
+2. Employees
+3. Customers
+4. Suppliers
+5. Products
+
+Features:
+- Generates realistic business data
+- Maintains referential integrity
+- Uses dynamic lookup techniques where required
+- Prevents duplicate data generation
+- Includes validation after data generation
+- Suitable for development, testing, and analytics
+
+Execution Order:
+1. Stores
+2. Employees
+3. Customers
+4. Suppliers
+5. Products
+
+==============================================================================*/
 
 USE RetailSalesDB;
 GO
 
+SET NOCOUNT ON;
+
 PRINT 'Starting Master Data Generation...';
-GO
 
-------------------------------------------------------------
--- SECTION 1 : Store
-------------------------------------------------------------
+/*==============================================================================
+                        Section 1 : Stores
+==============================================================================
 
-ALTER TABLE dbo.Store
-ADD CONSTRAINT FK_Store_Manager
-FOREIGN KEY (ManagerEmployeeID)
-REFERENCES dbo.Employee(EmployeeID);
+Description:
+------------
+Populates the Store master table with retail store locations operating
+across different cities and states.
 
-PRINT 'Inserting Store Data...';
-GO
+Business Rules:
+---------------
+- Each store represents a physical retail location.
+- Store names must be unique.
+- Every store is managed by a single employee.
+- Stores are referenced by Employees, Inventory, and Orders.
+- Stores remain active unless permanently closed.
+
+==============================================================================*/
 
 SET IDENTITY_INSERT dbo.Store ON;
 
@@ -69,22 +109,29 @@ VALUES
 (20,'Bhubaneswar Patia',NULL,'Patia','Bhubaneswar','Odisha','751024','India','0674-4501020',1,SYSDATETIME(),NULL);
 
 SET IDENTITY_INSERT dbo.Store OFF;
-GO
 
 PRINT 'Store data inserted successfully.';
-GO
 
-------------------------------------------------------------
--- SECTION 2 : Employee
-------------------------------------------------------------
+/*==============================================================================
+                        Section 2 : Employees
+==============================================================================
 
-ALTER TABLE dbo.Employee
-ADD CONSTRAINT FK_Employee_Manager
-FOREIGN KEY (ManagerEmployeeID)
-REFERENCES dbo.Employee(EmployeeID);
+Description:
+------------
+Populates the Employee master table with employees assigned to retail
+stores, including managers and staff members.
 
-PRINT 'Inserting Employee Data...';
-GO
+Business Rules:
+---------------
+- Every employee belongs to one store.
+- Each employee has a unique email address.
+- Managers are also employees and are referenced using a self-referencing
+  relationship.
+- Employees may be active or inactive.
+- Employees are responsible for processing customer orders and managing
+  store operations.
+
+==============================================================================*/
 
 SET IDENTITY_INSERT dbo.Employee ON;
 
@@ -159,7 +206,6 @@ VALUES
 ------------------------------------------------------------
 
 PRINT 'Employee data for Stores 1-5 inserted successfully.';
-GO
 
 ------------------------------------------------------------
 -- Store 6
@@ -212,7 +258,6 @@ GO
 (50,10,47,'Ayush','Singh','ayush.singh@retailsales.com','9876500050','Sales Executive',32000,'2025-04-19',1,SYSDATETIME(),NULL);
 
 PRINT 'Employee data for Stores 6-10 inserted successfully.';
-GO
 
 ------------------------------------------------------------
 -- Store 11
@@ -265,7 +310,6 @@ GO
 (75,15,72,'Kartik','Jain','kartik.jain@retailsales.com','9876500075','Sales Executive',32000,'2025-07-08',1,SYSDATETIME(),NULL);
 
 PRINT 'Employee data for Stores 11-15 inserted successfully.';
-GO
 
 ------------------------------------------------------------
 -- Store 16
@@ -318,11 +362,32 @@ GO
 (100,20,97,'Naveen','Singh','naveen.singh@retailsales.com','9876500100','Sales Executive',32000,'2025-07-15',1,SYSDATETIME(),NULL);
 
 SET IDENTITY_INSERT dbo.Employee OFF;
-GO
 
 PRINT 'Employee data inserted successfully.';
-GO
 
+/*==============================================================================
+                    Section 2.1 : Assign Store Managers
+==============================================================================
+
+Description:
+------------
+Updates each store by assigning its corresponding Store Manager after all
+employee records have been generated.
+
+This step is performed after employee generation because the
+ManagerEmployeeID values are not available when the Store records are
+initially created.
+
+Business Rules:
+---------------
+- Every store must have exactly one Store Manager.
+- The assigned manager must be an existing employee.
+- The Store Manager must belong to the same store.
+- The first employee created for each store is designated as the Store
+  Manager.
+- The Store.ManagerEmployeeID column references Employee.EmployeeID.
+
+==============================================================================*/
 
 ------------------------------------------------------------
 -- Update Store Managers
@@ -353,12 +418,26 @@ UPDATE dbo.Store SET ManagerEmployeeID = 91 WHERE StoreID = 19;
 UPDATE dbo.Store SET ManagerEmployeeID = 96 WHERE StoreID = 20;
 
 PRINT 'Store managers updated successfully.';
-GO
 
-/*============================================================
-SECTION 3 : CUSTOMER
-Description : Lookup Tables
-============================================================*/
+/*==============================================================================
+                        Section 3 : Customers
+==============================================================================
+
+Description:
+------------
+Populates the Customer master table with realistic customer information
+including personal details, contact information, registration dates,
+and loyalty points.
+
+Business Rules:
+---------------
+- Each customer represents an individual retail customer.
+- Email addresses must be unique when provided.
+- Customers may place multiple orders over time.
+- Loyalty points accumulate based on customer purchases.
+- Customers may be active or inactive.
+
+==============================================================================*/
 
 PRINT 'Preparing Customer Lookup Tables...';
 
@@ -761,16 +840,27 @@ ORDER BY LoyaltyPoints DESC,
 
 PRINT 'Customer data validation completed successfully.';
 PRINT 'Customer data inserted successfully.';
-GO
 
-------------------------------------------------------------
--- SECTION 4 : Supplier
-------------------------------------------------------------
 
-/*============================================================
-SECTION 4 : SUPPLIER
-Description : Supplier Lookup Tables
-============================================================*/
+/*==============================================================================
+                        Section 4 : Suppliers
+==============================================================================
+
+Description:
+------------
+Populates the Supplier master table with supplier companies responsible
+for providing products to the retail business.
+
+Business Rules:
+---------------
+- Each supplier represents a unique business partner.
+- Supplier names must be unique.
+- Suppliers may supply multiple products.
+- Supplier contact information should be maintained for procurement
+  and communication purposes.
+- Suppliers may be active or inactive.
+
+==============================================================================*/
 
 PRINT 'Preparing Supplier Lookup Tables...';
 
@@ -1114,16 +1204,1428 @@ SELECT
 FROM dbo.Supplier;
 
 PRINT 'Supplier data validation completed successfully.';
-GO
+
+/*==============================================================================
+                    Section 5 : Products
+==============================================================================
+
+Description:
+------------
+Populates the Product master table with realistic retail products across
+multiple business categories, brands, suppliers, and subcategories.
+
+Each product is assigned a unique SKU, supplier, brand, pricing details,
+barcode, inventory settings, and descriptive information required for
+sales, inventory management, reporting, and business analytics.
+
+The generated product catalog closely resembles a real-world retail
+environment and serves as the foundation for inventory, orders,
+payments, and return transactions.
+
+Business Rules:
+---------------
+- Every product belongs to exactly one SubCategory.
+- Every product belongs to exactly one Brand.
+- Every product is supplied by exactly one Supplier.
+- Every product must have a unique SKU.
+- Every product may have a unique Barcode.
+- Selling Price must always be greater than Cost Price.
+- Products are generated according to their business category.
+- Brand selection is restricted to brands relevant to each SubCategory.
+- Supplier selection is restricted to suppliers serving each product category.
+- Reorder Level is generated within realistic business thresholds.
+- Products remain active unless discontinued.
+- Products are referenced by Inventory, OrderItems, Payments, and Returns.
+
+Generation Strategy:
+--------------------
+The product catalog is generated dynamically using multiple lookup
+tables and business mapping rules.
+
+The generation process consists of:
+
+1. Product Template Lookup
+   - Stores reusable product templates for each SubCategory.
+
+2. Brand Mapping
+   - Maps valid brands to each SubCategory.
+
+3. Supplier Mapping
+   - Maps suppliers to the corresponding product categories.
+
+4. Pricing Rules
+   - Generates realistic Cost Price and Selling Price based on
+     the product category.
+
+5. Product Generation
+   - Generates approximately 500 unique products by combining
+     templates, brands, suppliers, pricing rules, SKU generation,
+     barcode generation, and inventory settings.
+
+==============================================================================*/
+
+PRINT 'Starting Product Master Data Generation...';
+
+SET NOCOUNT ON;
+
+/*==============================================================================
+                    Product Template Lookup
+==============================================================================
+
+Description:
+------------
+Creates a temporary lookup table containing realistic product templates
+for every SubCategory in the retail system.
+
+These templates are later combined with Brand, Supplier, SKU, Barcode,
+and Pricing Rules to generate unique products.
+
+==============================================================================*/
+
+PRINT 'Preparing Product Template Lookup...';
 
 ------------------------------------------------------------
--- SECTION 5 : Product
+-- Product Template Lookup
 ------------------------------------------------------------
 
--- INSERT Statements
+DECLARE @ProductTemplateLookup TABLE
+(
+    SubCategoryName VARCHAR(100),
+    ProductTemplate VARCHAR(150)
+);
 
-PRINT 'Product data inserted successfully.';
+------------------------------------------------------------
+-- Televisions
+------------------------------------------------------------
+
+INSERT INTO @ProductTemplateLookup VALUES
+('Televisions','Smart LED TV'),
+('Televisions','4K UHD TV'),
+('Televisions','QLED Smart TV'),
+('Televisions','OLED Television'),
+('Televisions','Android Smart TV');
+
+------------------------------------------------------------
+-- Audio Systems
+------------------------------------------------------------
+
+INSERT INTO @ProductTemplateLookup VALUES
+('Audio Systems','Bluetooth Speaker'),
+('Audio Systems','Home Theatre'),
+('Audio Systems','Soundbar'),
+('Audio Systems','Portable Speaker'),
+('Audio Systems','Wireless Speaker');
+
+------------------------------------------------------------
+-- Cameras
+------------------------------------------------------------
+
+INSERT INTO @ProductTemplateLookup VALUES
+('Cameras','DSLR Camera'),
+('Cameras','Mirrorless Camera'),
+('Cameras','Digital Camera'),
+('Cameras','Action Camera'),
+('Cameras','Camera Lens');
+
+------------------------------------------------------------
+-- Laptops
+------------------------------------------------------------
+
+INSERT INTO @ProductTemplateLookup VALUES
+('Laptops','Gaming Laptop'),
+('Laptops','Business Laptop'),
+('Laptops','Ultrabook'),
+('Laptops','Student Laptop'),
+('Laptops','Professional Laptop');
+
+------------------------------------------------------------
+-- Monitors
+------------------------------------------------------------
+
+INSERT INTO @ProductTemplateLookup VALUES
+('Monitors','24-inch LED Monitor'),
+('Monitors','27-inch IPS Monitor'),
+('Monitors','Gaming Monitor'),
+('Monitors','Curved Monitor'),
+('Monitors','4K Monitor');
+
+------------------------------------------------------------
+-- Keyboards
+------------------------------------------------------------
+
+INSERT INTO @ProductTemplateLookup VALUES
+('Keyboards','Mechanical Keyboard'),
+('Keyboards','Wireless Keyboard'),
+('Keyboards','Gaming Keyboard'),
+('Keyboards','Office Keyboard'),
+('Keyboards','Bluetooth Keyboard');
+
+------------------------------------------------------------
+-- Smartphones
+------------------------------------------------------------
+
+INSERT INTO @ProductTemplateLookup VALUES
+('Smartphones','Flagship Smartphone'),
+('Smartphones','Midrange Smartphone'),
+('Smartphones','Budget Smartphone'),
+('Smartphones','5G Smartphone'),
+('Smartphones','Premium Smartphone');
+
+------------------------------------------------------------
+-- Chargers
+------------------------------------------------------------
+
+INSERT INTO @ProductTemplateLookup VALUES
+('Chargers','Fast Charger'),
+('Chargers','Wireless Charger'),
+('Chargers','USB-C Charger'),
+('Chargers','Travel Charger'),
+('Chargers','Car Charger');
+
+------------------------------------------------------------
+-- Phone Cases
+------------------------------------------------------------
+
+INSERT INTO @ProductTemplateLookup VALUES
+('Phone Cases','Silicone Case'),
+('Phone Cases','Leather Case'),
+('Phone Cases','Transparent Case'),
+('Phone Cases','Rugged Case'),
+('Phone Cases','MagSafe Case');
+
+------------------------------------------------------------
+-- Refrigerators
+------------------------------------------------------------
+
+INSERT INTO @ProductTemplateLookup VALUES
+('Refrigerators','Single Door Refrigerator'),
+('Refrigerators','Double Door Refrigerator'),
+('Refrigerators','Side-by-Side Refrigerator'),
+('Refrigerators','Convertible Refrigerator'),
+('Refrigerators','Frost Free Refrigerator');
+
+------------------------------------------------------------
+-- Washing Machines
+------------------------------------------------------------
+
+INSERT INTO @ProductTemplateLookup VALUES
+('Washing Machines','Front Load Washing Machine'),
+('Washing Machines','Top Load Washing Machine'),
+('Washing Machines','Fully Automatic Washer'),
+('Washing Machines','Semi Automatic Washer'),
+('Washing Machines','Smart Washing Machine');
+
+------------------------------------------------------------
+-- Microwave Ovens
+------------------------------------------------------------
+
+INSERT INTO @ProductTemplateLookup VALUES
+('Microwave Ovens','Solo Microwave Oven'),
+('Microwave Ovens','Grill Microwave Oven'),
+('Microwave Ovens','Convection Microwave'),
+('Microwave Ovens','Smart Microwave'),
+('Microwave Ovens','Built-in Microwave');
+
+/*==============================================================================
+                    Product Brand Mapping
+==============================================================================
+
+Description:
+------------
+Creates a temporary lookup table that maps valid Brands to each Product
+SubCategory.
+
+This mapping ensures products are assigned realistic brands instead of
+random values.
+
+==============================================================================*/
+
+PRINT 'Preparing Product Brand Mapping...';
+
+------------------------------------------------------------
+-- Product Brand Mapping
+------------------------------------------------------------
+
+DECLARE @BrandMapping TABLE
+(
+    SubCategoryName VARCHAR(100),
+    BrandName       VARCHAR(100)
+);
+
+------------------------------------------------------------
+-- Electronics
+------------------------------------------------------------
+
+INSERT INTO @BrandMapping VALUES
+('Televisions','Samsung'),
+('Televisions','Sony'),
+('Televisions','LG');
+
+INSERT INTO @BrandMapping VALUES
+('Audio Systems','Sony'),
+('Audio Systems','JBL'),
+('Audio Systems','Boat');
+
+INSERT INTO @BrandMapping VALUES
+('Cameras','Canon'),
+('Cameras','Nikon'),
+('Cameras','Sony');
+
+------------------------------------------------------------
+-- Computers & Accessories
+------------------------------------------------------------
+
+INSERT INTO @BrandMapping VALUES
+('Laptops','Dell'),
+('Laptops','HP'),
+('Laptops','Lenovo'),
+('Laptops','ASUS');
+
+INSERT INTO @BrandMapping VALUES
+('Monitors','Dell'),
+('Monitors','HP'),
+('Monitors','LG'),
+('Monitors','Samsung');
+
+INSERT INTO @BrandMapping VALUES
+('Keyboards','Logitech'),
+('Keyboards','Microsoft');
+
+------------------------------------------------------------
+-- Mobile Phones
+------------------------------------------------------------
+
+INSERT INTO @BrandMapping VALUES
+('Smartphones','Apple'),
+('Smartphones','Samsung');
+
+INSERT INTO @BrandMapping VALUES
+('Chargers','Samsung'),
+('Chargers','Apple'),
+('Chargers','Boat');
+
+INSERT INTO @BrandMapping VALUES
+('Phone Cases','Apple'),
+('Phone Cases','Samsung');
+
+------------------------------------------------------------
+-- Home Appliances
+------------------------------------------------------------
+
+INSERT INTO @BrandMapping VALUES
+('Refrigerators','Samsung'),
+('Refrigerators','LG'),
+('Refrigerators','Whirlpool');
+
+INSERT INTO @BrandMapping VALUES
+('Washing Machines','Samsung'),
+('Washing Machines','LG'),
+('Washing Machines','Bosch'),
+('Washing Machines','Whirlpool');
+
+INSERT INTO @BrandMapping VALUES
+('Microwave Ovens','Panasonic'),
+('Microwave Ovens','Samsung'),
+('Microwave Ovens','LG');
+
+------------------------------------------------------------
+-- Fashion
+------------------------------------------------------------
+
+INSERT INTO @BrandMapping VALUES
+('Men''s Clothing','Levi''s'),
+('Men''s Clothing','Nike'),
+('Men''s Clothing','Adidas'),
+('Men''s Clothing','Puma');
+
+INSERT INTO @BrandMapping VALUES
+('Women''s Clothing','Levi''s'),
+('Women''s Clothing','Nike'),
+('Women''s Clothing','Adidas'),
+('Women''s Clothing','Puma');
+
+INSERT INTO @BrandMapping VALUES
+('Footwear','Nike'),
+('Footwear','Adidas'),
+('Footwear','Puma'),
+('Footwear','Reebok');
+
+------------------------------------------------------------
+-- Furniture
+------------------------------------------------------------
+
+INSERT INTO @BrandMapping VALUES
+('Chairs','IKEA');
+
+INSERT INTO @BrandMapping VALUES
+('Tables','IKEA');
+
+INSERT INTO @BrandMapping VALUES
+('Wardrobes','IKEA');
+
+------------------------------------------------------------
+-- Sports & Fitness
+------------------------------------------------------------
+
+INSERT INTO @BrandMapping VALUES
+('Exercise Equipment','Nike'),
+('Exercise Equipment','Adidas'),
+('Exercise Equipment','Reebok');
+
+INSERT INTO @BrandMapping VALUES
+('Sportswear','Nike'),
+('Sportswear','Adidas'),
+('Sportswear','Puma'),
+('Sportswear','Reebok');
+
+INSERT INTO @BrandMapping VALUES
+('Outdoor Gear','Nike'),
+('Outdoor Gear','Adidas');
+
+------------------------------------------------------------
+-- Books & Stationery
+------------------------------------------------------------
+
+INSERT INTO @BrandMapping VALUES
+('Books','Casio');
+
+INSERT INTO @BrandMapping VALUES
+('Office Supplies','Casio'),
+('Office Supplies','Microsoft');
+
+INSERT INTO @BrandMapping VALUES
+('School Supplies','Casio');
+
+------------------------------------------------------------
+-- Toys & Games
+------------------------------------------------------------
+
+INSERT INTO @BrandMapping VALUES
+('Educational Toys','Microsoft');
+
+INSERT INTO @BrandMapping VALUES
+('Action Figures','Microsoft');
+
+INSERT INTO @BrandMapping VALUES
+('Board Games','Microsoft');
+
+------------------------------------------------------------
+-- Health & Personal Care
+------------------------------------------------------------
+
+INSERT INTO @BrandMapping VALUES
+('Personal Care','Dove'),
+('Personal Care','Himalaya');
+
+INSERT INTO @BrandMapping VALUES
+('Healthcare Devices','Philips');
+
+INSERT INTO @BrandMapping VALUES
+('Nutrition Supplements','Nestlé'),
+('Nutrition Supplements','Amul');
+
+PRINT 'Product Brand Mapping created successfully.';
+
+/*==============================================================================
+                    Product Supplier Mapping
+==============================================================================
+
+Description:
+------------
+Creates a temporary lookup table that maps valid Suppliers to each Product
+SubCategory.
+
+This mapping ensures products are assigned realistic suppliers based on
+their business category.
+
+==============================================================================*/
+
+PRINT 'Preparing Product Supplier Mapping...';
+
+------------------------------------------------------------
+-- Product Supplier Mapping
+------------------------------------------------------------
+
+DECLARE @SupplierMapping TABLE
+(
+    SubCategoryName VARCHAR(100),
+    SupplierName    VARCHAR(150)
+);
+
+------------------------------------------------------------
+-- Electronics
+------------------------------------------------------------
+
+INSERT INTO @SupplierMapping VALUES
+('Televisions','TechNova Electronics'),
+('Televisions','Metro Electronics'),
+('Televisions','Digital World Technologies'),
+('Televisions','Vision Retail Supplies');
+
+INSERT INTO @SupplierMapping VALUES
+('Audio Systems','TechNova Electronics'),
+('Audio Systems','Metro Electronics'),
+('Audio Systems','Infinity Gadgets');
+
+INSERT INTO @SupplierMapping VALUES
+('Cameras','TechNova Electronics'),
+('Cameras','Digital World Technologies'),
+('Cameras','Infinity Gadgets');
+
+------------------------------------------------------------
+-- Computers & Accessories
+------------------------------------------------------------
+
+INSERT INTO @SupplierMapping VALUES
+('Laptops','Global Computer Supplies'),
+('Laptops','Digital World Technologies'),
+('Laptops','Vision Retail Supplies');
+
+INSERT INTO @SupplierMapping VALUES
+('Monitors','Global Computer Supplies'),
+('Monitors','Metro Electronics'),
+('Monitors','Vision Retail Supplies');
+
+INSERT INTO @SupplierMapping VALUES
+('Keyboards','Global Computer Supplies'),
+('Keyboards','Smart Office Supplies'),
+('Keyboards','Max Office Solutions');
+
+------------------------------------------------------------
+-- Mobile Phones
+------------------------------------------------------------
+
+INSERT INTO @SupplierMapping VALUES
+('Smartphones','Prime Mobile Distributors'),
+('Smartphones','Metro Electronics'),
+('Smartphones','Infinity Gadgets');
+
+INSERT INTO @SupplierMapping VALUES
+('Chargers','Prime Mobile Distributors'),
+('Chargers','Infinity Gadgets'),
+('Chargers','TechNova Electronics');
+
+INSERT INTO @SupplierMapping VALUES
+('Phone Cases','Prime Mobile Distributors'),
+('Phone Cases','Infinity Gadgets'),
+('Phone Cases','Retail Connect India');
+
+------------------------------------------------------------
+-- Home Appliances
+------------------------------------------------------------
+
+INSERT INTO @SupplierMapping VALUES
+('Refrigerators','Home Appliance Solutions'),
+('Refrigerators','Perfect Home Products'),
+('Refrigerators','Universal Trading Company');
+
+INSERT INTO @SupplierMapping VALUES
+('Washing Machines','Home Appliance Solutions'),
+('Washing Machines','Perfect Home Products'),
+('Washing Machines','Vision Retail Supplies');
+
+INSERT INTO @SupplierMapping VALUES
+('Microwave Ovens','Kitchen King Products'),
+('Microwave Ovens','Home Appliance Solutions'),
+('Microwave Ovens','Supreme Kitchenware');
+
+------------------------------------------------------------
+-- Fashion
+------------------------------------------------------------
+
+INSERT INTO @SupplierMapping VALUES
+('Men''s Clothing','Fashion Hub Distributors'),
+('Men''s Clothing','Elite Apparel Suppliers'),
+('Men''s Clothing','Premium Fashion House');
+
+INSERT INTO @SupplierMapping VALUES
+('Women''s Clothing','Elite Apparel Suppliers'),
+('Women''s Clothing','Premium Fashion House'),
+('Women''s Clothing','Lifestyle Brands India');
+
+INSERT INTO @SupplierMapping VALUES
+('Footwear','Classic Footwear Pvt Ltd'),
+('Footwear','Comfort Shoes India'),
+('Footwear','Lifestyle Brands India');
+
+------------------------------------------------------------
+-- Furniture
+------------------------------------------------------------
+
+INSERT INTO @SupplierMapping VALUES
+('Chairs','Royal Furniture House'),
+('Chairs','Modern Living Furniture'),
+('Chairs','City Furniture Mart');
+
+INSERT INTO @SupplierMapping VALUES
+('Tables','Royal Furniture House'),
+('Tables','Modern Living Furniture'),
+('Tables','City Furniture Mart');
+
+INSERT INTO @SupplierMapping VALUES
+('Wardrobes','Royal Furniture House'),
+('Wardrobes','Modern Living Furniture'),
+('Wardrobes','City Furniture Mart');
+
+------------------------------------------------------------
+-- Sports & Fitness
+------------------------------------------------------------
+
+INSERT INTO @SupplierMapping VALUES
+('Exercise Equipment','Champion Sports Goods'),
+('Exercise Equipment','Universal Trading Company');
+
+INSERT INTO @SupplierMapping VALUES
+('Sportswear','Champion Sports Goods'),
+('Sportswear','Lifestyle Brands India'),
+('Sportswear','Fashion Hub Distributors');
+
+INSERT INTO @SupplierMapping VALUES
+('Outdoor Gear','Champion Sports Goods'),
+('Outdoor Gear','Universal Trading Company');
+
+------------------------------------------------------------
+-- Books & Stationery
+------------------------------------------------------------
+
+INSERT INTO @SupplierMapping VALUES
+('Books','Office Stationery World'),
+('Books','Smart Office Supplies');
+
+INSERT INTO @SupplierMapping VALUES
+('Office Supplies','Office Stationery World'),
+('Office Supplies','Smart Office Supplies'),
+('Office Supplies','Max Office Solutions');
+
+INSERT INTO @SupplierMapping VALUES
+('School Supplies','Office Stationery World'),
+('School Supplies','Smart Office Supplies'),
+('School Supplies','Max Office Solutions');
+
+------------------------------------------------------------
+-- Toys & Games
+------------------------------------------------------------
+
+INSERT INTO @SupplierMapping VALUES
+('Educational Toys','Happy Kids Toys'),
+('Educational Toys','Retail Connect India');
+
+INSERT INTO @SupplierMapping VALUES
+('Action Figures','Happy Kids Toys'),
+('Action Figures','Retail Connect India');
+
+INSERT INTO @SupplierMapping VALUES
+('Board Games','Happy Kids Toys'),
+('Board Games','Retail Connect India');
+
+------------------------------------------------------------
+-- Health & Personal Care
+------------------------------------------------------------
+
+INSERT INTO @SupplierMapping VALUES
+('Personal Care','Spark Personal Care'),
+('Personal Care','Quality Supply Co.');
+
+INSERT INTO @SupplierMapping VALUES
+('Healthcare Devices','Universal Trading Company'),
+('Healthcare Devices','Vision Retail Supplies');
+
+INSERT INTO @SupplierMapping VALUES
+('Nutrition Supplements','Fresh Harvest Foods'),
+('Nutrition Supplements','Healthy Choice Foods'),
+('Nutrition Supplements','Green Valley Foods');
+
+PRINT 'Product Supplier Mapping created successfully.';
+
+/*==============================================================================
+                    Product Pricing Rules
+==============================================================================
+
+Description:
+------------
+Creates pricing rules for each Product SubCategory.
+
+These rules are later used to generate realistic Cost Price and
+Selling Price values for every product.
+
+Business Rules:
+---------------
+- Every SubCategory has its own Cost Price range.
+- Selling Price is calculated using a profit margin.
+- Electronics have lower margins but higher prices.
+- Fashion products have moderate prices and higher margins.
+- Books and stationery have low prices.
+- Healthcare devices and premium electronics have higher prices.
+
+==============================================================================*/
+
+PRINT 'Preparing Product Pricing Rules...';
+
+------------------------------------------------------------
+-- Product Pricing Rules
+------------------------------------------------------------
+
+DECLARE @PricingRules TABLE
+(
+    SubCategoryName VARCHAR(100),
+
+    MinCostPrice DECIMAL(10,2),
+
+    MaxCostPrice DECIMAL(10,2),
+
+    MinMargin DECIMAL(5,2),
+
+    MaxMargin DECIMAL(5,2)
+);
+
+------------------------------------------------------------
+-- Electronics
+------------------------------------------------------------
+
+INSERT INTO @PricingRules VALUES
+('Televisions',15000,180000,15,30),
+('Audio Systems',1500,35000,20,35),
+('Cameras',20000,250000,15,30);
+
+------------------------------------------------------------
+-- Computers & Accessories
+------------------------------------------------------------
+
+INSERT INTO @PricingRules VALUES
+('Laptops',30000,180000,12,25),
+('Monitors',7000,60000,15,25),
+('Keyboards',500,12000,20,40);
+
+------------------------------------------------------------
+-- Mobile Phones
+------------------------------------------------------------
+
+INSERT INTO @PricingRules VALUES
+('Smartphones',8000,150000,12,25),
+('Chargers',250,2500,30,60),
+('Phone Cases',150,2500,35,70);
+
+------------------------------------------------------------
+-- Home Appliances
+------------------------------------------------------------
+
+INSERT INTO @PricingRules VALUES
+('Refrigerators',18000,120000,15,25),
+('Washing Machines',15000,80000,15,25),
+('Microwave Ovens',5000,30000,20,30);
+
+------------------------------------------------------------
+-- Fashion
+------------------------------------------------------------
+
+INSERT INTO @PricingRules VALUES
+('Men''s Clothing',400,6000,35,60),
+('Women''s Clothing',500,7000,35,60),
+('Footwear',800,10000,30,55);
+
+------------------------------------------------------------
+-- Furniture
+------------------------------------------------------------
+
+INSERT INTO @PricingRules VALUES
+('Chairs',1200,18000,25,40),
+('Tables',3000,35000,25,40),
+('Wardrobes',10000,70000,20,35);
+
+------------------------------------------------------------
+-- Sports & Fitness
+------------------------------------------------------------
+
+INSERT INTO @PricingRules VALUES
+('Exercise Equipment',2500,80000,20,35),
+('Sportswear',500,7000,35,60),
+('Outdoor Gear',700,25000,30,50);
+
+------------------------------------------------------------
+-- Books & Stationery
+------------------------------------------------------------
+
+INSERT INTO @PricingRules VALUES
+('Books',150,2000,25,45),
+('Office Supplies',30,1200,40,70),
+('School Supplies',20,800,40,70);
+
+------------------------------------------------------------
+-- Toys & Games
+------------------------------------------------------------
+
+INSERT INTO @PricingRules VALUES
+('Educational Toys',250,5000,30,50),
+('Action Figures',350,6000,30,50),
+('Board Games',300,4000,30,50);
+
+------------------------------------------------------------
+-- Health & Personal Care
+------------------------------------------------------------
+
+INSERT INTO @PricingRules VALUES
+('Personal Care',80,1500,35,60),
+('Healthcare Devices',800,40000,20,35),
+('Nutrition Supplements',250,6000,30,50);
+
+PRINT 'Product Pricing Rules created successfully.';
+
+/*==============================================================================
+                Part 6.1 : Product Generation Engine
+==============================================================================
+
+Description:
+------------
+Initializes the product generation process by selecting random lookup
+values required to create each product.
+
+This section performs:
+1. Random SubCategory selection
+2. Random Product Template selection
+3. Random Brand selection
+4. Random Supplier selection
+
+==============================================================================*/
+
+PRINT 'Generating Product Master Data...';
+
+SET NOCOUNT ON;
+
+DECLARE @Counter INT = 1;
+
+WHILE @Counter <= 500
+BEGIN
+
+    ------------------------------------------------------------
+    -- Variable Declaration
+    ------------------------------------------------------------
+
+    DECLARE
+        @SubCategoryID      INT,
+        @SubCategoryName    VARCHAR(100),
+
+        @BrandID            INT,
+        @BrandName          VARCHAR(100),
+
+        @SupplierID         INT,
+        @SupplierName       VARCHAR(150),
+
+        @ProductTemplate    VARCHAR(150),
+
+        @ProductName        VARCHAR(200),
+
+        @CostPrice          DECIMAL(10,2),
+        @SellingPrice       DECIMAL(10,2),
+
+        @MinCostPrice       DECIMAL(10,2),
+        @MaxCostPrice       DECIMAL(10,2),
+
+        @MinMargin          DECIMAL(5,2),
+        @MaxMargin          DECIMAL(5,2),
+
+        @Margin             DECIMAL(5,2),
+
+        @SKU                VARCHAR(50),
+
+        @Barcode            VARCHAR(50),
+
+        @Description        VARCHAR(500),
+
+        @ReorderLevel       INT,
+
+        @IsActive           BIT;
+
+    ------------------------------------------------------------
+    -- Random SubCategory
+    ------------------------------------------------------------
+
+    SELECT TOP (1)
+
+        @SubCategoryID = SC.SubCategoryID,
+        @SubCategoryName = SC.SubCategoryName
+
+    FROM dbo.SubCategory SC
+
+    ORDER BY NEWID();
+
+    ------------------------------------------------------------
+    -- Random Product Template
+    ------------------------------------------------------------
+
+    SELECT TOP (1)
+
+        @ProductTemplate = PT.ProductTemplate
+
+    FROM @ProductTemplateLookup PT
+
+    WHERE PT.SubCategoryName = @SubCategoryName
+
+    ORDER BY NEWID();
+
+    ------------------------------------------------------------
+    -- Random Brand
+    ------------------------------------------------------------
+
+    SELECT TOP (1)
+
+        @BrandID = B.BrandID,
+        @BrandName = B.BrandName
+
+    FROM dbo.Brand B
+
+    INNER JOIN @BrandMapping BM
+        ON B.BrandName = BM.BrandName
+
+    WHERE BM.SubCategoryName = @SubCategoryName
+
+    ORDER BY NEWID();
+
+    ------------------------------------------------------------
+    -- Random Supplier
+    ------------------------------------------------------------
+
+    SELECT TOP (1)
+
+        @SupplierID = S.SupplierID,
+        @SupplierName = S.SupplierName
+
+    FROM dbo.Supplier S
+
+    INNER JOIN @SupplierMapping SM
+        ON S.SupplierName = SM.SupplierName
+
+    WHERE SM.SubCategoryName = @SubCategoryName
+
+    ORDER BY NEWID();
+
+/*==============================================================================
+                    Part 6.2 : Pricing Engine
+==============================================================================
+
+Description:
+------------
+Generates realistic pricing for each product based on its SubCategory.
+
+This section performs:
+1. Reads pricing rules.
+2. Generates Cost Price.
+3. Generates Profit Margin.
+4. Calculates Selling Price.
+
+==============================================================================*/
+
+------------------------------------------------------------
+-- Read Pricing Rules
+------------------------------------------------------------
+
+SELECT
+    @MinCostPrice = PR.MinCostPrice,
+    @MaxCostPrice = PR.MaxCostPrice,
+    @MinMargin    = PR.MinMargin,
+    @MaxMargin    = PR.MaxMargin
+
+FROM @PricingRules PR
+
+WHERE PR.SubCategoryName = @SubCategoryName;
+
+------------------------------------------------------------
+-- Generate Cost Price
+------------------------------------------------------------
+
+SET @CostPrice =
+ROUND
+(
+    @MinCostPrice +
+    (
+        RAND(CHECKSUM(NEWID()))
+        * (@MaxCostPrice - @MinCostPrice)
+    ),
+    2
+);
+
+------------------------------------------------------------
+-- Generate Profit Margin
+------------------------------------------------------------
+
+SET @Margin =
+ROUND
+(
+    @MinMargin +
+    (
+        RAND(CHECKSUM(NEWID()))
+        * (@MaxMargin - @MinMargin)
+    ),
+    2
+);
+
+------------------------------------------------------------
+-- Calculate Selling Price
+------------------------------------------------------------
+
+SET @SellingPrice =
+ROUND
+(
+    @CostPrice * (1 + (@Margin / 100.0)),
+    2
+);
+
+/*==============================================================================
+                    Part 6.3 : Product Identity Engine
+==============================================================================
+
+Description:
+------------
+Generates the product identity and inventory-related information.
+
+This section performs:
+1. Product Name Generation
+2. SKU Generation
+3. Barcode Generation
+4. Product Description
+5. Reorder Level
+6. Active Status
+
+==============================================================================*/
+
+------------------------------------------------------------
+-- Product Name
+------------------------------------------------------------
+
+SET @ProductName =
+    CONCAT(@BrandName, ' ', @ProductTemplate);
+
+------------------------------------------------------------
+-- SKU Generation
+------------------------------------------------------------
+
+SET @SKU =
+    CONCAT
+    (
+        UPPER(LEFT(REPLACE(@SubCategoryName,' ',''),3)),
+        '-',
+        RIGHT('00000' + CAST(@Counter AS VARCHAR(5)),5)
+    );
+
+------------------------------------------------------------
+-- Barcode Generation
+------------------------------------------------------------
+
+SET @Barcode =
+    CONCAT
+    (
+        '890',
+        RIGHT
+        (
+            '0000000000' + CAST(@Counter AS VARCHAR(10)),
+            10
+        )
+    );
+
+------------------------------------------------------------
+-- Product Description
+------------------------------------------------------------
+
+SET @Description =
+    CONCAT
+    (
+        @BrandName,
+        ' ',
+        @ProductTemplate,
+        ' manufactured by ',
+        @SupplierName,
+        '. High quality product suitable for retail sales.'
+    );
+
+------------------------------------------------------------
+-- Reorder Level
+------------------------------------------------------------
+
+SET @ReorderLevel =
+    FLOOR
+    (
+        RAND(CHECKSUM(NEWID())) * 41
+    ) + 10;
+    -- Generates values between 10 and 50
+
+------------------------------------------------------------
+-- Active Status
+------------------------------------------------------------
+
+SET @IsActive =
+CASE
+    WHEN RAND(CHECKSUM(NEWID())) <= 0.97
+        THEN 1
+    ELSE 0
+END;
+
+/*==============================================================================
+                    Part 6.4 : Insert Product
+==============================================================================
+
+Description:
+------------
+Inserts the generated product into the Product master table.
+
+This section performs:
+1. Insert Product Record
+2. Increment Counter
+3. Complete Product Generation Loop
+
+==============================================================================*/
+
+------------------------------------------------------------
+-- Insert Product
+------------------------------------------------------------
+
+INSERT INTO dbo.Product
+(
+    ProductName,
+    SKU,
+    SubCategoryID,
+    BrandID,
+    SupplierID,
+    CostPrice,
+    SellingPrice,
+    Barcode,
+    Description,
+    IsActive,
+    ReorderLevel
+)
+VALUES
+(
+    @ProductName,
+    @SKU,
+    @SubCategoryID,
+    @BrandID,
+    @SupplierID,
+    @CostPrice,
+    @SellingPrice,
+    @Barcode,
+    @Description,
+    @IsActive,
+    @ReorderLevel
+);
+
+------------------------------------------------------------
+-- Next Product
+------------------------------------------------------------
+
+SET @Counter = @Counter + 1;
+
+END;
+
+------------------------------------------------------------
+-- Completion Message
+------------------------------------------------------------
+
+PRINT 'Product Master Data generated successfully.';
 GO
 
+/*==============================================================================
+                    Part 6.5 : Product Data Validation
+==============================================================================
+
+Description:
+------------
+Validates the generated Product master data to ensure data quality and
+business rule compliance.
+
+Validation Checks:
+------------------
+1. Product Count
+2. Duplicate SKU
+3. Duplicate Barcode
+4. Selling Price > Cost Price
+5. Invalid Brand References
+6. Invalid Supplier References
+7. Invalid SubCategory References
+8. NULL Value Check
+
+==============================================================================*/
+
+PRINT 'Validating Product Data...';
+
+------------------------------------------------------------
+-- Validation 1 : Product Count
+------------------------------------------------------------
+
+PRINT 'Validation 1 : Product Count';
+
+SELECT
+    COUNT(*) AS TotalProducts
+FROM dbo.Product;
+
+------------------------------------------------------------
+-- Validation 2 : Duplicate SKU
+------------------------------------------------------------
+
+PRINT 'Validation 2 : Duplicate SKU';
+
+SELECT
+    SKU,
+    COUNT(*) AS DuplicateCount
+FROM dbo.Product
+GROUP BY SKU
+HAVING COUNT(*) > 1;
+
+------------------------------------------------------------
+-- Validation 3 : Duplicate Barcode
+------------------------------------------------------------
+
+PRINT 'Validation 3 : Duplicate Barcode';
+
+SELECT
+    Barcode,
+    COUNT(*) AS DuplicateCount
+FROM dbo.Product
+WHERE Barcode IS NOT NULL
+GROUP BY Barcode
+HAVING COUNT(*) > 1;
+
+------------------------------------------------------------
+-- Validation 4 : Selling Price Validation
+------------------------------------------------------------
+
+PRINT 'Validation 4 : Selling Price Validation';
+
+SELECT *
+FROM dbo.Product
+WHERE SellingPrice <= CostPrice;
+
+------------------------------------------------------------
+-- Validation 5 : Invalid Brand Reference
+------------------------------------------------------------
+
+PRINT 'Validation 5 : Brand Validation';
+
+SELECT P.*
+FROM dbo.Product P
+LEFT JOIN dbo.Brand B
+ON P.BrandID = B.BrandID
+WHERE B.BrandID IS NULL;
+
+------------------------------------------------------------
+-- Validation 6 : Invalid Supplier Reference
+------------------------------------------------------------
+
+PRINT 'Validation 6 : Supplier Validation';
+
+SELECT P.*
+FROM dbo.Product P
+LEFT JOIN dbo.Supplier S
+ON P.SupplierID = S.SupplierID
+WHERE S.SupplierID IS NULL;
+
+------------------------------------------------------------
+-- Validation 7 : Invalid SubCategory Reference
+------------------------------------------------------------
+
+PRINT 'Validation 7 : SubCategory Validation';
+
+SELECT P.*
+FROM dbo.Product P
+LEFT JOIN dbo.SubCategory SC
+ON P.SubCategoryID = SC.SubCategoryID
+WHERE SC.SubCategoryID IS NULL;
+
+------------------------------------------------------------
+-- Validation 8 : NULL Check
+------------------------------------------------------------
+
+PRINT 'Validation 8 : NULL Check';
+
+SELECT *
+FROM dbo.Product
+WHERE ProductName IS NULL
+   OR SKU IS NULL
+   OR BrandID IS NULL
+   OR SupplierID IS NULL
+   OR SubCategoryID IS NULL
+   OR CostPrice IS NULL
+   OR SellingPrice IS NULL;
+
+------------------------------------------------------------
+-- Sample Data
+------------------------------------------------------------
+
+PRINT 'Sample Product Data';
+
+SELECT TOP (20)
+       ProductID,
+       ProductName,
+       SKU,
+       BrandID,
+       SupplierID,
+       SubCategoryID,
+       CostPrice,
+       SellingPrice,
+       Barcode,
+       ReorderLevel,
+       IsActive
+FROM dbo.Product
+ORDER BY ProductID;
+
+PRINT 'Product data validation completed successfully.';
+GO
+
+/*==============================================================================
+                    Part 7 : Product Generation Summary
+==============================================================================
+
+Description:
+------------
+Displays a summary of the generated Product master data after successful
+generation and validation.
+
+This report provides a quick overview of the generated products and helps
+verify that the master data is ready for transaction generation.
+
+==============================================================================*/
+
+PRINT '';
+PRINT '============================================================';
+PRINT '        PRODUCT MASTER DATA GENERATION SUMMARY';
+PRINT '============================================================';
+
+------------------------------------------------------------
+-- Total Products
+------------------------------------------------------------
+
+SELECT
+    COUNT(*) AS TotalProducts
+FROM dbo.Product;
+
+------------------------------------------------------------
+-- Active vs Inactive Products
+------------------------------------------------------------
+
+SELECT
+    CASE
+        WHEN IsActive = 1 THEN 'Active'
+        ELSE 'Inactive'
+    END AS ProductStatus,
+
+    COUNT(*) AS TotalProducts
+
+FROM dbo.Product
+
+GROUP BY IsActive;
+
+------------------------------------------------------------
+-- Products by Category
+------------------------------------------------------------
+
+SELECT
+    C.CategoryName,
+    COUNT(*) AS TotalProducts
+
+FROM dbo.Product P
+
+INNER JOIN dbo.SubCategory SC
+ON P.SubCategoryID = SC.SubCategoryID
+
+INNER JOIN dbo.Category C
+ON SC.CategoryID = C.CategoryID
+
+GROUP BY
+    C.CategoryName
+
+ORDER BY
+    TotalProducts DESC;
+
+------------------------------------------------------------
+-- Products by Brand
+------------------------------------------------------------
+
+SELECT
+    B.BrandName,
+    COUNT(*) AS TotalProducts
+
+FROM dbo.Product P
+
+INNER JOIN dbo.Brand B
+ON P.BrandID = B.BrandID
+
+GROUP BY
+    B.BrandName
+
+ORDER BY
+    TotalProducts DESC;
+
+------------------------------------------------------------
+-- Products by Supplier
+------------------------------------------------------------
+
+SELECT
+    S.SupplierName,
+    COUNT(*) AS TotalProducts
+
+FROM dbo.Product P
+
+INNER JOIN dbo.Supplier S
+ON P.SupplierID = S.SupplierID
+
+GROUP BY
+    S.SupplierName
+
+ORDER BY
+    TotalProducts DESC;
+
+------------------------------------------------------------
+-- Price Statistics
+------------------------------------------------------------
+
+SELECT
+
+    MIN(CostPrice)       AS MinimumCostPrice,
+
+    MAX(CostPrice)       AS MaximumCostPrice,
+
+    AVG(CostPrice)       AS AverageCostPrice,
+
+    MIN(SellingPrice)    AS MinimumSellingPrice,
+
+    MAX(SellingPrice)    AS MaximumSellingPrice,
+
+    AVG(SellingPrice)    AS AverageSellingPrice
+
+FROM dbo.Product;
+
+------------------------------------------------------------
+-- Inventory Settings
+------------------------------------------------------------
+
+SELECT
+
+    MIN(ReorderLevel) AS MinimumReorderLevel,
+
+    MAX(ReorderLevel) AS MaximumReorderLevel,
+
+    AVG(ReorderLevel) AS AverageReorderLevel
+
+FROM dbo.Product;
+
+------------------------------------------------------------
+-- Sample Products
+------------------------------------------------------------
+
+SELECT TOP (20)
+
+    ProductID,
+    ProductName,
+    SKU,
+    CostPrice,
+    SellingPrice
+
+FROM dbo.Product
+
+ORDER BY ProductID;
+
+PRINT '';
+PRINT '============================================================';
+PRINT ' Product Master Data Generated Successfully';
+PRINT '============================================================';
+
+PRINT '=============================================';
 PRINT 'Master Data Generation Completed Successfully.';
-GO
+PRINT '=============================================';
