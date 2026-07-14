@@ -61,3 +61,7 @@ PRINT 'RetailSalesDB created successfully.';
 PRINT 'Database setup completed.';
 PRINT '=============================================';
 GO
+
+PRINT '====================================';
+PRINT '01_Create_Database.sql completed.';
+PRINT '====================================';

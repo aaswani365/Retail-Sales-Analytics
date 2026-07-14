@@ -8,13 +8,22 @@ Created On   : July 2026
 Last Updated : July 2026
 
 Description:
-Creates all database tables for the Retail Sales Analytics &
-Inventory Management System.
+Creates all database tables for the Retail Sales Analytics & Inventory Management System.
+
+NOTE:
+-----
+This script creates all database tables.
+
+Run this script only after:
+
+01_Create_Database.sql
 
 Execution Order:
-1. Lookup Tables
-2. Master Tables
-3. Transaction Tables
+
+01_Create_Database.sql
+02_Create_Tables.sql
+03_Create_Constraints.sql
+04_Create_Indexes.sql
 
 ==============================================================================*/
 
@@ -269,8 +278,6 @@ CREATE TABLE dbo.ReturnStatus
 );
 GO
 
-
-
 PRINT 'Lookup tables created successfully.';
 GO
 
@@ -505,7 +512,7 @@ CREATE TABLE dbo.Product
 GO
 
 PRINT 'Master tables created successfully.';
-
+GO
 
 /*==============================================================================
 Transaction Tables
@@ -706,3 +713,16 @@ CREATE TABLE dbo.[Return]
 
 
 PRINT 'Transaction tables created successfully.';
+
+PRINT '====================================';
+PRINT 'Total Lookup Tables      : 7';
+PRINT 'Total Master Tables      : 6';
+PRINT 'Total Transaction Tables : 5';
+PRINT '====================================';
+
+PRINT 'All database tables created successfully.';
+GO
+
+PRINT '====================================';
+PRINT '02_Create_Tables.sql completed.';
+PRINT '====================================';
