@@ -83,6 +83,7 @@ Creates relationships between master tables and lookup tables.
 Relationships:
 --------------
 Employee  → Store
+Employee  → Manager (Self Reference)
 Product   → Brand
 Product   → Supplier
 Product   → SubCategory
@@ -96,6 +97,13 @@ ADD CONSTRAINT FK_Employee_Store
 FOREIGN KEY (StoreID)
 REFERENCES dbo.Store(StoreID);
 GO
+
+/* Employee belongs to one Store */
+
+ALTER TABLE dbo.Employee
+ADD CONSTRAINT FK_Employee_Manager
+FOREIGN KEY (ManagerEmployeeID)
+REFERENCES dbo.Employee(EmployeeID);
 
 /* Links each product to its corresponding brand. */
 
@@ -138,6 +146,7 @@ Relationships:
 Inventory → Store
 Inventory → Product
 Order → Customer
+Order → Store
 Order → Employee
 Order → OrderStatus
 OrderItem → Order
@@ -172,6 +181,14 @@ ALTER TABLE dbo.[Order]
 ADD CONSTRAINT FK_Order_Customer
 FOREIGN KEY (CustomerID)
 REFERENCES dbo.Customer(CustomerID);
+GO
+
+/* Links each Order record to a Store. */
+
+ALTER TABLE dbo.[Order]
+ADD CONSTRAINT FK_Order_Store
+FOREIGN KEY (StoreID)
+REFERENCES dbo.Store(StoreID);
 GO
 
 /* Links each Order record to a Employee. */
@@ -258,101 +275,378 @@ GO
 				End of Transaction Relationships
 ==============================================================================*/
 
+
 /*==============================================================================
 				Section 2 : CHECK Constraints
 ==============================================================================
 
-Purpose:
---------
-CHECK constraints enforce business validation rules at the database level.
+Description:
+------------
+Creates CHECK constraints to enforce business rules and maintain
+data integrity.
 
-Benefits:
----------
-- Prevent invalid data
-- Improve data quality
-- Reduce application errors
-- Enforce business policies
-
-==============================================================================*/
-
-/*==============================================================================
-				Employee Business Rules
-==============================================================================
-
-Rules:
-------
-- Salary must be greater than zero.
-- Gender must be M, F or O.
+Business Rules:
+---------------
+- Prices cannot be negative.
+- Selling price cannot be lower than cost price.
+- Inventory quantities cannot be negative.
+- Discount percentages must be valid.
 
 ==============================================================================*/
 
 /*==============================================================================
-				Customer Business Rules
+                    Section 2.1 : Product Business Rules
 ==============================================================================
 
-Rules:
-------
-- Gender must be M, F or O.
-- Loyalty points cannot be negative.
-
-==============================================================================*/
-
-/*==============================================================================
-				Product Business Rules
-==============================================================================
+Description:
+------------
+Creates CHECK constraints for the Product table to enforce valid pricing and inventory thresholds.
 
 Rules:
 ------
 - Cost Price must be zero or greater.
 - Selling Price must be greater than or equal to Cost Price.
-- Warranty Months cannot be negative.
-- Weight cannot be negative.
 - Reorder Level cannot be negative.
 
 ==============================================================================*/
 
+------------------------------------------------------------
+-- Product : Cost Price Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.Product
+ADD CONSTRAINT CK_Product_CostPrice
+CHECK (CostPrice >= 0);
+GO
+
+------------------------------------------------------------
+-- Product : Selling Price Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.Product
+ADD CONSTRAINT CK_Product_SellingPrice
+CHECK (SellingPrice >= CostPrice);
+GO
+
+------------------------------------------------------------
+-- Product : Reorder Level Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.Product
+ADD CONSTRAINT CK_Product_ReorderLevel
+CHECK (ReorderLevel >= 0);
+GO
+
 /*==============================================================================
-				Inventory Business Rules
+                Section 2.2 : Inventory Business Rules
 ==============================================================================
 
-Rules:
-------
-- Quantity On Hand cannot be negative.
+Description:
+------------
+Creates CHECK constraints for the Inventory table to ensure valid
+stock quantities.
+
+Business Rules:
+---------------
+- Quantity In Stock must be zero or greater.
 
 ==============================================================================*/
 
+------------------------------------------------------------
+-- Inventory : Quantity In Stock Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.Inventory
+ADD CONSTRAINT CK_Inventory_QuantityInStock
+CHECK (QuantityInStock >= 0);
+GO
+
 /*==============================================================================
-				Order Business Rules
+                Section 2.3 : Employee Business Rules
 ==============================================================================
 
-Rules:
-------
-- Order Total cannot be negative.
-- Discount Amount cannot be negative.
-- Tax Amount cannot be negative.
+Description:
+------------
+Creates CHECK constraints for the Employee table to enforce valid
+salary and employment data.
+
+Business Rules:
+---------------
+- Salary must be greater than zero.
+- Hire Date cannot be in the future.
 
 ==============================================================================*/
 
+------------------------------------------------------------
+-- Employee : Salary Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.Employee
+ADD CONSTRAINT CK_Employee_Salary
+CHECK (Salary > 0);
+GO
+
+------------------------------------------------------------
+-- Employee : Hire Date Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.Employee
+ADD CONSTRAINT CK_Employee_HireDate
+CHECK (HireDate <= CAST(GETDATE() AS DATE));
+GO
+
 /*==============================================================================
-				Payment Business Rules
+                Section 2.4 : Customer Business Rules
 ==============================================================================
 
-Rules:
-------
+Description:
+------------
+Creates CHECK constraints for the Customer table to ensure valid
+registration dates and loyalty points.
+
+Business Rules:
+---------------
+- Registration Date cannot be in the future.
+- Loyalty Points must be zero or greater.
+
+==============================================================================*/
+
+------------------------------------------------------------
+-- Customer : Registration Date Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.Customer
+ADD CONSTRAINT CK_Customer_RegistrationDate
+CHECK (RegistrationDate <= CAST(GETDATE() AS DATE));
+GO
+
+------------------------------------------------------------
+-- Customer : Loyalty Points Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.Customer
+ADD CONSTRAINT CK_Customer_LoyaltyPoints
+CHECK (LoyaltyPoints >= 0);
+GO
+
+/*==============================================================================
+                Section 2.5 : Order Business Rules
+==============================================================================
+
+Description:
+------------
+Creates CHECK constraints for the Order table to ensure valid
+order dates and monetary values.
+
+Business Rules:
+---------------
+- Order Date cannot be in the future.
+- Sub Total Amount must be zero or greater.
+- Discount Amount must be zero or greater.
+- Tax Amount must be zero or greater.
+- Net Amount must be zero or greater.
+
+==============================================================================*/
+
+------------------------------------------------------------
+-- Order : Order Date Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.[Order]
+ADD CONSTRAINT CK_Order_OrderDate
+CHECK (OrderDate <= SYSDATETIME());
+GO
+
+------------------------------------------------------------
+-- Order : Sub Total Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.[Order]
+ADD CONSTRAINT CK_Order_SubTotalAmount
+CHECK (SubTotalAmount >= 0);
+GO
+
+------------------------------------------------------------
+-- Order : Discount Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.[Order]
+ADD CONSTRAINT CK_Order_DiscountAmount
+CHECK (DiscountAmount >= 0);
+GO
+
+------------------------------------------------------------
+-- Order : Tax Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.[Order]
+ADD CONSTRAINT CK_Order_TaxAmount
+CHECK (TaxAmount >= 0);
+GO
+
+------------------------------------------------------------
+-- Order : Net Amount Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.[Order]
+ADD CONSTRAINT CK_Order_NetAmount
+CHECK (NetAmount >= 0);
+GO
+
+/*==============================================================================
+                Section 2.6 : OrderItem Business Rules
+==============================================================================
+
+Description:
+------------
+Creates CHECK constraints for the OrderItem table to ensure valid
+quantities and monetary values.
+
+Business Rules:
+---------------
+- Quantity must be greater than zero.
+- Cost Price must be zero or greater.
+- Unit Price must be zero or greater.
+- Discount Amount must be zero or greater.
+- Tax Amount must be zero or greater.
+- Line Total must be zero or greater.
+
+==============================================================================*/
+
+------------------------------------------------------------
+-- OrderItem : Quantity Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.OrderItem
+ADD CONSTRAINT CK_OrderItem_Quantity
+CHECK (Quantity > 0);
+GO
+
+------------------------------------------------------------
+-- OrderItem : Cost Price Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.OrderItem
+ADD CONSTRAINT CK_OrderItem_CostPrice
+CHECK (CostPrice >= 0);
+GO
+
+------------------------------------------------------------
+-- OrderItem : Unit Price Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.OrderItem
+ADD CONSTRAINT CK_OrderItem_UnitPrice
+CHECK (UnitPrice >= 0);
+GO
+
+------------------------------------------------------------
+-- OrderItem : Discount Amount Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.OrderItem
+ADD CONSTRAINT CK_OrderItem_DiscountAmount
+CHECK (DiscountAmount >= 0);
+GO
+
+------------------------------------------------------------
+-- OrderItem : Tax Amount Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.OrderItem
+ADD CONSTRAINT CK_OrderItem_TaxAmount
+CHECK (TaxAmount >= 0);
+GO
+
+------------------------------------------------------------
+-- OrderItem : Line Total Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.OrderItem
+ADD CONSTRAINT CK_OrderItem_LineTotal
+CHECK (LineTotal >= 0);
+GO
+
+/*==============================================================================
+                Section 2.7 : Payment Business Rules
+==============================================================================
+
+Description:
+------------
+Creates CHECK constraints for the Payment table to ensure valid
+payment dates and payment amounts.
+
+Business Rules:
+---------------
+- Payment Date cannot be in the future.
 - Payment Amount must be greater than zero.
 
 ==============================================================================*/
 
+------------------------------------------------------------
+-- Payment : Payment Date Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.Payment
+ADD CONSTRAINT CK_Payment_PaymentDate
+CHECK (PaymentDate <= SYSDATETIME());
+GO
+
+------------------------------------------------------------
+-- Payment : Payment Amount Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.Payment
+ADD CONSTRAINT CK_Payment_Amount
+CHECK (Amount > 0);
+GO
+
 /*==============================================================================
-				Return Business Rules
+                Section 2.8 : Return Business Rules
 ==============================================================================
 
-Rules:
-------
-- Return Quantity must be greater than zero.
-- Refund Amount cannot be negative.
+Description:
+------------
+Creates CHECK constraints for the Return table to ensure valid
+return dates, quantities, and refund amounts.
+
+Business Rules:
+---------------
+- Return Date cannot be in the future.
+- Quantity Returned must be greater than zero.
+- Refund Amount must be zero or greater.
 
 ==============================================================================*/
 
-PRINT 'All Foreign Key and CHECK Constraints created successfully.';
+------------------------------------------------------------
+-- Return : Return Date Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.[Return]
+ADD CONSTRAINT CK_Return_ReturnDate
+CHECK (ReturnDate <= SYSDATETIME());
+GO
+
+------------------------------------------------------------
+-- Return : Quantity Returned Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.[Return]
+ADD CONSTRAINT CK_Return_QuantityReturned
+CHECK (QuantityReturned > 0);
+GO
+
+------------------------------------------------------------
+-- Return : Refund Amount Validation
+------------------------------------------------------------
+
+ALTER TABLE dbo.[Return]
+ADD CONSTRAINT CK_Return_RefundAmount
+CHECK (RefundAmount >= 0);
+GO
+
+PRINT '==============================================================';
+PRINT '03_Create_Constraints.sql execution completed.';
+PRINT 'Please review the Messages tab for any errors.';
+PRINT '==============================================================';
 GO
