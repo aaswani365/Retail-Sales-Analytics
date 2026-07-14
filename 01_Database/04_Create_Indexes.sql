@@ -8,14 +8,18 @@ Created On   : July 2026
 Last Updated : July 2026
 
 Description:
-Creates nonclustered indexes to improve query performance for
-transaction processing, reporting, and Power BI analytics.
+------------
+Creates NONCLUSTERED indexes to improve query performance for
+master tables, transaction tables, reporting queries, and
+composite search operations.
 
-The script includes:
-1. Lookup Table Indexes
-2. Master Table Indexes
+Sections:
+---------
+1. Master Table Indexes
+2. Lookup Table Indexes
 3. Transaction Table Indexes
-4. Composite Indexes
+4. Reporting Indexes
+5. Composite Indexes
 
 ==============================================================================*/
 
@@ -26,24 +30,21 @@ SET NOCOUNT ON;
 GO
 
 /*==============================================================================
-				Section 1 : Lookup Table Indexes
+                    Section 1 : Master Table Indexes
 ==============================================================================
 
-Purpose:
---------
-Improve searching and joining on lookup tables.
+Master Tables
+-------------
+- Product(ProductName)
+- Customer(Phone)
+- Store(City)
 
-==============================================================================*/
+Contains
+-------------
+- IX_Product_ProductName
+- IX_Customer_Phone
+- IX_Store_City
 
-/*==============================================================================
-				Section 2 : Master Table Indexes
-==============================================================================
-					Master Tables
-					-------------
-					- Product(ProductName)
-					- Customer(Phone)
-					- Employee(Email)
-					- Store(City)
 ==============================================================================*/
 
 /* Search products by name */
@@ -58,32 +59,59 @@ CREATE NONCLUSTERED INDEX IX_Customer_Phone
 ON dbo.Customer(Phone);
 GO
 
-/* Search employees by email */
-
-CREATE NONCLUSTERED INDEX IX_Employee_Email
-ON dbo.Employee(Email);
-GO
-
 /* Search stores by city */
 
 CREATE NONCLUSTERED INDEX IX_Store_City
 ON dbo.Store(City);
 GO
 
+
+/*==============================================================================
+				Section 2 : Lookup Table Indexes
+==============================================================================
+
+Lookup Tables
+-------------
+- None
+
+(Note: Primary Keys already provide clustered indexes.
+
+==============================================================================*/
+
 /*==============================================================================
 				Section 3 : Transaction Table Indexes
 ==============================================================================
-					Transaction Tables
-					------------------
-					- Inventory(ProductID)
-					- Inventory(StoreID)
-					- Order(CustomerID)
-					- Order(EmployeeID)
-					- Order(OrderDate)
-					- OrderItem(ProductID)
-					- OrderItem(OrderID)
-					- Payment(OrderID)
-					- Return(OrderItemID)
+
+Transaction Tables
+------------------
+- Inventory(ProductID)
+- Inventory(StoreID)
+- Order(CustomerID)
+- Order(EmployeeID)
+- Order(StoreID)
+- Order(OrderDate)
+- OrderItem(ProductID)
+- OrderItem(OrderID)
+- Payment(OrderID)
+- Payment(PaymentDate)
+- Return(OrderItemID)
+- Return(ReturnDate)
+
+Contains
+-------------
+- IX_Inventory_ProductID
+- IX_Inventory_StoreID
+- IX_Order_CustomerID
+- IX_Order_EmployeeID
+- IX_Order_StoreID
+- IX_Order_OrderDate
+- IX_OrderItem_ProductID
+- IX_OrderItem_OrderID
+- IX_Payment_OrderID
+- IX_Payment_PaymentDate
+- IX_Return_OrderItemID
+- IX_Return_ReturnDate
+					
 ==============================================================================*/
 
 /* Find inventory by product */
@@ -110,6 +138,12 @@ CREATE NONCLUSTERED INDEX IX_Order_EmployeeID
 ON dbo.[Order](EmployeeID);
 GO
 
+/* Orders processed by Store */
+
+CREATE NONCLUSTERED INDEX IX_Order_StoreID
+ON dbo.[Order](StoreID);
+GO
+
 /* Reporting by order date */
 
 CREATE NONCLUSTERED INDEX IX_Order_OrderDate
@@ -134,27 +168,66 @@ CREATE NONCLUSTERED INDEX IX_Payment_OrderID
 ON dbo.Payment(OrderID);
 GO
 
+/* Retrieve payments by PaymentDate */
+
+CREATE NONCLUSTERED INDEX IX_Payment_PaymentDate
+ON dbo.Payment(PaymentDate);
+GO
+
 /* Retrieve returns by order item */
 
 CREATE NONCLUSTERED INDEX IX_Return_OrderItemID
 ON dbo.[Return](OrderItemID);
 GO
 
+/* Retrieve returns by return date */
+
+CREATE NONCLUSTERED INDEX IX_Return_ReturnDate
+ON dbo.[Return](ReturnDate);
+GO
+
 /*==============================================================================
-				Section 4 : Composite Indexes
+                    Section 4 : Reporting Indexes
 ==============================================================================
-					Composite Indexes
-					-----------------
-					- Inventory(StoreID, ProductID)
-					- Order(CustomerID, OrderDate)
-					- OrderItem(OrderID, ProductID)
+
+Reporting Indexes
+-----------------
+- Product(SubCategoryID)
+- Product(BrandID)
+
+Contains
+-------------
+IX_Product_SubCategoryID
+IX_Product_BrandID
+
 ==============================================================================*/
 
-/* Inventory lookup by store and product */
+/* Retrieve products by SubCategory */
 
-CREATE NONCLUSTERED INDEX IX_Inventory_Store_Product
-ON dbo.Inventory(StoreID, ProductID);
+CREATE NONCLUSTERED INDEX IX_Product_SubCategoryID
+ON dbo.Product(SubCategoryID);
 GO
+
+/* Retrieve products by Brand */
+
+CREATE NONCLUSTERED INDEX IX_Product_BrandID
+ON dbo.Product(BrandID);
+GO
+
+/*==============================================================================
+				Section 5 : Composite Indexes
+==============================================================================
+Composite Indexes
+-----------------
+- Order(CustomerID, OrderDate)
+- OrderItem(OrderID, ProductID)
+
+Contains
+-------------
+- IX_Order_Customer_OrderDate
+- IX_OrderItem_Order_Product
+
+==============================================================================*/
 
 /* Customer order history by date */
 
@@ -173,5 +246,8 @@ These indexes improve search performance, JOIN operations,
 report generation, and Power BI dashboards.
 ==============================================================================*/
 
-PRINT 'All indexes created successfully.';
+PRINT '==============================================================';
+PRINT '04_Create_Indexes.sql executed successfully.';
+PRINT 'All recommended indexes have been created.';
+PRINT '==============================================================';
 GO
