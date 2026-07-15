@@ -16,13 +16,12 @@ Validation Includes:
 
 Lookup Tables:
     • Category
+	• SubCategory
     • Brand
-    • Supplier
     • PaymentMethod
     • PaymentStatus
     • ReturnReason
     • ReturnStatus
-
 ==============================================================================*/
 
 USE RetailSalesDB;
@@ -128,7 +127,82 @@ PRINT 'Category validation completed successfully.';
 PRINT '==============================================================';
 
 /*------------------------------------------------------------
-                Part 3.2 : Validate Brand
+                Part 3.2 : Validate SubCategory
+------------------------------------------------------------*/
+
+PRINT '==============================================================';
+PRINT 'Validating SubCategory Table...';
+PRINT '==============================================================';
+
+------------------------------------------------------------
+-- Total Records
+------------------------------------------------------------
+
+SELECT @TotalRecords = COUNT(*)
+FROM dbo.SubCategory;
+
+PRINT CONCAT('Total Records : ', @TotalRecords);
+
+------------------------------------------------------------
+-- Duplicate SubCategory Names
+------------------------------------------------------------
+
+SELECT @DuplicateRecords = COUNT(*)
+FROM
+(
+    SELECT
+        SubCategoryName
+    FROM dbo.SubCategory
+    WHERE SubCategoryName IS NOT NULL
+    GROUP BY SubCategoryName
+    HAVING COUNT(*) > 1
+) D;
+
+PRINT CONCAT('Duplicate SubCategory Names : ', @DuplicateRecords);
+
+------------------------------------------------------------
+-- NULL SubCategory Names
+------------------------------------------------------------
+
+SELECT @NullRecords = COUNT(*)
+FROM dbo.SubCategory
+WHERE SubCategoryName IS NULL;
+
+PRINT CONCAT('NULL SubCategory Names : ', @NullRecords);
+
+------------------------------------------------------------
+-- Active / Inactive Records
+------------------------------------------------------------
+
+SELECT @ActiveRecords = COUNT(*)
+FROM dbo.SubCategory
+WHERE IsActive = 1;
+
+SELECT @InactiveRecords = COUNT(*)
+FROM dbo.SubCategory
+WHERE IsActive = 0;
+
+PRINT CONCAT('Active Records : ', @ActiveRecords);
+PRINT CONCAT('Inactive Records : ', @InactiveRecords);
+
+------------------------------------------------------------
+-- Sample Data
+------------------------------------------------------------
+
+SELECT
+    SubCategoryID,
+    CategoryID,
+    SubCategoryName,
+    Description,
+    IsActive
+FROM dbo.SubCategory
+ORDER BY SubCategoryID;
+
+PRINT 'SubCategory validation completed successfully.';
+PRINT '==============================================================';
+
+/*------------------------------------------------------------
+                Part 3.3 : Validate Brand
 ------------------------------------------------------------*/
 
 PRINT '==============================================================';
@@ -198,81 +272,6 @@ FROM dbo.Brand
 ORDER BY BrandID;
 
 PRINT 'Brand validation completed successfully.';
-PRINT '==============================================================';
-
-/*------------------------------------------------------------
-                Part 3.3 : Validate Supplier
-------------------------------------------------------------*/
-
-PRINT '==============================================================';
-PRINT 'Validating Supplier Table...';
-PRINT '==============================================================';
-
-------------------------------------------------------------
--- Total Records
-------------------------------------------------------------
-
-SELECT @TotalRecords = COUNT(*)
-FROM dbo.Supplier;
-
-PRINT CONCAT('Total Records : ', @TotalRecords);
-
-------------------------------------------------------------
--- Duplicate Supplier Names
-------------------------------------------------------------
-
-SELECT @DuplicateRecords = COUNT(*)
-FROM
-(
-    SELECT
-        SupplierName
-    FROM dbo.Supplier
-    GROUP BY SupplierName
-    HAVING COUNT(*) > 1
-) D;
-
-PRINT CONCAT('Duplicate Supplier Names : ', @DuplicateRecords);
-
-------------------------------------------------------------
--- NULL Supplier Names
-------------------------------------------------------------
-
-SELECT @NullRecords = COUNT(*)
-FROM dbo.Supplier
-WHERE SupplierName IS NULL;
-
-PRINT CONCAT('NULL Supplier Names : ', @NullRecords);
-
-------------------------------------------------------------
--- Active / Inactive Records
-------------------------------------------------------------
-
-SELECT @ActiveRecords = COUNT(*)
-FROM dbo.Supplier
-WHERE IsActive = 1;
-
-SELECT @InactiveRecords = COUNT(*)
-FROM dbo.Supplier
-WHERE IsActive = 0;
-
-PRINT CONCAT('Active Records : ', @ActiveRecords);
-PRINT CONCAT('Inactive Records : ', @InactiveRecords);
-
-------------------------------------------------------------
--- Sample Data
-------------------------------------------------------------
-
-SELECT
-    SupplierID,
-    SupplierName,
-    ContactName,
-    Email,
-    Phone,
-    IsActive
-FROM dbo.Supplier
-ORDER BY SupplierID;
-
-PRINT 'Supplier validation completed successfully.';
 PRINT '==============================================================';
 
 /*------------------------------------------------------------
@@ -583,16 +582,16 @@ FROM dbo.Category
 UNION ALL
 
 SELECT
-    'Brand',
-    COUNT(*)
-FROM dbo.Brand
+	'SubCategory',
+	COUNT(*)
+FROM dbo.SubCategory
 
 UNION ALL
 
 SELECT
-    'Supplier',
+    'Brand',
     COUNT(*)
-FROM dbo.Supplier
+FROM dbo.Brand
 
 UNION ALL
 

@@ -20,7 +20,7 @@ Master Tables:
     • Employee
     • Store
     • Product
-
+	• Supplier
 ==============================================================================*/
 
 USE RetailSalesDB;
@@ -503,8 +503,83 @@ ORDER BY ProductID;
 PRINT 'Product validation completed successfully.';
 PRINT '==============================================================';
 
+/*------------------------------------------------------------
+                Part 7 : Validate Supplier
+------------------------------------------------------------*/
+
+PRINT '==============================================================';
+PRINT 'Validating Supplier Table...';
+PRINT '==============================================================';
+
+------------------------------------------------------------
+-- Total Records
+------------------------------------------------------------
+
+SELECT @TotalRecords = COUNT(*)
+FROM dbo.Supplier;
+
+PRINT CONCAT('Total Records : ', @TotalRecords);
+
+------------------------------------------------------------
+-- Duplicate Supplier Names
+------------------------------------------------------------
+
+SELECT @DuplicateRecords = COUNT(*)
+FROM
+(
+    SELECT
+        SupplierName
+    FROM dbo.Supplier
+    GROUP BY SupplierName
+    HAVING COUNT(*) > 1
+) D;
+
+PRINT CONCAT('Duplicate Supplier Names : ', @DuplicateRecords);
+
+------------------------------------------------------------
+-- NULL Supplier Names
+------------------------------------------------------------
+
+SELECT @NullRecords = COUNT(*)
+FROM dbo.Supplier
+WHERE SupplierName IS NULL;
+
+PRINT CONCAT('NULL Supplier Names : ', @NullRecords);
+
+------------------------------------------------------------
+-- Active / Inactive Records
+------------------------------------------------------------
+
+SELECT @ActiveRecords = COUNT(*)
+FROM dbo.Supplier
+WHERE IsActive = 1;
+
+SELECT @InactiveRecords = COUNT(*)
+FROM dbo.Supplier
+WHERE IsActive = 0;
+
+PRINT CONCAT('Active Records : ', @ActiveRecords);
+PRINT CONCAT('Inactive Records : ', @InactiveRecords);
+
+------------------------------------------------------------
+-- Sample Data
+------------------------------------------------------------
+
+SELECT
+    SupplierID,
+    SupplierName,
+    ContactName,
+    Email,
+    Phone,
+    IsActive
+FROM dbo.Supplier
+ORDER BY SupplierID;
+
+PRINT 'Supplier validation completed successfully.';
+PRINT '==============================================================';
+
 /*==============================================================================
-                    Part 7 : Validation Summary
+                    Part 8 : Validation Summary
 ==============================================================================*/
 
 PRINT '==============================================================';
@@ -535,14 +610,21 @@ UNION ALL
 SELECT
     'Product',
     COUNT(*)
-FROM dbo.Product;
+FROM dbo.Product
+
+UNION ALL
+
+SELECT
+    'Supplier',
+    COUNT(*)
+FROM dbo.Supplier;
 
 PRINT '==============================================================';
 PRINT 'Master Data Validation Summary Completed.';
 PRINT '==============================================================';
 
 /*==============================================================================
-                    Part 8 : Completion Message
+                    Part 9 : Completion Message
 ==============================================================================*/
 
 PRINT '==============================================================';
