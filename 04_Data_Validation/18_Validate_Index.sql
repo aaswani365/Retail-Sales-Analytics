@@ -1,6 +1,8 @@
 /*==============================================================================
-                    Index_Validation.sql
-==============================================================================
+Project       : Retail Sales Analytics & Inventory Management System
+File Name     : 18_Validate_Indexes.sql
+Created By    : Akshay Aswani
+Created Date  : July 2026
 
 Description:
 ------------

@@ -1,27 +1,26 @@
 /*==============================================================================
 Project       : Retail Sales Analytics & Inventory Management System
-File Name     : 12_Validate_Lookup_Data.sql
+File Name     : 21_Validate_Master_Data.sql
 Created By    : Akshay Aswani
 Created Date  : July 2026
 
 Description:
-This script validates all Lookup Tables used throughout the
+This script validates all Master Data tables used throughout the
 Retail Sales Analytics & Inventory Management System.
 
 Validation Includes:
     • Record Counts
-    • Duplicate Names
+    • Duplicate Checks
     • NULL Checks
-    • Active Status Checks
+    • Foreign Key Integrity
+    • Business Rule Validation
 
-Lookup Tables:
-    • Category
-	• SubCategory
-    • Brand
-    • PaymentMethod
-    • PaymentStatus
-    • ReturnReason
-    • ReturnStatus
+Master Tables:
+    • Customer
+    • Employee
+    • Store
+    • Product
+	• Supplier
 ==============================================================================*/
 
 USE RetailSalesDB;
@@ -30,7 +29,7 @@ GO
 SET NOCOUNT ON;
 
 PRINT '==============================================================';
-PRINT 'Starting Lookup Data Validation...';
+PRINT 'Starting Master Data Validation...';
 PRINT '==============================================================';
 
 /*==============================================================================
@@ -53,12 +52,19 @@ DECLARE @NullRecords INT;
 DECLARE @ActiveRecords INT;
 DECLARE @InactiveRecords INT;
 
-/*------------------------------------------------------------
-                Part 3.1 : Validate Category
-------------------------------------------------------------*/
+------------------------------------------------------------
+-- Business Rule Validation Variables
+------------------------------------------------------------
+
+DECLARE @InvalidRecords INT;
+DECLARE @OrphanRecords INT;
+
+/*==============================================================================
+                    Part 3 : Validate Customer
+==============================================================================*/
 
 PRINT '==============================================================';
-PRINT 'Validating Category Table...';
+PRINT 'Validating Customer Table...';
 PRINT '==============================================================';
 
 ------------------------------------------------------------
@@ -66,46 +72,74 @@ PRINT '==============================================================';
 ------------------------------------------------------------
 
 SELECT @TotalRecords = COUNT(*)
-FROM dbo.Category;
+FROM dbo.Customer;
 
 PRINT CONCAT('Total Records : ', @TotalRecords);
 
 ------------------------------------------------------------
--- Duplicate Category Names
+-- Duplicate Email Addresses
 ------------------------------------------------------------
 
 SELECT @DuplicateRecords = COUNT(*)
 FROM
 (
     SELECT
-        CategoryName
-    FROM dbo.Category
-    GROUP BY CategoryName
+        Email
+    FROM dbo.Customer
+    WHERE Email IS NOT NULL
+    GROUP BY Email
     HAVING COUNT(*) > 1
 ) D;
 
-PRINT CONCAT('Duplicate Category Names : ', @DuplicateRecords);
+PRINT CONCAT('Duplicate Email Addresses : ', @DuplicateRecords);
 
 ------------------------------------------------------------
--- NULL Category Names
+-- Duplicate Phone Numbers
+------------------------------------------------------------
+
+SELECT @DuplicateRecords = COUNT(*)
+FROM
+(
+    SELECT
+        Phone
+    FROM dbo.Customer
+    WHERE Phone IS NOT NULL
+    GROUP BY Phone
+    HAVING COUNT(*) > 1
+) D;
+
+PRINT CONCAT('Duplicate Phone Numbers : ', @DuplicateRecords);
+
+------------------------------------------------------------
+-- NULL First Name
 ------------------------------------------------------------
 
 SELECT @NullRecords = COUNT(*)
-FROM dbo.Category
-WHERE CategoryName IS NULL;
+FROM dbo.Customer
+WHERE FirstName IS NULL;
 
-PRINT CONCAT('NULL Category Names : ', @NullRecords);
+PRINT CONCAT('NULL First Names : ', @NullRecords);
+
+------------------------------------------------------------
+-- NULL Last Name
+------------------------------------------------------------
+
+SELECT @NullRecords = COUNT(*)
+FROM dbo.Customer
+WHERE LastName IS NULL;
+
+PRINT CONCAT('NULL Last Names : ', @NullRecords);
 
 ------------------------------------------------------------
 -- Active / Inactive Records
 ------------------------------------------------------------
 
 SELECT @ActiveRecords = COUNT(*)
-FROM dbo.Category
+FROM dbo.Customer
 WHERE IsActive = 1;
 
 SELECT @InactiveRecords = COUNT(*)
-FROM dbo.Category
+FROM dbo.Customer
 WHERE IsActive = 0;
 
 PRINT CONCAT('Active Records : ', @ActiveRecords);
@@ -115,23 +149,27 @@ PRINT CONCAT('Inactive Records : ', @InactiveRecords);
 -- Sample Data
 ------------------------------------------------------------
 
-SELECT
-    CategoryID,
-    CategoryName,
-    Description,
+SELECT TOP (10)
+    CustomerID,
+    FirstName,
+    LastName,
+    Email,
+    Phone,
+    City,
+    State,
     IsActive
-FROM dbo.Category
-ORDER BY CategoryID;
+FROM dbo.Customer
+ORDER BY CustomerID;
 
-PRINT 'Category validation completed successfully.';
+PRINT 'Customer validation completed successfully.';
 PRINT '==============================================================';
 
-/*------------------------------------------------------------
-                Part 3.2 : Validate SubCategory
-------------------------------------------------------------*/
+/*==============================================================================
+                    Part 4 : Validate Employee
+==============================================================================*/
 
 PRINT '==============================================================';
-PRINT 'Validating SubCategory Table...';
+PRINT 'Validating Employee Table...';
 PRINT '==============================================================';
 
 ------------------------------------------------------------
@@ -139,47 +177,77 @@ PRINT '==============================================================';
 ------------------------------------------------------------
 
 SELECT @TotalRecords = COUNT(*)
-FROM dbo.SubCategory;
+FROM dbo.Employee;
 
 PRINT CONCAT('Total Records : ', @TotalRecords);
 
 ------------------------------------------------------------
--- Duplicate SubCategory Names
+-- Duplicate Email Addresses
 ------------------------------------------------------------
 
 SELECT @DuplicateRecords = COUNT(*)
 FROM
 (
     SELECT
-        SubCategoryName
-    FROM dbo.SubCategory
-    WHERE SubCategoryName IS NOT NULL
-    GROUP BY SubCategoryName
+        Email
+    FROM dbo.Employee
+    WHERE Email IS NOT NULL
+    GROUP BY Email
     HAVING COUNT(*) > 1
 ) D;
 
-PRINT CONCAT('Duplicate SubCategory Names : ', @DuplicateRecords);
+PRINT CONCAT('Duplicate Email Addresses : ', @DuplicateRecords);
 
 ------------------------------------------------------------
--- NULL SubCategory Names
+-- NULL First Names
 ------------------------------------------------------------
 
 SELECT @NullRecords = COUNT(*)
-FROM dbo.SubCategory
-WHERE SubCategoryName IS NULL;
+FROM dbo.Employee
+WHERE FirstName IS NULL;
 
-PRINT CONCAT('NULL SubCategory Names : ', @NullRecords);
+PRINT CONCAT('NULL First Names : ', @NullRecords);
+
+------------------------------------------------------------
+-- NULL Last Names
+------------------------------------------------------------
+
+SELECT @NullRecords = COUNT(*)
+FROM dbo.Employee
+WHERE LastName IS NULL;
+
+PRINT CONCAT('NULL Last Names : ', @NullRecords);
+
+------------------------------------------------------------
+-- NULL Job Titles
+------------------------------------------------------------
+
+SELECT @NullRecords = COUNT(*)
+FROM dbo.Employee
+WHERE JobTitle IS NULL;
+
+PRINT CONCAT('NULL Job Titles : ', @NullRecords);
+
+------------------------------------------------------------
+-- Invalid Salary
+------------------------------------------------------------
+
+SELECT @InvalidRecords = COUNT(*)
+FROM dbo.Employee
+WHERE Salary <= 0;
+
+PRINT CONCAT('Invalid Salary Records : ', @InvalidRecords);
 
 ------------------------------------------------------------
 -- Active / Inactive Records
 ------------------------------------------------------------
 
 SELECT @ActiveRecords = COUNT(*)
-FROM dbo.SubCategory
+FROM dbo.Employee
 WHERE IsActive = 1;
 
 SELECT @InactiveRecords = COUNT(*)
-FROM dbo.SubCategory
+FROM dbo.Employee
 WHERE IsActive = 0;
 
 PRINT CONCAT('Active Records : ', @ActiveRecords);
@@ -189,97 +257,258 @@ PRINT CONCAT('Inactive Records : ', @InactiveRecords);
 -- Sample Data
 ------------------------------------------------------------
 
-SELECT
+SELECT TOP (10)
+    EmployeeID,
+    StoreID,
+    ManagerEmployeeID,
+    FirstName,
+    LastName,
+    Email,
+    Phone,
+    JobTitle,
+    Salary,
+    HireDate,
+    IsActive
+FROM dbo.Employee
+ORDER BY EmployeeID;
+
+PRINT 'Employee validation completed successfully.';
+PRINT '==============================================================';
+
+/*==============================================================================
+                    Part 5 : Validate Store
+==============================================================================*/
+
+PRINT '==============================================================';
+PRINT 'Validating Store Table...';
+PRINT '==============================================================';
+
+------------------------------------------------------------
+-- Total Records
+------------------------------------------------------------
+
+SELECT @TotalRecords = COUNT(*)
+FROM dbo.Store;
+
+PRINT CONCAT('Total Records : ', @TotalRecords);
+
+------------------------------------------------------------
+-- Duplicate Store Names
+------------------------------------------------------------
+
+SELECT @DuplicateRecords = COUNT(*)
+FROM
+(
+    SELECT
+        StoreName
+    FROM dbo.Store
+    WHERE StoreName IS NOT NULL
+    GROUP BY StoreName
+    HAVING COUNT(*) > 1
+) D;
+
+PRINT CONCAT('Duplicate Store Names : ', @DuplicateRecords);
+
+------------------------------------------------------------
+-- NULL Store Names
+------------------------------------------------------------
+
+SELECT @NullRecords = COUNT(*)
+FROM dbo.Store
+WHERE StoreName IS NULL;
+
+PRINT CONCAT('NULL Store Names : ', @NullRecords);
+
+------------------------------------------------------------
+-- NULL Addresses
+------------------------------------------------------------
+
+SELECT @NullRecords = COUNT(*)
+FROM dbo.Store
+WHERE Address IS NULL;
+
+PRINT CONCAT('NULL Addresses : ', @NullRecords);
+
+------------------------------------------------------------
+-- Active / Inactive Records
+------------------------------------------------------------
+
+SELECT @ActiveRecords = COUNT(*)
+FROM dbo.Store
+WHERE IsActive = 1;
+
+SELECT @InactiveRecords = COUNT(*)
+FROM dbo.Store
+WHERE IsActive = 0;
+
+PRINT CONCAT('Active Records : ', @ActiveRecords);
+PRINT CONCAT('Inactive Records : ', @InactiveRecords);
+
+------------------------------------------------------------
+-- Sample Data
+------------------------------------------------------------
+
+SELECT TOP (10)
+    StoreID,
+    StoreName,
+    ManagerEmployeeID,
+    Address,
+    City,
+    State,
+    PostalCode,
+    Country,
+    Phone,
+    IsActive
+FROM dbo.Store
+ORDER BY StoreID;
+
+PRINT 'Store validation completed successfully.';
+PRINT '==============================================================';
+
+
+/*==============================================================================
+                    Part 6 : Validate Product
+==============================================================================*/
+
+PRINT '==============================================================';
+PRINT 'Validating Product Table...';
+PRINT '==============================================================';
+
+------------------------------------------------------------
+-- Total Records
+------------------------------------------------------------
+
+SELECT @TotalRecords = COUNT(*)
+FROM dbo.Product;
+
+PRINT CONCAT('Total Records : ', @TotalRecords);
+
+------------------------------------------------------------
+-- Duplicate Product Names
+------------------------------------------------------------
+
+SELECT @DuplicateRecords = COUNT(*)
+FROM
+(
+    SELECT
+        ProductName
+    FROM dbo.Product
+    WHERE ProductName IS NOT NULL
+    GROUP BY ProductName
+    HAVING COUNT(*) > 1
+) D;
+
+PRINT CONCAT('Duplicate Product Names : ', @DuplicateRecords);
+
+------------------------------------------------------------
+-- Duplicate SKU
+------------------------------------------------------------
+
+SELECT @DuplicateRecords = COUNT(*)
+FROM
+(
+    SELECT
+        SKU
+    FROM dbo.Product
+    WHERE SKU IS NOT NULL
+    GROUP BY SKU
+    HAVING COUNT(*) > 1
+) D;
+
+PRINT CONCAT('Duplicate SKU : ', @DuplicateRecords);
+
+------------------------------------------------------------
+-- NULL Product Names
+------------------------------------------------------------
+
+SELECT @NullRecords = COUNT(*)
+FROM dbo.Product
+WHERE ProductName IS NULL;
+
+PRINT CONCAT('NULL Product Names : ', @NullRecords);
+
+------------------------------------------------------------
+-- Invalid Cost Price
+------------------------------------------------------------
+
+SELECT @InvalidRecords = COUNT(*)
+FROM dbo.Product
+WHERE CostPrice <= 0;
+
+PRINT CONCAT('Invalid Cost Price Records : ', @InvalidRecords);
+
+------------------------------------------------------------
+-- Invalid Selling Price
+------------------------------------------------------------
+
+SELECT @InvalidRecords = COUNT(*)
+FROM dbo.Product
+WHERE SellingPrice <= 0;
+
+PRINT CONCAT('Invalid Selling Price Records : ', @InvalidRecords);
+
+------------------------------------------------------------
+-- Selling Price Less Than Cost Price
+------------------------------------------------------------
+
+SELECT @InvalidRecords = COUNT(*)
+FROM dbo.Product
+WHERE SellingPrice < CostPrice;
+
+PRINT CONCAT('Selling Price < Cost Price : ', @InvalidRecords);
+
+------------------------------------------------------------
+-- NULL Reorder Level
+------------------------------------------------------------
+
+SELECT @NullRecords = COUNT(*)
+FROM dbo.Product
+WHERE ReorderLevel IS NULL;
+
+PRINT CONCAT('NULL Reorder Level : ', @NullRecords);
+
+------------------------------------------------------------
+-- Active / Inactive Records
+------------------------------------------------------------
+
+SELECT @ActiveRecords = COUNT(*)
+FROM dbo.Product
+WHERE IsActive = 1;
+
+SELECT @InactiveRecords = COUNT(*)
+FROM dbo.Product
+WHERE IsActive = 0;
+
+PRINT CONCAT('Active Records : ', @ActiveRecords);
+PRINT CONCAT('Inactive Records : ', @InactiveRecords);
+
+------------------------------------------------------------
+-- Sample Data
+------------------------------------------------------------
+
+SELECT TOP (10)
+    ProductID,
+    ProductName,
+    SKU,
     SubCategoryID,
-    CategoryID,
-    SubCategoryName,
-    Description,
-    IsActive
-FROM dbo.SubCategory
-ORDER BY SubCategoryID;
-
-PRINT 'SubCategory validation completed successfully.';
-PRINT '==============================================================';
-
-/*------------------------------------------------------------
-                Part 3.3 : Validate Brand
-------------------------------------------------------------*/
-
-PRINT '==============================================================';
-PRINT 'Validating Brand Table...';
-PRINT '==============================================================';
-
-------------------------------------------------------------
--- Total Records
-------------------------------------------------------------
-
-SELECT @TotalRecords = COUNT(*)
-FROM dbo.Brand;
-
-PRINT CONCAT('Total Records : ', @TotalRecords);
-
-------------------------------------------------------------
--- Duplicate Brand Names
-------------------------------------------------------------
-
-SELECT @DuplicateRecords = COUNT(*)
-FROM
-(
-    SELECT
-        BrandName
-    FROM dbo.Brand
-    GROUP BY BrandName
-    HAVING COUNT(*) > 1
-) D;
-
-PRINT CONCAT('Duplicate Brand Names : ', @DuplicateRecords);
-
-------------------------------------------------------------
--- NULL Brand Names
-------------------------------------------------------------
-
-SELECT @NullRecords = COUNT(*)
-FROM dbo.Brand
-WHERE BrandName IS NULL;
-
-PRINT CONCAT('NULL Brand Names : ', @NullRecords);
-
-------------------------------------------------------------
--- Active / Inactive Records
-------------------------------------------------------------
-
-SELECT @ActiveRecords = COUNT(*)
-FROM dbo.Brand
-WHERE IsActive = 1;
-
-SELECT @InactiveRecords = COUNT(*)
-FROM dbo.Brand
-WHERE IsActive = 0;
-
-PRINT CONCAT('Active Records : ', @ActiveRecords);
-PRINT CONCAT('Inactive Records : ', @InactiveRecords);
-
-------------------------------------------------------------
--- Sample Data
-------------------------------------------------------------
-
-SELECT
     BrandID,
-    BrandName,
-    Description,
+    SupplierID,
+    CostPrice,
+    SellingPrice,
+    ReorderLevel,
     IsActive
-FROM dbo.Brand
-ORDER BY BrandID;
+FROM dbo.Product
+ORDER BY ProductID;
 
-PRINT 'Brand validation completed successfully.';
+PRINT 'Product validation completed successfully.';
 PRINT '==============================================================';
 
 /*------------------------------------------------------------
-                Part 3.4 : Validate Payment Method
+                Part 7 : Validate Supplier
 ------------------------------------------------------------*/
 
 PRINT '==============================================================';
-PRINT 'Validating PaymentMethod Table...';
+PRINT 'Validating Supplier Table...';
 PRINT '==============================================================';
 
 ------------------------------------------------------------
@@ -287,46 +516,46 @@ PRINT '==============================================================';
 ------------------------------------------------------------
 
 SELECT @TotalRecords = COUNT(*)
-FROM dbo.PaymentMethod;
+FROM dbo.Supplier;
 
 PRINT CONCAT('Total Records : ', @TotalRecords);
 
 ------------------------------------------------------------
--- Duplicate Payment Method Names
+-- Duplicate Supplier Names
 ------------------------------------------------------------
 
 SELECT @DuplicateRecords = COUNT(*)
 FROM
 (
     SELECT
-        MethodName
-    FROM dbo.PaymentMethod
-    GROUP BY MethodName
+        SupplierName
+    FROM dbo.Supplier
+    GROUP BY SupplierName
     HAVING COUNT(*) > 1
 ) D;
 
-PRINT CONCAT('Duplicate Payment Method Names : ', @DuplicateRecords);
+PRINT CONCAT('Duplicate Supplier Names : ', @DuplicateRecords);
 
 ------------------------------------------------------------
--- NULL Payment Method Names
+-- NULL Supplier Names
 ------------------------------------------------------------
 
 SELECT @NullRecords = COUNT(*)
-FROM dbo.PaymentMethod
-WHERE MethodName IS NULL;
+FROM dbo.Supplier
+WHERE SupplierName IS NULL;
 
-PRINT CONCAT('NULL Payment Method Names : ', @NullRecords);
+PRINT CONCAT('NULL Supplier Names : ', @NullRecords);
 
 ------------------------------------------------------------
 -- Active / Inactive Records
 ------------------------------------------------------------
 
 SELECT @ActiveRecords = COUNT(*)
-FROM dbo.PaymentMethod
+FROM dbo.Supplier
 WHERE IsActive = 1;
 
 SELECT @InactiveRecords = COUNT(*)
-FROM dbo.PaymentMethod
+FROM dbo.Supplier
 WHERE IsActive = 0;
 
 PRINT CONCAT('Active Records : ', @ActiveRecords);
@@ -337,300 +566,68 @@ PRINT CONCAT('Inactive Records : ', @InactiveRecords);
 ------------------------------------------------------------
 
 SELECT
-    PaymentMethodID,
-    MethodName,
-    Description,
+    SupplierID,
+    SupplierName,
+    ContactName,
+    Email,
+    Phone,
     IsActive
-FROM dbo.PaymentMethod
-ORDER BY PaymentMethodID;
+FROM dbo.Supplier
+ORDER BY SupplierID;
 
-PRINT 'PaymentMethod validation completed successfully.';
-PRINT '==============================================================';
-
-/*------------------------------------------------------------
-                Part 3.5 : Validate Payment Status
-------------------------------------------------------------*/
-
-PRINT '==============================================================';
-PRINT 'Validating PaymentStatus Table...';
-PRINT '==============================================================';
-
-------------------------------------------------------------
--- Total Records
-------------------------------------------------------------
-
-SELECT @TotalRecords = COUNT(*)
-FROM dbo.PaymentStatus;
-
-PRINT CONCAT('Total Records : ', @TotalRecords);
-
-------------------------------------------------------------
--- Duplicate Payment Status Names
-------------------------------------------------------------
-
-SELECT @DuplicateRecords = COUNT(*)
-FROM
-(
-    SELECT
-        StatusName
-    FROM dbo.PaymentStatus
-    GROUP BY StatusName
-    HAVING COUNT(*) > 1
-) D;
-
-PRINT CONCAT('Duplicate Payment Status Names : ', @DuplicateRecords);
-
-------------------------------------------------------------
--- NULL Payment Status Names
-------------------------------------------------------------
-
-SELECT @NullRecords = COUNT(*)
-FROM dbo.PaymentStatus
-WHERE StatusName IS NULL;
-
-PRINT CONCAT('NULL Payment Status Names : ', @NullRecords);
-
-------------------------------------------------------------
--- Active / Inactive Records
-------------------------------------------------------------
-
-SELECT @ActiveRecords = COUNT(*)
-FROM dbo.PaymentStatus
-WHERE IsActive = 1;
-
-SELECT @InactiveRecords = COUNT(*)
-FROM dbo.PaymentStatus
-WHERE IsActive = 0;
-
-PRINT CONCAT('Active Records : ', @ActiveRecords);
-PRINT CONCAT('Inactive Records : ', @InactiveRecords);
-
-------------------------------------------------------------
--- Sample Data
-------------------------------------------------------------
-
-SELECT
-    PaymentStatusID,
-    StatusName,
-    Description,
-    IsActive
-FROM dbo.PaymentStatus
-ORDER BY PaymentStatusID;
-
-PRINT 'PaymentStatus validation completed successfully.';
-PRINT '==============================================================';
-
-/*------------------------------------------------------------
-                Part 3.6 : Validate Return Reason
-------------------------------------------------------------*/
-
-PRINT '==============================================================';
-PRINT 'Validating ReturnReason Table...';
-PRINT '==============================================================';
-
-------------------------------------------------------------
--- Total Records
-------------------------------------------------------------
-
-SELECT @TotalRecords = COUNT(*)
-FROM dbo.ReturnReason;
-
-PRINT CONCAT('Total Records : ', @TotalRecords);
-
-------------------------------------------------------------
--- Duplicate Return Reason Names
-------------------------------------------------------------
-
-SELECT @DuplicateRecords = COUNT(*)
-FROM
-(
-    SELECT
-        ReasonName
-    FROM dbo.ReturnReason
-    GROUP BY ReasonName
-    HAVING COUNT(*) > 1
-) D;
-
-PRINT CONCAT('Duplicate Return Reason Names : ', @DuplicateRecords);
-
-------------------------------------------------------------
--- NULL Return Reason Names
-------------------------------------------------------------
-
-SELECT @NullRecords = COUNT(*)
-FROM dbo.ReturnReason
-WHERE ReasonName IS NULL;
-
-PRINT CONCAT('NULL Return Reason Names : ', @NullRecords);
-
-------------------------------------------------------------
--- Active / Inactive Records
-------------------------------------------------------------
-
-SELECT @ActiveRecords = COUNT(*)
-FROM dbo.ReturnReason
-WHERE IsActive = 1;
-
-SELECT @InactiveRecords = COUNT(*)
-FROM dbo.ReturnReason
-WHERE IsActive = 0;
-
-PRINT CONCAT('Active Records : ', @ActiveRecords);
-PRINT CONCAT('Inactive Records : ', @InactiveRecords);
-
-------------------------------------------------------------
--- Sample Data
-------------------------------------------------------------
-
-SELECT
-    ReturnReasonID,
-    ReasonName,
-    Description,
-    IsActive
-FROM dbo.ReturnReason
-ORDER BY ReturnReasonID;
-
-PRINT 'ReturnReason validation completed successfully.';
-PRINT '==============================================================';
-
-/*------------------------------------------------------------
-                Part 3.7 : Validate Return Status
-------------------------------------------------------------*/
-
-PRINT '==============================================================';
-PRINT 'Validating ReturnStatus Table...';
-PRINT '==============================================================';
-
-------------------------------------------------------------
--- Total Records
-------------------------------------------------------------
-
-SELECT @TotalRecords = COUNT(*)
-FROM dbo.ReturnStatus;
-
-PRINT CONCAT('Total Records : ', @TotalRecords);
-
-------------------------------------------------------------
--- Duplicate Return Status Names
-------------------------------------------------------------
-
-SELECT @DuplicateRecords = COUNT(*)
-FROM
-(
-    SELECT
-        StatusName
-    FROM dbo.ReturnStatus
-    GROUP BY StatusName
-    HAVING COUNT(*) > 1
-) D;
-
-PRINT CONCAT('Duplicate Return Status Names : ', @DuplicateRecords);
-
-------------------------------------------------------------
--- NULL Return Status Names
-------------------------------------------------------------
-
-SELECT @NullRecords = COUNT(*)
-FROM dbo.ReturnStatus
-WHERE StatusName IS NULL;
-
-PRINT CONCAT('NULL Return Status Names : ', @NullRecords);
-
-------------------------------------------------------------
--- Active / Inactive Records
-------------------------------------------------------------
-
-SELECT @ActiveRecords = COUNT(*)
-FROM dbo.ReturnStatus
-WHERE IsActive = 1;
-
-SELECT @InactiveRecords = COUNT(*)
-FROM dbo.ReturnStatus
-WHERE IsActive = 0;
-
-PRINT CONCAT('Active Records : ', @ActiveRecords);
-PRINT CONCAT('Inactive Records : ', @InactiveRecords);
-
-------------------------------------------------------------
--- Sample Data
-------------------------------------------------------------
-
-SELECT
-    ReturnStatusID,
-    StatusName,
-    Description,
-    IsActive
-FROM dbo.ReturnStatus
-ORDER BY ReturnStatusID;
-
-PRINT 'ReturnStatus validation completed successfully.';
+PRINT 'Supplier validation completed successfully.';
 PRINT '==============================================================';
 
 /*==============================================================================
-                    Part 4 : Validation Summary
+                    Part 8 : Validation Summary
 ==============================================================================*/
 
 PRINT '==============================================================';
-PRINT 'Lookup Data Validation Summary';
+PRINT 'Master Data Validation Summary';
 PRINT '==============================================================';
 
 SELECT
-    'Category' AS LookupTable,
+    'Customer' AS MasterTable,
     COUNT(*) AS TotalRecords
-FROM dbo.Category
+FROM dbo.Customer
 
 UNION ALL
 
 SELECT
-	'SubCategory',
-	COUNT(*)
-FROM dbo.SubCategory
-
-UNION ALL
-
-SELECT
-    'Brand',
+    'Employee',
     COUNT(*)
-FROM dbo.Brand
+FROM dbo.Employee
 
 UNION ALL
 
 SELECT
-    'PaymentMethod',
+    'Store',
     COUNT(*)
-FROM dbo.PaymentMethod
+FROM dbo.Store
 
 UNION ALL
 
 SELECT
-    'PaymentStatus',
+    'Product',
     COUNT(*)
-FROM dbo.PaymentStatus
+FROM dbo.Product
 
 UNION ALL
 
 SELECT
-    'ReturnReason',
+    'Supplier',
     COUNT(*)
-FROM dbo.ReturnReason
-
-UNION ALL
-
-SELECT
-    'ReturnStatus',
-    COUNT(*)
-FROM dbo.ReturnStatus;
+FROM dbo.Supplier;
 
 PRINT '==============================================================';
-PRINT 'Lookup Data Validation Summary Completed.';
+PRINT 'Master Data Validation Summary Completed.';
 PRINT '==============================================================';
-
 
 /*==============================================================================
-                    Part 5 : Completion Message
+                    Part 9 : Completion Message
 ==============================================================================*/
 
 PRINT '==============================================================';
-PRINT '12_Validate_Lookup_Data.sql executed successfully.';
-PRINT 'All Lookup Tables validated successfully.';
+PRINT '14_Validate_Master_Data.sql executed successfully.';
+PRINT 'All Master Tables validated successfully.';
 PRINT '==============================================================';

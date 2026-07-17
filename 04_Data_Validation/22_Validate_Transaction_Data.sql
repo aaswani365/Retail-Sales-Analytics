@@ -1,6 +1,6 @@
 /*==============================================================================
 Project       : Retail Sales Analytics & Inventory Management System
-File Name     : 15_Validate_Transaction_Data.sql
+File Name     : 22_Validate_Transaction_Data.sql
 Created By    : Akshay Aswani
 Created Date  : July 2026
 

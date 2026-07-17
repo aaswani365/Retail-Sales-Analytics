@@ -1,6 +1,6 @@
 /*==============================================================================
 Project       : Retail Sales Analytics & Inventory Management System
-File Name     : 16_Run_Data_Quality_Checks.sql
+File Name     : 23_Run_Data_Quality_Checks.sql
 Created By    : Akshay Aswani
 Created Date  : July 2026
 

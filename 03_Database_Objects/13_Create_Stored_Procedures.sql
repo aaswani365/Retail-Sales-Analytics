@@ -1,6 +1,6 @@
 ﻿/*==============================================================================
 Project       : Retail Sales Analytics & Inventory Management System
-File Name     : 18_Create_Stored_Procedures.sql
+File Name     : 13_Create_Stored_Procedures.sql
 Created By    : Akshay Aswani
 Created Date  : July 2026
 

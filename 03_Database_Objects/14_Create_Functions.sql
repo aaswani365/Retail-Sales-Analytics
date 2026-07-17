@@ -1,6 +1,6 @@
 ﻿/*==============================================================================
 Project       : Retail Sales Analytics & Inventory Management System
-File Name     : 19_Create_Functions.sql
+File Name     : 14_Create_Functions.sql
 Created By    : Akshay Aswani
 Created Date  : July 2026
 

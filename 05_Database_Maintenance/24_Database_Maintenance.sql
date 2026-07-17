@@ -1,6 +1,6 @@
 ﻿/*==============================================================================
 Project       : Retail Sales Analytics & Inventory Management System
-File Name     : 21_Database_Maintenance.sql
+File Name     : 24_Database_Maintenance.sql
 Created By    : Akshay Aswani
 Created Date  : July 2026
 

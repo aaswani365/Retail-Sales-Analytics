@@ -1,6 +1,6 @@
 ﻿/*==============================================================================
 Project       : Retail Sales Analytics & Inventory Management System
-File Name     : 20_Create_Triggers.sql
+File Name     : 15_Create_Triggers.sql
 Created By    : Akshay Aswani
 Created Date  : July 2026
 

@@ -1,6 +1,6 @@
 ﻿/*==============================================================================
 Project       : Retail Sales Analytics & Inventory Management System
-File Name     : 17_Create_Views.sql
+File Name     : 12_Create_Views.sql
 Created By    : Akshay Aswani
 Created Date  : July 2026
 
