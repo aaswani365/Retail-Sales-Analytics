@@ -1044,4 +1044,617 @@ PRINT 'KPI 018 : Order Status Distribution Generated Successfully.';
 PRINT '==============================================================';
 GO
 
---- Part 
+/*==============================================================================
+                    Part 5 : Customer KPIs
+==============================================================================*/
+
+PRINT '==============================================================';
+PRINT 'Part 5 : Customer KPIs';
+PRINT '==============================================================';
+
+
+
+/*------------------------------------------------------------------------------
+KPI 019 : Total Customers
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+How many customers are registered in the business?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+The total number of registered customers represents the size of the
+customer base and serves as a fundamental business KPI.
+
+Monitoring customer growth helps management evaluate business expansion,
+marketing effectiveness, and long-term customer acquisition.
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+Displays the total number of registered customers in the system.
+
+------------------------------------------------------------------------------
+*/
+
+SELECT
+
+    COUNT(CustomerID) AS [Total Customers]
+
+FROM dbo.Customer;
+
+PRINT 'KPI 019 : Total Customers Generated Successfully.';
+PRINT '--------------------------------------------------------------';
+GO
+
+/*------------------------------------------------------------------------------
+KPI 020 : Active Customers
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+How many customers are currently active?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Active customers represent the engaged customer base and indicate the
+number of customers who are currently eligible for transactions.
+
+Monitoring active customers helps management evaluate customer retention,
+engagement, and the effectiveness of customer relationship strategies.
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+Displays the total number of active customers registered in the system.
+
+------------------------------------------------------------------------------
+*/
+
+SELECT
+
+    COUNT(CustomerID) AS [Active Customers]
+
+FROM dbo.Customer
+
+WHERE
+
+    IsActive = 1;
+
+PRINT 'KPI 020 : Active Customers Generated Successfully.';
+PRINT '--------------------------------------------------------------';
+GO
+
+/*------------------------------------------------------------------------------
+KPI 021 : Inactive Customers
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+How many registered customers are currently inactive?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Inactive customers represent the portion of the customer base that is
+currently not engaged with the business.
+
+Monitoring inactive customers helps management identify customer churn,
+evaluate retention strategies, and plan re-engagement campaigns.
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+Displays the total number of inactive customers registered in the system.
+
+------------------------------------------------------------------------------
+*/
+
+SELECT
+
+    COUNT(CustomerID) AS [Inactive Customers]
+
+FROM dbo.Customer
+
+WHERE
+
+    IsActive = 0;
+
+PRINT 'KPI 021 : Inactive Customers Generated Successfully.';
+PRINT '--------------------------------------------------------------';
+GO
+
+/*------------------------------------------------------------------------------
+KPI 022 : New Customers
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+How many new customers have registered with the business?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Tracking new customer registrations helps measure business growth,
+marketing effectiveness, and customer acquisition performance.
+
+A growing customer base indicates successful marketing campaigns and
+expanding business reach.
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+Displays the total number of customers registered in each month,
+allowing management to monitor customer acquisition trends over time.
+
+------------------------------------------------------------------------------
+*/
+
+SELECT
+
+    YEAR(RegistrationDate)                     AS [Year],
+
+    MONTH(RegistrationDate)                    AS [Month Number],
+
+    DATENAME(MONTH, RegistrationDate)          AS [Month],
+
+    COUNT(CustomerID)                          AS [New Customers]
+
+FROM dbo.Customer
+
+GROUP BY
+
+    YEAR(RegistrationDate),
+    MONTH(RegistrationDate),
+    DATENAME(MONTH, RegistrationDate)
+
+ORDER BY
+
+    [Year],
+    [Month Number];
+
+PRINT 'KPI 022 : New Customers Generated Successfully.';
+PRINT '--------------------------------------------------------------';
+GO
+
+/*------------------------------------------------------------------------------
+KPI 023 : Customers by City
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which cities have the highest number of registered customers?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Understanding customer distribution across cities helps the business
+identify key markets, evaluate regional demand, and plan targeted
+marketing campaigns.
+
+It also supports business expansion and store location decisions.
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+Displays the total number of registered customers in each city,
+ranked from highest to lowest.
+
+------------------------------------------------------------------------------
+*/
+
+SELECT
+
+    City AS [City],
+
+    COUNT(CustomerID) AS [Total Customers]
+
+FROM dbo.Customer
+
+GROUP BY
+
+    City
+
+ORDER BY
+
+    [Total Customers] DESC,
+    City;
+
+PRINT 'KPI 023 : Customers by City Generated Successfully.';
+PRINT '--------------------------------------------------------------';
+GO
+
+/*------------------------------------------------------------------------------
+KPI 024 : Customers by State
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which states have the highest number of registered customers?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Understanding customer distribution across states helps management
+identify strong regional markets, evaluate business reach, and support
+strategic decisions related to regional expansion, marketing campaigns,
+and resource allocation.
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+Displays the total number of registered customers in each state,
+ranked from highest to lowest.
+
+------------------------------------------------------------------------------
+*/
+
+SELECT
+
+    State AS [State],
+
+    COUNT(CustomerID) AS [Total Customers]
+
+FROM dbo.Customer
+
+GROUP BY
+
+    State
+
+ORDER BY
+
+    [Total Customers] DESC,
+    State;
+
+PRINT 'KPI 024 : Customers by State Generated Successfully.';
+PRINT '--------------------------------------------------------------';
+GO
+
+/*------------------------------------------------------------------------------
+KPI 025 : Top 10 Customers by Revenue
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which customers have generated the highest revenue for the business?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Identifying top revenue-generating customers helps the business
+recognize its most valuable customers, strengthen customer
+relationships, and design loyalty or premium membership programs.
+
+This KPI is essential for customer retention and revenue optimization.
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+Displays the Top 10 customers ranked by total revenue generated.
+
+------------------------------------------------------------------------------
+*/
+
+SELECT TOP (10)
+
+    C.CustomerID                                          AS [Customer ID],
+
+    CONCAT(C.FirstName,' ',C.LastName)                    AS [Customer Name],
+
+    COUNT(DISTINCT O.OrderID)                             AS [Total Orders],
+
+    SUM(O.NetAmount)                                      AS [Total Revenue],
+
+    AVG(O.NetAmount)                                      AS [Average Order Value]
+
+FROM dbo.Customer C
+
+INNER JOIN dbo.[Order] O
+    ON C.CustomerID = O.CustomerID
+
+GROUP BY
+
+    C.CustomerID,
+    C.FirstName,
+    C.LastName
+
+ORDER BY
+
+    [Total Revenue] DESC,
+    [Total Orders] DESC;
+
+PRINT 'KPI 025 : Top 10 Customers by Revenue Generated Successfully.';
+PRINT '--------------------------------------------------------------';
+GO
+
+/*------------------------------------------------------------------------------
+KPI 026 : Top 10 Customers by Orders
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which customers have placed the highest number of orders?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Identifying customers with the highest purchase frequency helps the
+business understand customer loyalty and buying behavior.
+
+Customers who purchase frequently are valuable for retention programs,
+personalized marketing campaigns, and loyalty rewards.
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+Displays the Top 10 customers ranked by the total number of orders
+placed, along with their total revenue contribution.
+
+------------------------------------------------------------------------------
+*/
+
+SELECT TOP (10)
+
+    C.CustomerID                                          AS [Customer ID],
+
+    CONCAT(C.FirstName,' ',C.LastName)                    AS [Customer Name],
+
+    COUNT(O.OrderID)                                      AS [Total Orders],
+
+    SUM(O.NetAmount)                                      AS [Total Revenue],
+
+    AVG(O.NetAmount)                                      AS [Average Order Value]
+
+FROM dbo.Customer C
+
+INNER JOIN dbo.[Order] O
+    ON C.CustomerID = O.CustomerID
+
+GROUP BY
+
+    C.CustomerID,
+    C.FirstName,
+    C.LastName
+
+ORDER BY
+
+    [Total Orders] DESC,
+    [Total Revenue] DESC;
+
+PRINT 'KPI 026 : Top 10 Customers by Orders Generated Successfully.';
+PRINT '--------------------------------------------------------------';
+GO
+
+/*------------------------------------------------------------------------------
+KPI 027 : Average Revenue per Customer
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+What is the average revenue generated per customer?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Average Revenue per Customer (ARPC) measures the average monetary value
+contributed by each customer.
+
+This KPI helps management evaluate customer profitability, pricing
+strategies, and the effectiveness of customer acquisition efforts.
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+Displays the average revenue generated per customer based on all
+completed customer orders.
+
+------------------------------------------------------------------------------
+*/
+
+SELECT
+
+    CAST
+    (
+        SUM(O.NetAmount) * 1.0 /
+        COUNT(O.CustomerID)
+        AS DECIMAL(12,2)
+    ) AS [Average Revenue per Customer]
+
+FROM dbo.[Order] O;
+
+PRINT 'KPI 027 : Average Revenue per Customer Generated Successfully.';
+PRINT '--------------------------------------------------------------';
+GO
+
+/*------------------------------------------------------------------------------
+KPI 028 : Loyalty Points Distribution
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+How are loyalty points distributed across registered customers?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Loyalty points indicate customer engagement and purchasing behavior.
+
+Analyzing loyalty point distribution helps management identify highly
+engaged customers, evaluate loyalty program effectiveness, and plan
+reward campaigns.
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+Displays the distribution of customers based on their loyalty points.
+
+------------------------------------------------------------------------------
+*/
+
+SELECT
+
+    CASE
+
+        WHEN LoyaltyPoints = 0 THEN 'No Points'
+
+        WHEN LoyaltyPoints BETWEEN 1 AND 500
+            THEN '1 - 500'
+
+        WHEN LoyaltyPoints BETWEEN 501 AND 1000
+            THEN '501 - 1000'
+
+        WHEN LoyaltyPoints BETWEEN 1001 AND 2000
+            THEN '1001 - 2000'
+
+        ELSE 'Above 2000'
+
+    END AS [Loyalty Points Range],
+
+    COUNT(CustomerID) AS [Total Customers]
+
+FROM dbo.Customer
+
+GROUP BY
+
+    CASE
+
+        WHEN LoyaltyPoints = 0 THEN 'No Points'
+
+        WHEN LoyaltyPoints BETWEEN 1 AND 500
+            THEN '1 - 500'
+
+        WHEN LoyaltyPoints BETWEEN 501 AND 1000
+            THEN '501 - 1000'
+
+        WHEN LoyaltyPoints BETWEEN 1001 AND 2000
+            THEN '1001 - 2000'
+
+        ELSE 'Above 2000'
+
+    END
+
+ORDER BY
+
+    MIN(LoyaltyPoints);
+
+PRINT 'KPI 028 : Loyalty Points Distribution Generated Successfully.';
+PRINT '--------------------------------------------------------------';
+GO
+
+/*------------------------------------------------------------------------------
+KPI 029 : Top 10 Customers by Loyalty Points
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which customers have accumulated the highest loyalty points?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Customers with the highest loyalty points are typically the most
+engaged and valuable customers.
+
+Identifying these customers helps the business reward loyalty,
+improve customer retention, and strengthen long-term relationships.
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+Displays the Top 10 customers ranked by loyalty points, along with
+their total orders and total revenue.
+
+------------------------------------------------------------------------------
+*/
+
+SELECT TOP (10)
+
+    C.CustomerID                                          AS [Customer ID],
+
+    CONCAT(C.FirstName,' ',C.LastName)                    AS [Customer Name],
+
+    C.LoyaltyPoints                                       AS [Loyalty Points],
+
+    COUNT(DISTINCT O.OrderID)                             AS [Total Orders],
+
+    ISNULL(SUM(O.NetAmount), 0)                           AS [Total Revenue]
+
+FROM dbo.Customer C
+
+LEFT JOIN dbo.[Order] O
+       ON C.CustomerID = O.CustomerID
+
+GROUP BY
+
+    C.CustomerID,
+    C.FirstName,
+    C.LastName,
+    C.LoyaltyPoints
+
+ORDER BY
+
+    C.LoyaltyPoints DESC,
+    [Total Revenue] DESC;
+    
+PRINT 'KPI 029 : Top 10 Customers by Loyalty Points Generated Successfully.';
+PRINT '--------------------------------------------------------------';
+GO
+
