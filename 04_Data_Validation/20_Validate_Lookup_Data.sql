@@ -20,6 +20,7 @@ Lookup Tables:
     • Brand
     • PaymentMethod
     • PaymentStatus
+	• OrderStatus
     • ReturnReason
     • ReturnStatus
 ==============================================================================*/
@@ -567,6 +568,29 @@ PRINT 'ReturnStatus validation completed successfully.';
 PRINT '==============================================================';
 
 /*==============================================================================
+                Part 3.8 : OrderStatus
+==============================================================================*/
+
+PRINT '==============================================================';
+PRINT 'Validating Lookup Table : OrderStatus';
+PRINT '==============================================================';
+
+SELECT
+
+    OrderStatusID,
+    StatusName
+
+FROM dbo.OrderStatus
+
+ORDER BY
+
+    OrderStatusID;
+
+PRINT 'OrderStatus Validation Completed Successfully.';
+PRINT '--------------------------------------------------------------';
+GO
+
+/*==============================================================================
                     Part 4 : Validation Summary
 ==============================================================================*/
 
@@ -619,7 +643,15 @@ UNION ALL
 SELECT
     'ReturnStatus',
     COUNT(*)
-FROM dbo.ReturnStatus;
+FROM dbo.ReturnStatus
+
+UNION ALL
+
+SELECT
+	'OrderStatus',
+	COUNT(*)
+FROM dbo.OrderStatus	
+;
 
 PRINT '==============================================================';
 PRINT 'Lookup Data Validation Summary Completed.';
