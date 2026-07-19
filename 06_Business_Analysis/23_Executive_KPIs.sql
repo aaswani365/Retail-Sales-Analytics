@@ -156,54 +156,43 @@ all major entities.
 ------------------------------------------------------------------------------*/
 
 SELECT
-
     DB_NAME() AS DatabaseName,
-
     (
         SELECT COUNT(*)
         FROM dbo.Customer
     ) AS TotalCustomers,
-
     (
         SELECT COUNT(*)
         FROM dbo.Store
     ) AS TotalStores,
-
     (
         SELECT COUNT(*)
         FROM dbo.Product
     ) AS TotalProducts,
-
     (
         SELECT COUNT(*)
         FROM dbo.Supplier
     ) AS TotalSuppliers,
-
     (
         SELECT COUNT(*)
         FROM dbo.Employee
     ) AS TotalEmployees,
-
     (
         SELECT COUNT(*)
         FROM dbo.[Order]
     ) AS TotalOrders,
-
     (
         SELECT COUNT(*)
         FROM dbo.OrderItem
     ) AS TotalOrderItems,
-
     (
         SELECT COUNT(*)
         FROM dbo.Payment
     ) AS TotalPayments,
-
     (
         SELECT COUNT(*)
         FROM dbo.[Return]
     ) AS TotalReturns,
-
     (
         SELECT COUNT(*)
         FROM dbo.Inventory
@@ -252,9 +241,7 @@ performance.
 ------------------------------------------------------------------------------*/
 
 SELECT
-
     SUM(NetAmount) AS TotalNetRevenue
-
 FROM dbo.[Order];
 
 PRINT 'KPI 002 : Total Net Revenue Generated Successfully.';
@@ -264,8 +251,7 @@ PRINT '--------------------------------------------------------------';
 KPI 003 : Average Order Value (AOV)
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -286,13 +272,10 @@ Expected Insight
 A higher Average Order Value generally indicates that customers are
 purchasing more products or higher-value products per transaction.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
     CAST(AVG(NetAmount) AS DECIMAL(12,2)) AS AverageOrderValue
-
 FROM dbo.[Order];
 
 PRINT 'KPI 003 : Average Order Value Generated Successfully.';
@@ -302,8 +285,7 @@ PRINT '--------------------------------------------------------------';
 KPI 004 : Highest Order Value
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -322,13 +304,10 @@ Expected Insight
 
 Shows the maximum revenue generated from a single order.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
     MAX(NetAmount) AS HighestOrderValue
-
 FROM dbo.[Order];
 
 PRINT 'KPI 004 : Highest Order Value Generated Successfully.';
