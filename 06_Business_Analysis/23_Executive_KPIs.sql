@@ -2239,4 +2239,3 @@ ORDER BY
 PRINT 'KPI 045 : Top 10 Sales Days Generated Successfully.';
 PRINT '--------------------------------------------------------------';
 GO
-
