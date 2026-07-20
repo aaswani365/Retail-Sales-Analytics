@@ -580,8 +580,7 @@ GO
 KPI 012 : Average Daily Orders
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -603,18 +602,15 @@ Expected Insight
 
 Shows the average number of customer orders placed per business day.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
     CAST
     (
         COUNT(OrderID) * 1.0 /
         COUNT(DISTINCT CAST(OrderDate AS DATE))
         AS DECIMAL(10,2)
     ) AS [Average Daily Orders]
-
 FROM dbo.[Order];
 
 PRINT 'KPI 012 : Average Daily Orders Generated Successfully.';
@@ -625,8 +621,7 @@ GO
 KPI 013 : Highest Items in a Single Order
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -647,36 +642,27 @@ Expected Insight
 Displays the order with the highest total quantity of items purchased,
 along with the customer, order date, and total order value.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT TOP (1)
-
-    O.OrderNumber                          AS [Order Number],
-    C.FirstName							   AS [First Name],
-	C.LastName							   As [Last Name],
-    CAST(O.OrderDate AS DATE)              AS [Order Date],
-    SUM(OI.Quantity)                       AS [Total Items Purchased],
-    O.NetAmount                            AS [Order Value]
-
+    O.OrderNumber AS [Order Number],
+    C.FirstName AS [First Name],
+	C.LastName As [Last Name],
+    CAST(O.OrderDate AS DATE) AS [Order Date],
+    SUM(OI.Quantity) AS [Total Items Purchased],
+    O.NetAmount AS [Order Value]
 FROM dbo.[Order] O
-
 INNER JOIN dbo.Customer C
     ON O.CustomerID = C.CustomerID
-
 INNER JOIN dbo.OrderItem OI
     ON O.OrderID = OI.OrderID
-
 GROUP BY
-
     O.OrderNumber,
     C.FirstName,
 	C.LastName,
     O.OrderDate,
     O.NetAmount
-
 ORDER BY
-
     [Total Items Purchased] DESC,
     [Order Value] DESC;
 
@@ -688,8 +674,7 @@ GO
 KPI 014 : Lowest Items in a Single Order
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -710,34 +695,25 @@ Expected Insight
 Displays the order with the lowest total quantity of items purchased,
 along with the customer, order date, and total order value.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT TOP (1)
-
-    O.OrderNumber                     AS [Order Number],
-    C.FirstName						  AS [First Name],
-    CAST(O.OrderDate AS DATE)         AS [Order Date],
-    SUM(OI.Quantity)                  AS [Total Items Purchased],
-    O.NetAmount                       AS [Order Value]
-
+    O.OrderNumber AS [Order Number],
+    C.FirstName AS [First Name],
+    CAST(O.OrderDate AS DATE) AS [Order Date],
+    SUM(OI.Quantity) AS [Total Items Purchased],
+    O.NetAmount AS [Order Value]
 FROM dbo.[Order] O
-
 INNER JOIN dbo.Customer C
     ON O.CustomerID = C.CustomerID
-
 INNER JOIN dbo.OrderItem OI
     ON O.OrderID = OI.OrderID
-
 GROUP BY
-
     O.OrderNumber,
     C.FirstName,
     O.OrderDate,
     O.NetAmount
-
 ORDER BY
-
     [Total Items Purchased] ASC,
     [Order Value] ASC;
 
@@ -749,8 +725,7 @@ GO
 KPI 015 : Orders by Store
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -773,25 +748,17 @@ Expected Insight
 Displays the total number of orders processed by each store,
 ranked from highest to lowest.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
-    S.StoreName                     AS [Store Name],
-    COUNT(O.OrderID)                AS [Total Orders]
-
+    S.StoreName AS [Store Name],
+    COUNT(O.OrderID) AS [Total Orders]
 FROM dbo.[Order] O
-
 INNER JOIN dbo.Store S
     ON O.StoreID = S.StoreID
-
 GROUP BY
-
     S.StoreName
-
 ORDER BY
-
     [Total Orders] DESC;
 
 PRINT 'KPI 015 : Orders by Store Generated Successfully.';
@@ -802,8 +769,7 @@ GO
 KPI 016 : Orders by Employee
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -826,27 +792,19 @@ Expected Insight
 Displays the total number of orders processed by each employee,
 ranked from highest to lowest.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
-    E.EmployeeID                     AS [Employee ID],
-    CONCAT(E.FirstName, ' ', E.LastName)                   AS [Employee Name],
-    COUNT(O.OrderID)                 AS [Total Orders Processed]
-
+    E.EmployeeID AS [Employee ID],
+    CONCAT(E.FirstName, ' ', E.LastName) AS [Employee Name],
+    COUNT(O.OrderID) AS [Total Orders Processed]
 FROM dbo.[Order] O
-
 INNER JOIN dbo.Employee E
     ON O.EmployeeID = E.EmployeeID
-
 GROUP BY
-
     E.EmployeeID,
     CONCAT(E.FirstName, ' ', E.LastName) 
-
 ORDER BY
-
     [Total Orders Processed] DESC,
     [Employee Name];
 
@@ -858,8 +816,7 @@ GO
 KPI 017 : Top 10 Highest Value Orders
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -879,31 +836,23 @@ Expected Insight
 
 Displays the Top 10 highest-value customer orders based on Net Amount.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT TOP (10)
-
-    O.OrderNumber                     AS [Order Number],
-    CONCAT(C.FirstName, ' ', C.LastName)                     AS [Customer Name],
-    S.StoreName                       AS [Store Name],
-    CONCAT(E.FirstName, ' ', E.LastName)                     AS [Processed By],
-    CAST(O.OrderDate AS DATE)         AS [Order Date],
-    O.NetAmount                       AS [Order Value]
-
+    O.OrderNumber AS [Order Number],
+    CONCAT(C.FirstName, ' ', C.LastName) AS [Customer Name],
+    S.StoreName AS [Store Name],
+    CONCAT(E.FirstName, ' ', E.LastName) AS [Processed By],
+    CAST(O.OrderDate AS DATE) AS [Order Date],
+    O.NetAmount AS [Order Value]
 FROM dbo.[Order] O
-
 INNER JOIN dbo.Customer C
     ON O.CustomerID = C.CustomerID
-
 INNER JOIN dbo.Store S
     ON O.StoreID = S.StoreID
-
 INNER JOIN dbo.Employee E
     ON O.EmployeeID = E.EmployeeID
-
 ORDER BY
-
     O.NetAmount DESC,
     O.OrderDate DESC;
 
@@ -915,8 +864,7 @@ GO
 KPI 018 : Order Status Distribution
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -941,33 +889,23 @@ Expected Insight
 Displays the number and percentage of orders in each status, providing
 an overview of the business's operational performance.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
-    OS.StatusName                           AS [Order Status],
-
-    COUNT(O.OrderID)                             AS [Total Orders],
-
+    OS.StatusName AS [Order Status],
+    COUNT(O.OrderID) AS [Total Orders],
     CAST
     (
         COUNT(O.OrderID) * 100.0 /
         SUM(COUNT(O.OrderID)) OVER ()
         AS DECIMAL(10,2)
-    )                                            AS [Order Percentage (%)]
-
+    ) AS [Order Percentage (%)]
 FROM dbo.[Order] O
-
 INNER JOIN dbo.OrderStatus OS
     ON O.OrderStatusID = OS.OrderStatusID
-
 GROUP BY
-
     OS.StatusName
-
 ORDER BY
-
     [Total Orders] DESC;
 
 PRINT 'KPI 018 : Order Status Distribution Generated Successfully.';
@@ -982,14 +920,11 @@ PRINT '==============================================================';
 PRINT 'Part 5 : Customer KPIs';
 PRINT '==============================================================';
 
-
-
 /*------------------------------------------------------------------------------
 KPI 019 : Total Customers
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1011,13 +946,10 @@ Expected Insight
 
 Displays the total number of registered customers in the system.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
     COUNT(CustomerID) AS [Total Customers]
-
 FROM dbo.Customer;
 
 PRINT 'KPI 019 : Total Customers Generated Successfully.';
@@ -1028,8 +960,7 @@ GO
 KPI 020 : Active Customers
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1051,17 +982,12 @@ Expected Insight
 
 Displays the total number of active customers registered in the system.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
     COUNT(CustomerID) AS [Active Customers]
-
 FROM dbo.Customer
-
 WHERE
-
     IsActive = 1;
 
 PRINT 'KPI 020 : Active Customers Generated Successfully.';
@@ -1072,8 +998,7 @@ GO
 KPI 021 : Inactive Customers
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1095,17 +1020,12 @@ Expected Insight
 
 Displays the total number of inactive customers registered in the system.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
     COUNT(CustomerID) AS [Inactive Customers]
-
 FROM dbo.Customer
-
 WHERE
-
     IsActive = 0;
 
 PRINT 'KPI 021 : Inactive Customers Generated Successfully.';
@@ -1116,8 +1036,7 @@ GO
 KPI 022 : New Customers
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1140,29 +1059,19 @@ Expected Insight
 Displays the total number of customers registered in each month,
 allowing management to monitor customer acquisition trends over time.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
-    YEAR(RegistrationDate)                     AS [Year],
-
-    MONTH(RegistrationDate)                    AS [Month Number],
-
-    DATENAME(MONTH, RegistrationDate)          AS [Month],
-
-    COUNT(CustomerID)                          AS [New Customers]
-
+    YEAR(RegistrationDate) AS [Year],
+    MONTH(RegistrationDate) AS [Month Number],
+    DATENAME(MONTH, RegistrationDate) AS [Month],
+    COUNT(CustomerID) AS [New Customers]
 FROM dbo.Customer
-
 GROUP BY
-
     YEAR(RegistrationDate),
     MONTH(RegistrationDate),
     DATENAME(MONTH, RegistrationDate)
-
 ORDER BY
-
     [Year],
     [Month Number];
 
@@ -1174,8 +1083,7 @@ GO
 KPI 023 : Customers by City
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1198,23 +1106,15 @@ Expected Insight
 Displays the total number of registered customers in each city,
 ranked from highest to lowest.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
     City AS [City],
-
     COUNT(CustomerID) AS [Total Customers]
-
 FROM dbo.Customer
-
 GROUP BY
-
     City
-
 ORDER BY
-
     [Total Customers] DESC,
     City;
 
@@ -1226,8 +1126,7 @@ GO
 KPI 024 : Customers by State
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1249,23 +1148,15 @@ Expected Insight
 Displays the total number of registered customers in each state,
 ranked from highest to lowest.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
     State AS [State],
-
     COUNT(CustomerID) AS [Total Customers]
-
 FROM dbo.Customer
-
 GROUP BY
-
     State
-
 ORDER BY
-
     [Total Customers] DESC,
     State;
 
@@ -1277,8 +1168,7 @@ GO
 KPI 025 : Top 10 Customers by Revenue
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1300,34 +1190,22 @@ Expected Insight
 
 Displays the Top 10 customers ranked by total revenue generated.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT TOP (10)
-
-    C.CustomerID                                          AS [Customer ID],
-
-    CONCAT(C.FirstName,' ',C.LastName)                    AS [Customer Name],
-
-    COUNT(DISTINCT O.OrderID)                             AS [Total Orders],
-
-    SUM(O.NetAmount)                                      AS [Total Revenue],
-
-    AVG(O.NetAmount)                                      AS [Average Order Value]
-
+    C.CustomerID AS [Customer ID],
+    CONCAT(C.FirstName,' ',C.LastName) AS [Customer Name],
+    COUNT(DISTINCT O.OrderID) AS [Total Orders],
+    SUM(O.NetAmount) AS [Total Revenue],
+    AVG(O.NetAmount) AS [Average Order Value]
 FROM dbo.Customer C
-
 INNER JOIN dbo.[Order] O
     ON C.CustomerID = O.CustomerID
-
 GROUP BY
-
     C.CustomerID,
     C.FirstName,
     C.LastName
-
 ORDER BY
-
     [Total Revenue] DESC,
     [Total Orders] DESC;
 
