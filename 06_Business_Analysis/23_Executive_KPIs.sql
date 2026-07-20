@@ -1217,8 +1217,7 @@ GO
 KPI 026 : Top 10 Customers by Orders
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1241,34 +1240,22 @@ Expected Insight
 Displays the Top 10 customers ranked by the total number of orders
 placed, along with their total revenue contribution.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT TOP (10)
-
-    C.CustomerID                                          AS [Customer ID],
-
-    CONCAT(C.FirstName,' ',C.LastName)                    AS [Customer Name],
-
-    COUNT(O.OrderID)                                      AS [Total Orders],
-
-    SUM(O.NetAmount)                                      AS [Total Revenue],
-
-    AVG(O.NetAmount)                                      AS [Average Order Value]
-
+    C.CustomerID AS [Customer ID],
+    CONCAT(C.FirstName,' ',C.LastName) AS [Customer Name],
+    COUNT(O.OrderID) AS [Total Orders],
+    SUM(O.NetAmount) AS [Total Revenue],
+    AVG(O.NetAmount) AS [Average Order Value]
 FROM dbo.Customer C
-
 INNER JOIN dbo.[Order] O
     ON C.CustomerID = O.CustomerID
-
 GROUP BY
-
     C.CustomerID,
     C.FirstName,
     C.LastName
-
 ORDER BY
-
     [Total Orders] DESC,
     [Total Revenue] DESC;
 
@@ -1280,8 +1267,7 @@ GO
 KPI 027 : Average Revenue per Customer
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1304,19 +1290,15 @@ Expected Insight
 Displays the average revenue generated per customer based on all
 completed customer orders.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
     CAST
     (
-        SUM(O.NetAmount) * 1.0 /
-        COUNT(O.CustomerID)
-        AS DECIMAL(12,2)
+        SUM(O.NetAmount) * 1.0 / COUNT(O.CustomerID) AS DECIMAL(12,2)
     ) AS [Average Revenue per Customer]
-
 FROM dbo.[Order] O;
+
 
 PRINT 'KPI 027 : Average Revenue per Customer Generated Successfully.';
 PRINT '--------------------------------------------------------------';
@@ -1326,8 +1308,7 @@ GO
 KPI 028 : Loyalty Points Distribution
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1349,53 +1330,27 @@ Expected Insight
 
 Displays the distribution of customers based on their loyalty points.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
     CASE
-
         WHEN LoyaltyPoints = 0 THEN 'No Points'
-
-        WHEN LoyaltyPoints BETWEEN 1 AND 500
-            THEN '1 - 500'
-
-        WHEN LoyaltyPoints BETWEEN 501 AND 1000
-            THEN '501 - 1000'
-
-        WHEN LoyaltyPoints BETWEEN 1001 AND 2000
-            THEN '1001 - 2000'
-
+        WHEN LoyaltyPoints BETWEEN 1 AND 500 THEN '1 - 500'
+        WHEN LoyaltyPoints BETWEEN 501 AND 1000 THEN '501 - 1000'
+        WHEN LoyaltyPoints BETWEEN 1001 AND 2000 THEN '1001 - 2000'
         ELSE 'Above 2000'
-
     END AS [Loyalty Points Range],
-
     COUNT(CustomerID) AS [Total Customers]
-
 FROM dbo.Customer
-
 GROUP BY
-
     CASE
-
         WHEN LoyaltyPoints = 0 THEN 'No Points'
-
-        WHEN LoyaltyPoints BETWEEN 1 AND 500
-            THEN '1 - 500'
-
-        WHEN LoyaltyPoints BETWEEN 501 AND 1000
-            THEN '501 - 1000'
-
-        WHEN LoyaltyPoints BETWEEN 1001 AND 2000
-            THEN '1001 - 2000'
-
+        WHEN LoyaltyPoints BETWEEN 1 AND 500 THEN '1 - 500'
+        WHEN LoyaltyPoints BETWEEN 501 AND 1000 THEN '501 - 1000'
+        WHEN LoyaltyPoints BETWEEN 1001 AND 2000 THEN '1001 - 2000'
         ELSE 'Above 2000'
-
     END
-
 ORDER BY
-
     MIN(LoyaltyPoints);
 
 PRINT 'KPI 028 : Loyalty Points Distribution Generated Successfully.';
@@ -1406,8 +1361,7 @@ GO
 KPI 029 : Top 10 Customers by Loyalty Points
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1430,37 +1384,7 @@ Expected Insight
 Displays the Top 10 customers ranked by loyalty points, along with
 their total orders and total revenue.
 
-------------------------------------------------------------------------------
-*/
-
-SELECT TOP (10)
-
-    C.CustomerID                                          AS [Customer ID],
-
-    CONCAT(C.FirstName,' ',C.LastName)                    AS [Customer Name],
-
-    C.LoyaltyPoints                                       AS [Loyalty Points],
-
-    COUNT(DISTINCT O.OrderID)                             AS [Total Orders],
-
-    ISNULL(SUM(O.NetAmount), 0)                           AS [Total Revenue]
-
-FROM dbo.Customer C
-
-LEFT JOIN dbo.[Order] O
-       ON C.CustomerID = O.CustomerID
-
-GROUP BY
-
-    C.CustomerID,
-    C.FirstName,
-    C.LastName,
-    C.LoyaltyPoints
-
-ORDER BY
-
-    C.LoyaltyPoints DESC,
-    [Total Revenue] DESC;
+------------------------------------------------------------------------------*/
     
 PRINT 'KPI 029 : Top 10 Customers by Loyalty Points Generated Successfully.';
 PRINT '--------------------------------------------------------------';
@@ -1470,8 +1394,7 @@ GO
 KPI 030 : Customer Lifetime Value (Approx.)
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1495,40 +1418,26 @@ Displays the Top 10 customers with the highest lifetime value based on
 their cumulative revenue, total orders, average order value, and
 registration date.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT TOP (10)
-
-    C.CustomerID                                            AS [Customer ID],
-
-    CONCAT(C.FirstName,' ',C.LastName)                      AS [Customer Name],
-
-    C.RegistrationDate                                      AS [Registration Date],
-
-    COUNT(DISTINCT O.OrderID)                               AS [Total Orders],
-
-    ISNULL(SUM(O.NetAmount),0)                              AS [Lifetime Revenue],
-
-    ISNULL(AVG(O.NetAmount),0)                              AS [Average Order Value],
-
-    C.LoyaltyPoints                                         AS [Loyalty Points]
-
+    C.CustomerID AS [Customer ID],
+    CONCAT(C.FirstName,' ',C.LastName) AS [Customer Name],
+    C.RegistrationDate AS [Registration Date],
+    COUNT(DISTINCT O.OrderID) AS [Total Orders],
+    ISNULL(SUM(O.NetAmount),0) AS [Lifetime Revenue],
+    ISNULL(AVG(O.NetAmount),0) AS [Average Order Value],
+    C.LoyaltyPoints AS [Loyalty Points]
 FROM dbo.Customer C
-
 LEFT JOIN dbo.[Order] O
        ON C.CustomerID = O.CustomerID
-
 GROUP BY
-
     C.CustomerID,
     C.FirstName,
     C.LastName,
     C.RegistrationDate,
     C.LoyaltyPoints
-
 ORDER BY
-
     [Lifetime Revenue] DESC,
     [Total Orders] DESC;
 
@@ -1540,8 +1449,7 @@ GO
 KPI 031 : Daily Sales Trend
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1562,27 +1470,17 @@ Expected Insight
 Displays total daily revenue, total orders, and average order value for
 each business day.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
-    CAST(O.OrderDate AS DATE)                         AS [Order Date],
-
-    COUNT(O.OrderID)                                 AS [Total Orders],
-
-    SUM(O.NetAmount)                                 AS [Total Revenue],
-
-    AVG(O.NetAmount)                                 AS [Average Order Value]
-
+    CAST(O.OrderDate AS DATE) AS [Order Date],
+    COUNT(O.OrderID) AS [Total Orders],
+    SUM(O.NetAmount) AS [Total Revenue],
+    AVG(O.NetAmount) AS [Average Order Value]
 FROM dbo.[Order] O
-
 GROUP BY
-
     CAST(O.OrderDate AS DATE)
-
 ORDER BY
-
     [Order Date];
 
 PRINT 'KPI 031 : Daily Sales Trend Generated Successfully.';
@@ -1593,8 +1491,7 @@ GO
 KPI 032 : Monthly Sales Trend
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1615,33 +1512,21 @@ Expected Insight
 Displays total monthly revenue, total orders, and average order value
 for each month.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
-    YEAR(O.OrderDate)                             AS [Year],
-
-    MONTH(O.OrderDate)                            AS [Month Number],
-
-    DATENAME(MONTH, O.OrderDate)                  AS [Month],
-
-    COUNT(O.OrderID)                              AS [Total Orders],
-
-    SUM(O.NetAmount)                              AS [Total Revenue],
-
-    AVG(O.NetAmount)                              AS [Average Order Value]
-
+    YEAR(O.OrderDate) AS [Year],
+    MONTH(O.OrderDate) AS [Month Number],
+    DATENAME(MONTH, O.OrderDate) AS [Month],
+    COUNT(O.OrderID) AS [Total Orders],
+    SUM(O.NetAmount) AS [Total Revenue],
+    AVG(O.NetAmount) AS [Average Order Value]
 FROM dbo.[Order] O
-
 GROUP BY
-
     YEAR(O.OrderDate),
     MONTH(O.OrderDate),
     DATENAME(MONTH, O.OrderDate)
-
 ORDER BY
-
     [Year],
     [Month Number];
 
@@ -1653,8 +1538,7 @@ GO
 KPI 033 : Yearly Sales Trend
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1677,27 +1561,17 @@ Expected Insight
 Displays total yearly revenue, total orders, and average order value
 for each year.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
-    YEAR(O.OrderDate)                             AS [Year],
-
-    COUNT(O.OrderID)                              AS [Total Orders],
-
-    SUM(O.NetAmount)                              AS [Total Revenue],
-
-    AVG(O.NetAmount)                              AS [Average Order Value]
-
+    YEAR(O.OrderDate) AS [Year],
+    COUNT(O.OrderID) AS [Total Orders],
+    SUM(O.NetAmount) AS [Total Revenue],
+    AVG(O.NetAmount) AS [Average Order Value]
 FROM dbo.[Order] O
-
 GROUP BY
-
     YEAR(O.OrderDate)
-
 ORDER BY
-
     [Year];
 
 PRINT 'KPI 033 : Yearly Sales Trend Generated Successfully.';
@@ -1708,8 +1582,7 @@ GO
 KPI 034 : Revenue by Store
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1732,33 +1605,21 @@ Expected Insight
 Displays revenue generated by each store along with total orders,
 average order value, and revenue contribution.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
-    S.StoreID                                         AS [Store ID],
-
-    S.StoreName                                       AS [Store Name],
-
-    COUNT(O.OrderID)                                  AS [Total Orders],
-
-    SUM(O.NetAmount)                                  AS [Total Revenue],
-
-    AVG(O.NetAmount)                                  AS [Average Order Value]
-
+    S.StoreID AS [Store ID],
+    S.StoreName AS [Store Name],
+    COUNT(O.OrderID) AS [Total Orders],
+    SUM(O.NetAmount) AS [Total Revenue],
+    AVG(O.NetAmount) AS [Average Order Value]
 FROM dbo.Store S
-
 INNER JOIN dbo.[Order] O
         ON S.StoreID = O.StoreID
-
 GROUP BY
-
     S.StoreID,
     S.StoreName
-
 ORDER BY
-
     [Total Revenue] DESC;
 
 PRINT 'KPI 034 : Revenue by Store Generated Successfully.';
@@ -1769,8 +1630,7 @@ GO
 KPI 035 : Revenue by Employee
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1791,34 +1651,22 @@ Expected Insight
 Displays total revenue generated by each employee along with total
 orders processed and average order value.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
-    E.EmployeeID                                        AS [Employee ID],
-
-    CONCAT(E.FirstName,' ',E.LastName)                  AS [Employee Name],
-
-    COUNT(O.OrderID)                                    AS [Total Orders],
-
-    SUM(O.NetAmount)                                    AS [Total Revenue],
-
-    AVG(O.NetAmount)                                    AS [Average Order Value]
-
+    E.EmployeeID AS [Employee ID],
+    CONCAT(E.FirstName,' ',E.LastName) AS [Employee Name],
+    COUNT(O.OrderID) AS [Total Orders],
+    SUM(O.NetAmount) AS [Total Revenue],
+    AVG(O.NetAmount) AS [Average Order Value]
 FROM dbo.Employee E
-
 INNER JOIN dbo.[Order] O
         ON E.EmployeeID = O.EmployeeID
-
 GROUP BY
-
     E.EmployeeID,
     E.FirstName,
     E.LastName
-
 ORDER BY
-
     [Total Revenue] DESC;
 
 PRINT 'KPI 035 : Revenue by Employee Generated Successfully.';
