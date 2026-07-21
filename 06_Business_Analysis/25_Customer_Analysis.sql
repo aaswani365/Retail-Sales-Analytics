@@ -2447,3 +2447,472 @@ PRINT '==============================================================';
 PRINT '';
 
 GO
+
+/*------------------------------------------------------------------------------
+KPI 101 : Customer Segmentation by Spending
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+How are customers distributed across spending segments?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Customer segmentation helps businesses understand customer purchasing
+behavior and create targeted marketing campaigns.
+
+This KPI supports:
+
+• Customer Segmentation
+• Loyalty Programs
+• Personalized Marketing
+• Customer Value Analysis
+• Executive Reporting
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+Customers are classified into spending segments:
+
+• Platinum  (>= 50,000)
+• Gold      (25,000 - 49,999)
+• Silver    (10,000 - 24,999)
+• Bronze    (<10,000)
+
+------------------------------------------------------------------------------
+*/
+
+WITH CustomerRevenue AS
+(
+    SELECT
+        C.CustomerID,
+        CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
+        SUM(OI.LineTotal) AS TotalRevenue
+    FROM dbo.Customer C
+    INNER JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+    INNER JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+    GROUP BY
+        C.CustomerID,
+        C.FirstName,
+        C.LastName
+)
+SELECT
+    CustomerSegment,
+    COUNT(*) AS TotalCustomers,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER(),2) AS CustomerPercentage
+FROM
+(
+    SELECT
+        CASE
+            WHEN TotalRevenue >= 5000000 THEN 'Platinum'
+            WHEN TotalRevenue >= 2500000 THEN 'Gold'
+            WHEN TotalRevenue >= 1000000 THEN 'Silver'
+            ELSE 'Bronze'
+        END AS CustomerSegment
+    FROM CustomerRevenue
+) Segmentation
+GROUP BY
+    CustomerSegment
+ORDER BY
+    CASE CustomerSegment
+        WHEN 'Platinum' THEN 1
+        WHEN 'Gold' THEN 2
+        WHEN 'Silver' THEN 3
+        WHEN 'Bronze' THEN 4
+    END;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 101 : Customer Segmentation by Spending Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 102 : Customer Segmentation by Purchase Frequency
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+How are customers distributed based on the number of orders placed?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Purchase frequency is one of the strongest indicators of customer loyalty.
+
+Segmenting customers based on purchase frequency helps businesses:
+
+• Identify Loyal Customers
+• Measure Customer Engagement
+• Improve Retention Strategies
+• Design Loyalty Programs
+• Target Marketing Campaigns
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+Customers are classified into purchase frequency segments:
+
+• Very Frequent (10+ Orders)
+• Frequent (5–9 Orders)
+• Occasional (2–4 Orders)
+• One-Time (1 Order)
+
+------------------------------------------------------------------------------
+*/
+
+WITH CustomerOrders AS
+(
+    SELECT
+        C.CustomerID,
+        CONCAT(C.FirstName, ' ', C.LastName) AS CustomerName,
+        COUNT(DISTINCT O.OrderID) AS TotalOrders
+    FROM dbo.Customer C
+    INNER JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+    GROUP BY
+        C.CustomerID,
+        C.FirstName,
+        C.LastName
+)
+SELECT
+    PurchaseFrequencySegment,
+    COUNT(*) AS TotalCustomers,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER(),2) AS CustomerPercentage
+FROM
+(
+    SELECT
+        CASE
+            WHEN TotalOrders >= 10 THEN 'Very Frequent'
+            WHEN TotalOrders >= 5 THEN 'Frequent'
+            WHEN TotalOrders >= 2 THEN 'Occasional'
+            ELSE 'One-Time'
+        END AS PurchaseFrequencySegment
+    FROM CustomerOrders
+) FrequencySegments
+GROUP BY
+    PurchaseFrequencySegment
+ORDER BY
+    CASE PurchaseFrequencySegment
+        WHEN 'Very Frequent' THEN 1
+        WHEN 'Frequent' THEN 2
+        WHEN 'Occasional' THEN 3
+        WHEN 'One-Time' THEN 4
+    END;
+
+PRINT '';
+
+PRINT '=====================================================================';
+PRINT 'KPI 102 : Customer Segmentation by Purchase Frequency Generated Successfully';
+PRINT '=====================================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 103 : Customer Segmentation by Loyalty Points
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+How are customers distributed based on their loyalty points?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Loyalty points represent customer engagement and long-term relationship
+with the business.
+
+Segmenting customers based on loyalty points helps:
+
+• Identify VIP Customers
+• Design Reward Programs
+• Increase Customer Retention
+• Improve Personalized Marketing
+• Enhance Customer Experience
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+Customers are classified into loyalty segments:
+
+• Platinum
+• Gold
+• Silver
+• Bronze
+
+------------------------------------------------------------------------------
+*/
+
+SELECT
+    LoyaltySegment,
+    COUNT(*) AS TotalCustomers,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER(),2) AS CustomerPercentage,
+    MIN(LoyaltyPoints) AS MinimumPoints,
+    MAX(LoyaltyPoints) AS MaximumPoints,
+    AVG(LoyaltyPoints) AS AveragePoints
+FROM
+(
+    SELECT
+        CustomerID,
+        LoyaltyPoints,
+        CASE
+            WHEN LoyaltyPoints >= 3000 THEN 'Platinum'
+            WHEN LoyaltyPoints >= 2000 THEN 'Gold'
+            WHEN LoyaltyPoints >= 900 THEN 'Silver'
+            ELSE 'Bronze'
+        END AS LoyaltySegment
+    FROM dbo.Customer
+) AS CustomerSegmentation
+GROUP BY
+    LoyaltySegment
+ORDER BY
+    CASE LoyaltySegment
+        WHEN 'Platinum' THEN 1
+        WHEN 'Gold' THEN 2
+        WHEN 'Silver' THEN 3
+        WHEN 'Bronze' THEN 4
+    END;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 103 : Customer Segmentation by Loyalty Points Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 104 : Customer Segmentation by Purchase Recency
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+How are customers segmented based on how recently they made a purchase?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Purchase recency is a key indicator of customer engagement.
+
+Segmenting customers by recency helps businesses:
+
+• Identify Active Customers
+• Detect At-Risk Customers
+• Launch Re-engagement Campaigns
+• Improve Customer Retention
+• Support CRM Strategy
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+Customers are classified into recency segments:
+
+• Active (0–30 Days)
+• Warm (31–90 Days)
+• Cold (91–180 Days)
+• Inactive (>180 Days)
+
+------------------------------------------------------------------------------
+*/
+
+WITH CustomerRecency AS
+(
+    SELECT
+        C.CustomerID,
+        CONCAT(C.FirstName, ' ', C.LastName) AS CustomerName,
+        MAX(O.OrderDate) AS LastPurchaseDate,
+        DATEDIFF(DAY,MAX(O.OrderDate),GETDATE()) AS DaysSinceLastPurchase
+    FROM dbo.Customer C
+    INNER JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+    GROUP BY
+        C.CustomerID,
+        C.FirstName,
+        C.LastName
+)
+SELECT
+    RecencySegment,
+    COUNT(*) AS TotalCustomers,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER(),2) AS CustomerPercentage,
+    MIN(DaysSinceLastPurchase) AS MinimumDays,
+    MAX(DaysSinceLastPurchase) AS MaximumDays,
+    AVG(DaysSinceLastPurchase) AS AverageDays
+FROM
+(
+    SELECT
+        DaysSinceLastPurchase,
+        CASE
+            WHEN DaysSinceLastPurchase <= 30 THEN 'Active'
+            WHEN DaysSinceLastPurchase <= 90
+                THEN 'Warm'
+            WHEN DaysSinceLastPurchase <= 180
+                THEN 'Cold'
+            ELSE 'Inactive'
+        END AS RecencySegment
+    FROM CustomerRecency
+) AS CustomerSegmentation
+GROUP BY
+    RecencySegment
+ORDER BY
+    CASE RecencySegment
+        WHEN 'Active' THEN 1
+        WHEN 'Warm' THEN 2
+        WHEN 'Cold' THEN 3
+        WHEN 'Inactive' THEN 4
+    END;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 104 : Customer Segmentation by Purchase Recency Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 105 : Customer Insights Summary
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+What is the overall customer insight summary for the business?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Customer Insights Summary provides a high-level overview of customer
+behavior, engagement, loyalty, and revenue.
+
+This KPI supports:
+
+• Executive Reporting
+• Customer Health Monitoring
+• Customer Lifetime Value Analysis
+• Customer Retention Strategy
+• Business Decision Making
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Total Customers
+• Active Customers
+• Customers with Orders
+• Repeat Customers
+• One-Time Customers
+• Average Revenue per Customer
+• Average Orders per Customer
+• Average Loyalty Points
+• Average Customer Lifetime Value
+• Average Days Since Last Purchase
+
+------------------------------------------------------------------------------
+*/
+
+WITH LatestOrderDate AS
+(
+    SELECT
+        MAX(OrderDate) AS MaxOrderDate
+    FROM dbo.[Order]
+),
+CustomerSummary AS
+(
+    SELECT
+        C.CustomerID,
+        C.IsActive,
+        C.LoyaltyPoints,
+        COUNT(DISTINCT O.OrderID) AS TotalOrders,
+        ISNULL(SUM(OI.LineTotal),0) AS TotalRevenue,
+        MAX(O.OrderDate) AS LastPurchaseDate
+    FROM dbo.Customer C
+    LEFT JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+    LEFT JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+    GROUP BY
+        C.CustomerID,
+        C.IsActive,
+        C.LoyaltyPoints
+)
+SELECT
+    COUNT(*) AS TotalCustomers,
+    SUM(
+        CASE
+            WHEN IsActive = 1 THEN 1
+            ELSE 0
+        END
+    ) AS ActiveCustomers,
+    SUM(
+        CASE
+            WHEN TotalOrders > 0 THEN 1
+            ELSE 0
+        END
+    ) AS CustomersWithOrders,
+    SUM(
+        CASE
+            WHEN TotalOrders > 1 THEN 1
+            ELSE 0
+        END
+    ) AS RepeatCustomers,
+    SUM(
+        CASE
+            WHEN TotalOrders = 1 THEN 1
+            ELSE 0
+        END
+    ) AS OneTimeCustomers,
+    ROUND(AVG(TotalRevenue),2) AS AverageRevenuePerCustomer,
+    ROUND(AVG(CAST(TotalOrders AS DECIMAL(18,2))),2) AS AverageOrdersPerCustomer,
+    ROUND(AVG(CAST(LoyaltyPoints AS DECIMAL(18,2))),2) AS AverageLoyaltyPoints,
+    ROUND(SUM(TotalRevenue) * 1.0 / COUNT(*),2) AS AverageCustomerLifetimeValue,
+    ROUND(AVG(CAST(DATEDIFF(DAY,LastPurchaseDate,LOD.MaxOrderDate) AS DECIMAL(18,2))),2) AS AverageDaysSinceLastPurchase
+FROM CustomerSummary CS
+CROSS JOIN LatestOrderDate LOD;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 105 : Customer Insights Summary Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
