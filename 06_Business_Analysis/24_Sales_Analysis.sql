@@ -1539,3 +1539,837 @@ PRINT '==============================================================';
 PRINT '';
 
 GO
+
+/*------------------------------------------------------------------------------
+KPI 066 : Revenue by Country
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which countries generate the highest sales revenue?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Revenue by Country helps businesses identify high-performing geographic
+markets. This KPI supports expansion planning, regional marketing
+strategies, inventory allocation, and international sales analysis.
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Total Revenue
+• Total Orders
+• Total Quantity Sold
+• Average Order Value
+
+for each country.
+
+The results are sorted by revenue in descending order.
+
+------------------------------------------------------------------------------
+*/
+
+SELECT
+    C.Country,
+    SUM(OI.LineTotal) AS TotalRevenue,
+    COUNT(DISTINCT O.OrderID) AS TotalOrders,
+    SUM(OI.Quantity) AS TotalQuantitySold,
+    ROUND(AVG(O.NetAmount),2) AS AverageOrderValue
+FROM dbo.[Order] O
+INNER JOIN dbo.Customer C
+    ON O.CustomerID = C.CustomerID
+INNER JOIN dbo.OrderItem OI
+    ON O.OrderID = OI.OrderID
+GROUP BY
+    C.Country
+ORDER BY
+    TotalRevenue DESC;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 066 : Revenue by Country Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 067 : Revenue by State
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which states generate the highest sales revenue?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Revenue by State helps businesses identify their strongest regional
+markets. This KPI supports regional sales analysis, marketing allocation,
+store expansion planning, and inventory optimization.
+
+Management can use this KPI to determine which states contribute the most
+to the company's overall revenue.
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Total Revenue
+• Total Orders
+• Total Quantity Sold
+• Average Order Value
+
+for each state.
+
+Results are sorted from highest revenue to lowest revenue.
+
+------------------------------------------------------------------------------
+*/
+
+SELECT
+    C.State,
+    SUM(OI.LineTotal) AS TotalRevenue,
+    COUNT(DISTINCT O.OrderID) AS TotalOrders,
+    SUM(OI.Quantity) AS TotalQuantitySold,
+    ROUND(AVG(O.NetAmount),2) AS AverageOrderValue
+FROM dbo.[Order] O
+INNER JOIN dbo.Customer C
+    ON O.CustomerID = C.CustomerID
+INNER JOIN dbo.OrderItem OI
+    ON O.OrderID = OI.OrderID
+GROUP BY
+    C.State
+ORDER BY
+    TotalRevenue DESC;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 067 : Revenue by State Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 068 : Revenue by City
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which cities generate the highest sales revenue?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Revenue by City provides detailed geographic insights into business
+performance. It helps management identify high-performing cities,
+allocate marketing budgets effectively, optimize inventory distribution,
+and make informed decisions regarding new store locations.
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Total Revenue
+• Total Orders
+• Total Quantity Sold
+• Average Order Value
+
+for each city.
+
+Results are sorted by Total Revenue in descending order.
+
+------------------------------------------------------------------------------
+*/
+
+SELECT
+    C.City,
+    C.State,
+    C.Country,
+    SUM(OI.LineTotal) AS TotalRevenue,
+    COUNT(DISTINCT O.OrderID) AS TotalOrders,
+    SUM(OI.Quantity) AS TotalQuantitySold,
+    ROUND(AVG(O.NetAmount),2) AS AverageOrderValue
+FROM dbo.[Order] O
+INNER JOIN dbo.Customer C
+    ON O.CustomerID = C.CustomerID
+INNER JOIN dbo.OrderItem OI
+    ON O.OrderID = OI.OrderID
+GROUP BY
+    C.City,
+    C.State,
+    C.Country
+ORDER BY
+    TotalRevenue DESC;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 068 : Revenue by City Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 069 : Store-wise Revenue Ranking
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which stores generate the highest sales revenue?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Store Revenue Ranking helps management evaluate the performance of each
+store, identify top-performing locations, recognize underperforming
+stores, and optimize operational strategies.
+
+This KPI is useful for:
+
+• Store Performance Evaluation
+• Regional Comparison
+• Expansion Planning
+• Performance-Based Incentives
+• Revenue Benchmarking
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Total Revenue
+• Total Orders
+• Total Quantity Sold
+• Average Order Value
+
+It then ranks stores based on Total Revenue using DENSE_RANK().
+
+------------------------------------------------------------------------------
+*/
+
+WITH StoreRevenue AS(
+    SELECT
+        S.StoreID,
+        S.StoreName,
+        S.City,
+        S.State,
+        SUM(OI.LineTotal) AS TotalRevenue,
+        COUNT(DISTINCT O.OrderID) AS TotalOrders,
+        SUM(OI.Quantity) AS TotalQuantitySold,
+        ROUND(AVG(O.NetAmount),2) AS AverageOrderValue
+    FROM dbo.Store S
+    INNER JOIN dbo.[Order] O
+        ON S.StoreID = O.StoreID
+    INNER JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+    GROUP BY
+        S.StoreID,
+        S.StoreName,
+        S.City,
+        S.State
+)
+SELECT
+    DENSE_RANK() OVER(ORDER BY TotalRevenue DESC) AS StoreRank,
+    StoreID,
+    StoreName,
+    City,
+    State,
+    TotalRevenue,
+    TotalOrders,
+    TotalQuantitySold,
+    AverageOrderValue
+FROM StoreRevenue
+ORDER BY
+    StoreRank;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 069 : Store-wise Revenue Ranking Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 070 : Revenue Contribution (%) by Store
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+How much does each store contribute to the company's total revenue?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Revenue Contribution analysis helps management understand which stores
+are driving overall business performance.
+
+This KPI is useful for:
+
+• Store Performance Evaluation
+• Resource Allocation
+• Marketing Budget Planning
+• Store Expansion Decisions
+• Executive Dashboards
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Total Revenue
+• Revenue Contribution (%)
+• Running Revenue
+• Cumulative Revenue Contribution (%)
+
+Stores contributing the highest percentage of revenue appear first.
+
+------------------------------------------------------------------------------
+*/
+
+WITH StoreRevenue AS
+(
+    SELECT
+        S.StoreID,
+        S.StoreName,
+        S.City,
+        S.State,
+        SUM(OI.LineTotal) AS TotalRevenue
+    FROM dbo.Store S
+    INNER JOIN dbo.[Order] O
+        ON S.StoreID = O.StoreID
+    INNER JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+    GROUP BY
+        S.StoreID,
+        S.StoreName,
+        S.City,
+        S.State
+)
+SELECT
+    StoreID,
+    StoreName,
+    City,
+    State,
+    TotalRevenue,
+    ROUND(TotalRevenue * 100.0 / SUM(TotalRevenue) OVER (), 2) AS RevenueContributionPercentage,
+    SUM(TotalRevenue) OVER(
+            ORDER BY TotalRevenue DESC
+            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        ) AS RunningRevenue,
+    ROUND(SUM(TotalRevenue) OVER
+            (ORDER BY TotalRevenue DESC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) * 100.0 / SUM(TotalRevenue) OVER (),2) AS CumulativeRevenuePercentage
+FROM StoreRevenue
+ORDER BY
+    TotalRevenue DESC;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 070 : Revenue Contribution (%) by Store Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 071 : Top 10 Stores by Revenue
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which are the Top 10 revenue-generating stores?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Identifying the highest-performing stores helps management recognize
+successful business locations, understand regional demand, reward store
+performance, and replicate best practices across other stores.
+
+This KPI is useful for:
+
+• Executive Reporting
+• Performance Recognition
+• Expansion Planning
+• Revenue Benchmarking
+• Regional Business Analysis
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query identifies the Top 10 stores based on Total Revenue and
+displays:
+
+• Revenue Rank
+• Store Information
+• Total Revenue
+• Total Orders
+• Total Quantity Sold
+• Average Order Value
+
+------------------------------------------------------------------------------
+*/
+
+WITH StoreRevenue AS
+(
+    SELECT
+        S.StoreID,
+        S.StoreName,
+        S.City,
+        S.State,
+        SUM(OI.LineTotal) AS TotalRevenue,
+        COUNT(DISTINCT O.OrderID) AS TotalOrders,
+        SUM(OI.Quantity) AS TotalQuantitySold,
+        ROUND
+        (AVG(O.NetAmount),2) AS AverageOrderValue
+    FROM dbo.Store S
+    INNER JOIN dbo.[Order] O
+        ON S.StoreID = O.StoreID
+    INNER JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+    GROUP BY
+        S.StoreID,
+        S.StoreName,
+        S.City,
+        S.State
+)
+SELECT TOP (10)
+    DENSE_RANK() OVER(ORDER BY TotalRevenue DESC) AS RevenueRank,
+    StoreID,
+    StoreName,
+    City,
+    State,
+    TotalRevenue,
+    TotalOrders,
+    TotalQuantitySold,
+    AverageOrderValue
+FROM StoreRevenue
+ORDER BY
+    TotalRevenue DESC;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 071 : Top 10 Stores by Revenue Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 072 : Bottom 10 Stores by Revenue
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which are the Bottom 10 revenue-generating stores?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Identifying the lowest-performing stores helps management understand
+which locations require attention.
+
+This KPI is useful for:
+
+• Performance Improvement
+• Operational Review
+• Marketing Strategy
+• Inventory Optimization
+• Store Closure or Expansion Decisions
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query identifies the Bottom 10 stores based on Total Revenue and
+displays:
+
+• Revenue Rank
+• Store Information
+• Total Revenue
+• Total Orders
+• Total Quantity Sold
+• Average Order Value
+
+------------------------------------------------------------------------------
+*/
+
+WITH StoreRevenue AS
+(
+    SELECT
+        S.StoreID,
+        S.StoreName,
+        S.City,
+        S.State,
+        SUM(OI.LineTotal) AS TotalRevenue,
+        COUNT(DISTINCT O.OrderID) AS TotalOrders,
+        SUM(OI.Quantity) AS TotalQuantitySold,
+        ROUND(AVG(O.NetAmount),2) AS AverageOrderValue
+    FROM dbo.Store S
+    INNER JOIN dbo.[Order] O
+        ON S.StoreID = O.StoreID
+    INNER JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+    GROUP BY
+        S.StoreID,
+        S.StoreName,
+        S.City,
+        S.State
+)
+SELECT TOP (10)
+    DENSE_RANK() OVER (ORDER BY TotalRevenue ASC) AS RevenueRank,
+    StoreID,
+    StoreName,
+    City,
+    State,
+    TotalRevenue,
+    TotalOrders,
+    TotalQuantitySold,
+    AverageOrderValue
+FROM StoreRevenue
+ORDER BY
+    TotalRevenue ASC;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 072 : Bottom 10 Stores by Revenue Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 073 : Average Revenue per Store
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+What is the average revenue generated by each store?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Average Revenue per Store is an important executive KPI used to evaluate
+overall store performance and business efficiency.
+
+It helps management:
+
+• Measure store productivity
+• Benchmark store performance
+• Evaluate expansion opportunities
+• Compare business performance over time
+• Monitor operational efficiency
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Total Stores
+• Total Revenue
+• Average Revenue per Store
+• Highest Store Revenue
+• Lowest Store Revenue
+
+------------------------------------------------------------------------------
+*/
+
+WITH StoreRevenue AS
+(
+    SELECT
+        S.StoreID,
+        S.StoreName,
+        SUM(OI.LineTotal) AS TotalRevenue
+    FROM dbo.Store S
+    INNER JOIN dbo.[Order] O
+        ON S.StoreID = O.StoreID
+    INNER JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+    GROUP BY
+        S.StoreID,
+        S.StoreName
+)
+SELECT
+    COUNT(*) AS TotalStores,
+    SUM(TotalRevenue) AS TotalRevenue,
+    ROUND
+    (AVG(TotalRevenue), 2) AS AverageRevenuePerStore,
+    MAX(TotalRevenue) AS HighestStoreRevenue,
+    MIN(TotalRevenue) AS LowestStoreRevenue
+FROM StoreRevenue;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 073 : Average Revenue per Store Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 074 : Store Performance Classification
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+How can stores be classified based on their revenue performance?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Store Performance Classification enables management to quickly identify
+high-performing, average-performing, and underperforming stores.
+
+This KPI supports:
+
+• Performance Evaluation
+• Incentive Programs
+• Store Improvement Plans
+• Expansion Decisions
+• Executive Dashboards
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query classifies each store into one of three categories:
+
+• High Performing
+• Medium Performing
+• Low Performing
+
+Classification is based on comparison with the Average Store Revenue.
+
+------------------------------------------------------------------------------
+*/
+
+WITH StoreRevenue AS
+(
+    SELECT
+        S.StoreID,
+        S.StoreName,
+        S.City,
+        S.State,
+        SUM(OI.LineTotal) AS TotalRevenue
+    FROM dbo.Store S
+    INNER JOIN dbo.[Order] O
+        ON S.StoreID = O.StoreID
+    INNER JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+    GROUP BY
+        S.StoreID,
+        S.StoreName,
+        S.City,
+        S.State
+),
+AverageRevenue AS
+(
+    SELECT
+        AVG(TotalRevenue) AS AvgRevenue
+    FROM StoreRevenue
+)
+SELECT
+    SR.StoreID,
+    SR.StoreName,
+    SR.City,
+    SR.State,
+    SR.TotalRevenue,
+    CASE
+        WHEN SR.TotalRevenue >= AR.AvgRevenue * 1.20 THEN 'High Performing'
+        WHEN SR.TotalRevenue >= AR.AvgRevenue * 0.80 THEN 'Medium Performing'
+        ELSE 'Low Performing'
+    END AS PerformanceCategory
+FROM StoreRevenue SR
+CROSS JOIN AverageRevenue AR
+ORDER BY
+    SR.TotalRevenue DESC;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 074 : Store Performance Classification Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 075 : Sales Analysis Dashboard Dataset
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Can we prepare a comprehensive sales dataset that can be directly used
+for Power BI, Tableau, or other Business Intelligence dashboards?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Business Intelligence dashboards require a clean and denormalized dataset
+instead of multiple normalized tables.
+
+This dataset combines:
+
+• Order Information
+• Customer Information
+• Product Information
+• Category Information
+• Brand Information
+• Store Information
+• Employee Information
+• Payment Information
+• Revenue Metrics
+
+into one analytical dataset.
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+This dataset serves as the foundation for:
+
+• Executive Dashboard
+• Sales Dashboard
+• Customer Dashboard
+• Product Dashboard
+• Store Dashboard
+• Geographic Dashboard
+
+------------------------------------------------------------------------------
+*/
+
+SELECT
+    O.OrderID,    -- Order Information
+    O.OrderDate,
+    YEAR(O.OrderDate) AS SalesYear,
+    MONTH(O.OrderDate) AS SalesMonth,
+    DATENAME(MONTH, O.OrderDate) AS MonthName,
+    DATEPART(QUARTER, O.OrderDate) AS SalesQuarter,
+	C.CustomerID,		 -- Customer Information
+    CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
+    C.City,
+    C.State,
+    C.Country,
+    S.StoreID,		 -- Store Information
+    S.StoreName,
+    S.City AS StoreCity,
+    S.State AS StoreState,
+    E.EmployeeID,		 -- Employee Information
+    CONCAT(E.FirstName,' ',E.LastName) AS EmployeeName,
+    P.ProductID,		 -- Product Information
+    P.ProductName,
+    B.BrandName,
+    CAT.CategoryName,
+    SC.SubCategoryName,
+    PM.MethodName,		 -- Payment Information
+    OI.Quantity,    -- Sales Metrics
+    OI.UnitPrice,
+    OI.DiscountAmount,
+    OI.TaxAmount,
+    OI.LineTotal
+FROM dbo.[Order] O
+INNER JOIN dbo.Customer C
+    ON O.CustomerID = C.CustomerID
+INNER JOIN dbo.Store S
+    ON O.StoreID = S.StoreID
+INNER JOIN dbo.Employee E
+    ON O.EmployeeID = E.EmployeeID
+INNER JOIN dbo.OrderItem OI
+    ON O.OrderID = OI.OrderID
+INNER JOIN dbo.Product P
+    ON OI.ProductID = P.ProductID
+INNER JOIN dbo.Brand B
+    ON P.BrandID = B.BrandID
+INNER JOIN dbo.SubCategory SC
+    ON P.SubCategoryID = SC.SubCategoryID
+INNER JOIN dbo.Category CAT
+    ON SC.CategoryID = CAT.CategoryID
+INNER JOIN dbo.Payment PAY
+    ON O.OrderID = PAY.OrderID
+INNER JOIN dbo.PaymentMethod PM
+    ON PAY.PaymentMethodID = PM.PaymentMethodID
+ORDER BY
+    O.OrderDate,
+    O.OrderID,
+    P.ProductName;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 075 : Sales Analysis Dashboard Dataset Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
