@@ -1677,8 +1677,7 @@ GO
 KPI 036 : Revenue by Payment Method
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1699,30 +1698,19 @@ Expected Insight
 Displays total revenue, total transactions, and average transaction
 value for each payment method.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
-    PM.MethodName                               AS [Payment Method],
-
-    COUNT(P.PaymentID)                                 AS [Total Transactions],
-
-    SUM(P.Amount)                                      AS [Total Revenue],
-
-    AVG(P.Amount)                                      AS [Average Transaction Value]
-
+    PM.MethodName AS [Payment Method],
+    COUNT(P.PaymentID) AS [Total Transactions],
+    SUM(P.Amount) AS [Total Revenue],
+    AVG(P.Amount) AS [Average Transaction Value]
 FROM dbo.Payment P
-
 INNER JOIN dbo.PaymentMethod PM
         ON P.PaymentMethodID = PM.PaymentMethodID
-
 GROUP BY
-
     PM.MethodName
-
 ORDER BY
-
     [Total Revenue] DESC;
 
 PRINT 'KPI 036 : Revenue by Payment Method Generated Successfully.';
@@ -1733,8 +1721,7 @@ GO
 KPI 037 : Revenue by Order Status
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1756,30 +1743,19 @@ Expected Insight
 Displays total orders, total revenue, and average order value for each
 order status.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
-    OS.StatusName									  AS [Order Status],
-
-    COUNT(O.OrderID)                                  AS [Total Orders],
-
-    SUM(O.NetAmount)                                  AS [Total Revenue],
-
-    AVG(O.NetAmount)                                  AS [Average Order Value]
-
+    OS.StatusName AS [Order Status],
+    COUNT(O.OrderID) AS [Total Orders],
+    SUM(O.NetAmount) AS [Total Revenue],
+    AVG(O.NetAmount) AS [Average Order Value]
 FROM dbo.[Order] O
-
 INNER JOIN dbo.OrderStatus OS
         ON O.OrderStatusID = OS.OrderStatusID
-
 GROUP BY
-
     OS.StatusName
-
 ORDER BY
-
     [Total Revenue] DESC;
 
 PRINT 'KPI 037 : Revenue by Order Status Generated Successfully.';
@@ -1790,8 +1766,7 @@ GO
 KPI 038 : Average Daily Revenue
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1815,18 +1790,15 @@ Expected Insight
 Displays the average revenue generated per business day based on all
 recorded sales.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
     CAST
     (
         SUM(NetAmount) * 1.0 /
         COUNT(DISTINCT CAST(OrderDate AS DATE))
         AS DECIMAL(12,2)
     ) AS [Average Daily Revenue]
-
 FROM dbo.[Order];
 
 PRINT 'KPI 038 : Average Daily Revenue Generated Successfully.';
@@ -1837,8 +1809,7 @@ GO
 KPI 039 : Average Monthly Revenue
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1862,11 +1833,9 @@ Expected Insight
 Displays the average monthly revenue generated across all recorded
 months.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
     CAST
     (
         SUM(NetAmount) * 1.0 /
@@ -1883,7 +1852,6 @@ SELECT
 		)
         AS DECIMAL(12,2)
     ) AS [Average Monthly Revenue]
-
 FROM dbo.[Order];
 
 PRINT 'KPI 039 : Average Monthly Revenue Generated Successfully.';
@@ -1894,8 +1862,7 @@ GO
 KPI 040 : Highest Sales Day
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1916,27 +1883,17 @@ Expected Insight
 Displays the single day with the highest revenue, along with total
 orders and average order value.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT TOP (1)
-
-    CAST(O.OrderDate AS DATE)                         AS [Order Date],
-
-    COUNT(O.OrderID)                                 AS [Total Orders],
-
-    SUM(O.NetAmount)                                 AS [Total Revenue],
-
-    AVG(O.NetAmount)                                 AS [Average Order Value]
-
+    CAST(O.OrderDate AS DATE) AS [Order Date],
+    COUNT(O.OrderID) AS [Total Orders],
+    SUM(O.NetAmount) AS [Total Revenue],
+    AVG(O.NetAmount) AS [Average Order Value]
 FROM dbo.[Order] O
-
 GROUP BY
-
     CAST(O.OrderDate AS DATE)
-
 ORDER BY
-
     [Total Revenue] DESC;
 
 PRINT 'KPI 040 : Highest Sales Day Generated Successfully.';
@@ -1947,8 +1904,7 @@ GO
 KPI 041 : Lowest Sales Day
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1969,27 +1925,17 @@ Expected Insight
 Displays the single day with the lowest revenue, along with total
 orders and average order value.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT TOP (1)
-
     CAST(O.OrderDate AS DATE)                         AS [Order Date],
-
     COUNT(O.OrderID)                                 AS [Total Orders],
-
     SUM(O.NetAmount)                                 AS [Total Revenue],
-
     AVG(O.NetAmount)                                 AS [Average Order Value]
-
 FROM dbo.[Order] O
-
 GROUP BY
-
     CAST(O.OrderDate AS DATE)
-
 ORDER BY
-
     [Total Revenue] ASC;
 
 PRINT 'KPI 041 : Lowest Sales Day Generated Successfully.';
