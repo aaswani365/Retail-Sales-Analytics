@@ -13,10 +13,12 @@ Difficulty      : Beginner → Intermediate SQL
 Purpose
 ------------------------------------------------------------------------------
 This module provides executive-level KPIs that summarize overall business
-performance across customers, sales, revenue, orders, products, stores,
-employees, payments, returns, and inventory.
+performance through high-level metrics covering business overview,
+revenue, orders, customers, and sales performance.
 
-The KPIs are designed for executive dashboards and business decision-making.
+These KPIs are designed to support executive dashboards by providing
+quick insights into overall business health, growth, and operational
+performance before performing detailed analytical investigations.
 
 ==============================================================================*/
 
