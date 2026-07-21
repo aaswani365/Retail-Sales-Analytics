@@ -823,3 +823,605 @@ PRINT '==============================================================';
 PRINT '';
 
 GO
+
+/*------------------------------------------------------------------------------
+KPI 085 : Revenue Contribution by Customer
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+How much does each customer contribute to the overall business revenue?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Revenue Contribution Analysis helps businesses identify their most valuable
+customers and understand revenue concentration.
+
+This KPI supports:
+
+• Pareto (80/20) Analysis
+• VIP Customer Identification
+• Customer Prioritization
+• Revenue Concentration Analysis
+• Executive Reporting
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Customer Rank
+• Customer Information
+• Total Revenue
+• Revenue Contribution (%)
+• Cumulative Revenue (%)
+• Total Orders
+• Loyalty Points
+
+------------------------------------------------------------------------------
+*/
+
+WITH CustomerRevenue AS
+(
+    SELECT
+        C.CustomerID,
+        CONCAT(C.FirstName, ' ', C.LastName) AS CustomerName,
+        C.City,
+        C.State,
+        C.LoyaltyPoints,
+        COUNT(DISTINCT O.OrderID) AS TotalOrders,
+        SUM(OI.LineTotal) AS TotalRevenue
+    FROM dbo.Customer C
+    INNER JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+    INNER JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+    GROUP BY
+        C.CustomerID,
+        C.FirstName,
+        C.LastName,
+        C.City,
+        C.State,
+        C.LoyaltyPoints
+),
+RevenueAnalysis AS
+(
+    SELECT
+        *,
+        SUM(TotalRevenue) OVER() AS TotalBusinessRevenue
+    FROM CustomerRevenue
+)
+SELECT
+    DENSE_RANK() OVER( ORDER BY TotalRevenue DESC) AS CustomerRank,
+    CustomerID,
+    CustomerName,
+    City,
+    State,
+    TotalOrders,
+    LoyaltyPoints,
+    TotalRevenue,
+    ROUND(TotalRevenue * 100.0 / TotalBusinessRevenue,2) AS RevenueContributionPercentage,
+    ROUND(SUM(TotalRevenue) OVER ( ORDER BY TotalRevenue DESC ROWS UNBOUNDED PRECEDING ) * 100.0 / TotalBusinessRevenue,2) AS CumulativeRevenuePercentage
+FROM RevenueAnalysis
+ORDER BY
+    TotalRevenue DESC;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 085 : Revenue Contribution by Customer Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 086 : Repeat Customers
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which customers have placed more than one order?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Repeat customers are a strong indicator of customer satisfaction and
+business growth.
+
+Identifying repeat customers helps businesses:
+
+• Measure Customer Retention
+• Identify Loyal Customers
+• Improve Marketing Strategies
+• Build Loyalty Programs
+• Increase Customer Lifetime Value
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query identifies repeat customers and displays:
+
+• Customer Rank
+• Customer Information
+• Total Orders
+• Total Quantity Purchased
+• Total Revenue
+• Average Order Value
+• Loyalty Points
+
+------------------------------------------------------------------------------
+*/
+
+WITH CustomerRetention AS
+(
+    SELECT
+        C.CustomerID,
+        CONCAT(C.FirstName, ' ', C.LastName) AS CustomerName,
+        C.City,
+        C.State,
+        C.LoyaltyPoints,
+        COUNT(DISTINCT O.OrderID) AS TotalOrders,
+        SUM(OI.Quantity) AS TotalQuantityPurchased,
+        SUM(OI.LineTotal) AS TotalRevenue,
+        ROUND(SUM(OI.LineTotal) / NULLIF(COUNT(DISTINCT O.OrderID), 0),2) AS AverageOrderValue
+    FROM dbo.Customer C
+    INNER JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+    INNER JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+    GROUP BY
+        C.CustomerID,
+        C.FirstName,
+        C.LastName,
+        C.City,
+        C.State,
+        C.LoyaltyPoints
+    HAVING
+        COUNT(DISTINCT O.OrderID) > 1
+)
+SELECT
+    DENSE_RANK() OVER ( ORDER BY TotalOrders DESC, TotalRevenue DESC ) AS CustomerRank,
+    CustomerID,
+    CustomerName,
+    City,
+    State,
+    TotalOrders,
+    TotalQuantityPurchased,
+    TotalRevenue,
+    AverageOrderValue,
+    LoyaltyPoints
+FROM CustomerRetention
+ORDER BY
+    TotalOrders DESC,
+    TotalRevenue DESC;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 086 : Repeat Customers Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 087 : One-Time Customers
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which customers have placed only one order?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+One-time customers represent potential churn risk and opportunities for
+customer retention.
+
+Identifying these customers helps businesses:
+
+• Improve Customer Retention
+• Launch Re-engagement Campaigns
+• Increase Repeat Purchases
+• Improve Customer Lifetime Value
+• Support Marketing Decisions
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query identifies customers who have placed exactly one order and displays:
+
+• Customer Rank
+• Customer Information
+• Total Orders
+• Total Quantity Purchased
+• Total Revenue
+• Average Order Value
+• Loyalty Points
+
+------------------------------------------------------------------------------
+*/
+
+WITH CustomerRetention AS
+(
+    SELECT
+        C.CustomerID,
+        CONCAT(C.FirstName, ' ', C.LastName) AS CustomerName,
+        C.City,
+        C.State,
+        C.LoyaltyPoints,
+        COUNT(DISTINCT O.OrderID) AS TotalOrders,
+        SUM(OI.Quantity) AS TotalQuantityPurchased,
+        SUM(OI.LineTotal) AS TotalRevenue,
+        ROUND(SUM(OI.LineTotal) / NULLIF(COUNT(DISTINCT O.OrderID),0), 2) AS AverageOrderValue
+    FROM dbo.Customer C
+    INNER JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+    INNER JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+    GROUP BY
+        C.CustomerID,
+        C.FirstName,
+        C.LastName,
+        C.City,
+        C.State,
+        C.LoyaltyPoints
+    HAVING
+        COUNT(DISTINCT O.OrderID) = 1
+)
+SELECT
+    DENSE_RANK() OVER ( ORDER BY TotalRevenue DESC ) AS CustomerRank,
+    CustomerID,
+    CustomerName,
+    City,
+    State,
+    TotalOrders,
+    TotalQuantityPurchased,
+    TotalRevenue,
+    AverageOrderValue,
+    LoyaltyPoints
+FROM CustomerRetention
+ORDER BY
+    TotalRevenue DESC;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 087 : One-Time Customers Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 088 : Repeat Purchase Rate (%)
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+What percentage of customers are repeat customers?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Repeat Purchase Rate (RPR) is one of the most important customer retention
+metrics.
+
+A higher Repeat Purchase Rate indicates:
+
+• Strong Customer Loyalty
+• Better Customer Satisfaction
+• Successful Retention Strategy
+• Higher Customer Lifetime Value
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Total Customers
+• Repeat Customers
+• One-Time Customers
+• Repeat Purchase Rate (%)
+• One-Time Purchase Rate (%)
+
+------------------------------------------------------------------------------
+*/
+
+WITH CustomerOrders AS
+(
+    SELECT
+        C.CustomerID,
+        COUNT(DISTINCT O.OrderID) AS TotalOrders
+    FROM dbo.Customer C
+    LEFT JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+    GROUP BY
+        C.CustomerID
+)
+SELECT
+    COUNT(CustomerID) AS TotalCustomers,
+    SUM(
+        CASE
+            WHEN TotalOrders > 1 THEN 1
+            ELSE 0
+        END
+    ) AS RepeatCustomers,
+    SUM
+    (
+        CASE
+            WHEN TotalOrders = 1 THEN 1
+            ELSE 0
+        END
+    ) AS OneTimeCustomers,
+    SUM
+    (
+        CASE
+            WHEN TotalOrders = 0 THEN 1
+            ELSE 0
+        END
+    ) AS CustomersWithoutOrders,
+    ROUND
+    (
+        SUM
+        (
+            CASE
+                WHEN TotalOrders > 1 THEN 1
+                ELSE 0
+            END
+        ) * 100.0 / COUNT(CustomerID),2) AS RepeatPurchaseRate,
+    ROUND
+    (
+        SUM
+        (
+            CASE
+                WHEN TotalOrders = 1 THEN 1
+                ELSE 0
+            END ) * 100.0 / COUNT(CustomerID), 2 ) AS OneTimePurchaseRate
+FROM CustomerOrders;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 088 : Repeat Purchase Rate (%) Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 089 : Average Days Between Purchases
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+On average, how many days pass between consecutive purchases for repeat
+customers?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Purchase frequency is a key indicator of customer engagement and loyalty.
+
+This KPI helps businesses:
+
+• Understand Customer Buying Behavior
+• Measure Purchase Frequency
+• Identify Loyal Customers
+• Improve Marketing Timing
+• Optimize Customer Retention Campaigns
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Customer Information
+• Total Orders
+• First Purchase Date
+• Last Purchase Date
+• Customer Lifetime (Days)
+• Average Days Between Purchases
+
+Only customers with more than one order are included.
+
+------------------------------------------------------------------------------
+*/
+
+WITH CustomerPurchaseHistory AS
+(
+    SELECT
+        C.CustomerID,
+        CONCAT(C.FirstName, ' ', C.LastName) AS CustomerName,
+        C.City,
+        C.State,
+        COUNT(DISTINCT O.OrderID) AS TotalOrders,
+        MIN(O.OrderDate) AS FirstPurchaseDate,
+        MAX(O.OrderDate) AS LastPurchaseDate,
+        DATEDIFF(DAY, MIN(O.OrderDate), MAX(O.OrderDate)) AS CustomerLifetimeDays
+    FROM dbo.Customer C
+    INNER JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+    GROUP BY
+        C.CustomerID,
+        C.FirstName,
+        C.LastName,
+        C.City,
+        C.State
+    HAVING
+        COUNT(DISTINCT O.OrderID) > 1
+)
+SELECT
+    CustomerID,
+    CustomerName,
+    City,
+    State,
+    TotalOrders,
+    FirstPurchaseDate,
+    LastPurchaseDate,
+    CustomerLifetimeDays,
+    ROUND(CAST(CustomerLifetimeDays AS DECIMAL(18,2)) / NULLIF(TotalOrders - 1, 0), 2) AS AverageDaysBetweenPurchases
+FROM CustomerPurchaseHistory
+ORDER BY
+    AverageDaysBetweenPurchases ASC,
+    TotalOrders DESC;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 089 : Average Days Between Purchases Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 090 : Customer Retention Summary
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+What is the overall customer retention summary for the business?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Customer Retention Summary provides a high-level overview of customer
+engagement and loyalty.
+
+This KPI helps management:
+
+• Measure Customer Retention
+• Evaluate Customer Loyalty
+• Monitor Customer Engagement
+• Track Repeat Purchase Behavior
+• Support Executive Decision Making
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Total Customers
+• Customers with Orders
+• Repeat Customers
+• One-Time Customers
+• Customers Without Orders
+• Total Orders
+• Average Orders per Customer
+• Repeat Purchase Rate (%)
+• One-Time Purchase Rate (%)
+• Customers Without Orders (%)
+
+------------------------------------------------------------------------------
+*/
+
+WITH CustomerOrders AS
+(
+    SELECT
+        C.CustomerID,
+        COUNT(DISTINCT O.OrderID) AS TotalOrders
+    FROM dbo.Customer C
+    LEFT JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+    GROUP BY
+        C.CustomerID
+)
+SELECT
+    COUNT(CustomerID) AS TotalCustomers,
+    SUM
+    (
+        CASE
+            WHEN TotalOrders > 0 THEN 1
+            ELSE 0
+        END
+    ) AS CustomersWithOrders,
+    SUM
+    (
+        CASE
+            WHEN TotalOrders > 1 THEN 1
+            ELSE 0
+        END
+    ) AS RepeatCustomers,
+    SUM
+    (
+        CASE
+            WHEN TotalOrders = 1 THEN 1
+            ELSE 0
+        END
+    ) AS OneTimeCustomers,
+
+    SUM
+    (
+        CASE
+            WHEN TotalOrders = 0 THEN 1
+            ELSE 0
+        END
+    ) AS CustomersWithoutOrders,
+    SUM(TotalOrders) AS TotalOrders,
+    ROUND(AVG(CAST(TotalOrders AS DECIMAL(18,2))),2) AS AverageOrdersPerCustomer,
+    ROUND(SUM
+        (
+            CASE
+                WHEN TotalOrders > 1 THEN 1
+                ELSE 0
+            END ) * 100.0 / COUNT(CustomerID),2) AS RepeatPurchaseRate,
+    ROUND(SUM
+        (
+            CASE
+                WHEN TotalOrders = 1 THEN 1
+                ELSE 0
+            END) * 100.0 / COUNT(CustomerID), 2 ) AS OneTimePurchaseRate,
+    ROUND(SUM(
+            CASE
+                WHEN TotalOrders = 0 THEN 1
+                ELSE 0
+            END) * 100.0 / COUNT(CustomerID), 2) AS CustomersWithoutOrdersPercentage
+FROM CustomerOrders;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 090 : Customer Retention Summary Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
