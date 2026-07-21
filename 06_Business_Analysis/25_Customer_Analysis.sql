@@ -1387,7 +1387,6 @@ SELECT
             ELSE 0
         END
     ) AS OneTimeCustomers,
-
     SUM
     (
         CASE
@@ -1420,6 +1419,428 @@ PRINT '';
 
 PRINT '==============================================================';
 PRINT 'KPI 090 : Customer Retention Summary Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 091 : New Customers by Month
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+How many new customers were acquired each month?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Customer acquisition is one of the most important business growth metrics.
+
+Tracking monthly customer registrations helps businesses:
+
+• Measure Business Growth
+• Evaluate Marketing Campaigns
+• Monitor Customer Acquisition Trends
+• Plan Sales Strategies
+• Support Executive Reporting
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Registration Year
+• Registration Month
+• New Customers
+• Cumulative Customers
+
+Months are displayed in chronological order.
+
+------------------------------------------------------------------------------
+*/
+
+WITH MonthlyCustomerRegistrations AS
+(
+    SELECT
+        YEAR(RegistrationDate) AS RegistrationYear,
+        MONTH(RegistrationDate) AS RegistrationMonth,
+        DATENAME(MONTH, RegistrationDate) AS MonthName,
+        COUNT(CustomerID) AS NewCustomers
+    FROM dbo.Customer
+    GROUP BY
+        YEAR(RegistrationDate),
+        MONTH(RegistrationDate),
+        DATENAME(MONTH, RegistrationDate)
+)
+SELECT
+    RegistrationYear,
+    RegistrationMonth,
+    MonthName,
+    NewCustomers,
+    SUM(NewCustomers) OVER ( ORDER BY RegistrationYear, RegistrationMonth ROWS UNBOUNDED PRECEDING ) AS CumulativeCustomers
+FROM MonthlyCustomerRegistrations
+ORDER BY
+    RegistrationYear,
+    RegistrationMonth;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 091 : New Customers by Month Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 092 : New Customers by City
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which cities have acquired the highest number of new customers?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Customer acquisition by city helps businesses understand regional growth
+and identify markets with the highest customer acquisition.
+
+This KPI supports:
+
+• Regional Expansion Planning
+• City-wise Marketing Strategy
+• Sales Territory Planning
+• Executive Reporting
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• City
+• State
+• Total New Customers
+• Active Customers
+• Inactive Customers
+• Customer Contribution (%)
+
+Cities are ranked by total new customers.
+
+------------------------------------------------------------------------------
+*/
+
+SELECT
+    DENSE_RANK() OVER ( ORDER BY COUNT(CustomerID) DESC) AS CityRank,
+    City,
+    State,
+    COUNT(CustomerID) AS TotalNewCustomers,
+    SUM(
+        CASE
+            WHEN IsActive = 1 THEN 1
+            ELSE 0
+        END
+    ) AS ActiveCustomers,
+    SUM(
+        CASE
+            WHEN IsActive = 0 THEN 1
+            ELSE 0
+        END
+    ) AS InactiveCustomers,
+    ROUND(COUNT(CustomerID) * 100.0 / SUM(COUNT(CustomerID)) OVER (),2) AS CustomerContributionPercentage
+FROM dbo.Customer
+GROUP BY
+    City,
+    State
+ORDER BY
+    TotalNewCustomers DESC,
+    City;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 092 : New Customers by City Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 093 : New Customers by Year
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+How many new customers were acquired each year?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Year-wise customer acquisition helps management evaluate long-term business
+growth and compare yearly performance.
+
+This KPI supports:
+
+• Business Growth Analysis
+• Annual Performance Review
+• Executive Reporting
+• Strategic Planning
+• Marketing Effectiveness Evaluation
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Registration Year
+• Total New Customers
+• Active Customers
+• Inactive Customers
+• Customer Contribution (%)
+• Cumulative Customers
+
+Years are displayed in chronological order.
+
+------------------------------------------------------------------------------
+*/
+
+WITH YearlyCustomerRegistrations AS
+(
+    SELECT
+        YEAR(RegistrationDate) AS RegistrationYear,
+        COUNT(CustomerID) AS TotalNewCustomers,
+        SUM(
+            CASE
+                WHEN IsActive = 1 THEN 1
+                ELSE 0
+            END
+        ) AS ActiveCustomers,
+        SUM(
+            CASE
+                WHEN IsActive = 0 THEN 1
+                ELSE 0
+            END
+        ) AS InactiveCustomers
+    FROM dbo.Customer
+    GROUP BY
+        YEAR(RegistrationDate)
+)
+SELECT
+    RegistrationYear,
+    TotalNewCustomers,
+    ActiveCustomers,
+    InactiveCustomers,
+    ROUND(TotalNewCustomers * 100.0 / SUM(TotalNewCustomers) OVER(),2) AS CustomerContributionPercentage,
+    SUM(TotalNewCustomers) OVER ( ORDER BY RegistrationYear ROWS UNBOUNDED PRECEDING ) AS CumulativeCustomers
+FROM YearlyCustomerRegistrations
+ORDER BY
+    RegistrationYear;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 093 : New Customers by Year Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 094 : New Customers by Quarter
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+How many new customers were acquired in each quarter?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Quarterly customer acquisition analysis helps businesses identify seasonal
+trends and evaluate quarterly marketing performance.
+
+This KPI supports:
+
+• Quarterly Business Review
+• Seasonal Trend Analysis
+• Marketing Performance Evaluation
+• Executive Reporting
+• Business Planning
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Registration Year
+• Registration Quarter
+• Total New Customers
+• Active Customers
+• Inactive Customers
+• Customer Contribution (%)
+• Cumulative Customers
+
+Results are displayed chronologically.
+
+------------------------------------------------------------------------------
+*/
+
+WITH QuarterlyCustomerRegistrations AS
+(
+    SELECT
+        YEAR(RegistrationDate) AS RegistrationYear,
+        DATEPART(QUARTER, RegistrationDate) AS RegistrationQuarter,
+        COUNT(CustomerID) AS TotalNewCustomers,
+        SUM(
+            CASE
+                WHEN IsActive = 1 THEN 1
+                ELSE 0
+            END
+        ) AS ActiveCustomers,
+        SUM(
+            CASE
+                WHEN IsActive = 0 THEN 1
+                ELSE 0
+            END
+        ) AS InactiveCustomers
+    FROM dbo.Customer
+    GROUP BY
+        YEAR(RegistrationDate),
+        DATEPART(QUARTER, RegistrationDate)
+)
+SELECT
+    RegistrationYear,
+    CONCAT('Q', RegistrationQuarter) AS Quarter,
+    TotalNewCustomers,
+    ActiveCustomers,
+    InactiveCustomers,
+    ROUND(TotalNewCustomers * 100.0 / SUM(TotalNewCustomers) OVER(), 2) AS CustomerContributionPercentage,
+    SUM(TotalNewCustomers) OVER(ORDER BY RegistrationYear, RegistrationQuarter ROWS UNBOUNDED PRECEDING) AS CumulativeCustomers
+FROM QuarterlyCustomerRegistrations
+ORDER BY
+    RegistrationYear,
+    RegistrationQuarter;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 094 : New Customers by Quarter Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 095 : Customer Acquisition Summary
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+What is the overall customer acquisition summary for the business?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Customer acquisition is one of the primary indicators of business growth.
+
+This KPI provides an executive summary to help management:
+
+• Monitor Customer Growth
+• Evaluate Acquisition Performance
+• Measure Marketing Effectiveness
+• Track Registration Trends
+• Support Strategic Planning
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Total Customers
+• Active Customers
+• Inactive Customers
+• First Registration Date
+• Latest Registration Date
+• Total Registration Period (Days)
+• Average New Customers per Month
+• Average New Customers per Quarter
+• Average New Customers per Year
+
+------------------------------------------------------------------------------
+*/
+
+WITH CustomerSummary AS
+(
+    SELECT
+        COUNT(CustomerID) AS TotalCustomers,
+        SUM(
+            CASE
+                WHEN IsActive = 1 THEN 1
+                ELSE 0
+            END
+        ) AS ActiveCustomers,
+        SUM
+        (
+            CASE
+                WHEN IsActive = 0 THEN 1
+                ELSE 0
+            END
+        ) AS InactiveCustomers,
+        MIN(RegistrationDate) AS FirstRegistrationDate,
+        MAX(RegistrationDate) AS LatestRegistrationDate,
+        DATEDIFF(DAY,MIN(RegistrationDate), MAX(RegistrationDate)) AS RegistrationPeriodDays,
+        COUNT(DISTINCT YEAR(RegistrationDate) * 100 + MONTH(RegistrationDate)) AS TotalMonths,
+        COUNT(DISTINCT YEAR(RegistrationDate) * 10 + DATEPART(QUARTER, RegistrationDate)) AS TotalQuarters,
+        COUNT(DISTINCT YEAR(RegistrationDate)) AS TotalYears
+    FROM dbo.Customer
+)
+SELECT
+    TotalCustomers,
+    ActiveCustomers,
+    InactiveCustomers,
+    FirstRegistrationDate,
+    LatestRegistrationDate,
+    RegistrationPeriodDays,
+    ROUND(CAST(TotalCustomers AS DECIMAL(18,2)) / NULLIF(TotalMonths,0),2) AS AverageNewCustomersPerMonth,
+    ROUND(CAST(TotalCustomers AS DECIMAL(18,2)) / NULLIF(TotalQuarters,0),2) AS AverageNewCustomersPerQuarter,
+    ROUND(CAST(TotalCustomers AS DECIMAL(18,2)) / NULLIF(TotalYears,0),2) AS AverageNewCustomersPerYear
+FROM CustomerSummary;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 095 : Customer Acquisition Summary Generated Successfully';
 PRINT '==============================================================';
 
 PRINT '';
