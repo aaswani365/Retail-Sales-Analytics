@@ -18,7 +18,7 @@ Designed as a portfolio project for **Data Analyst**, **SQL Developer**, and **B
 | **Architecture** | Relational Database (3NF) |
 | **Reporting Tool** | Microsoft Power BI *(Planned)* |
 | **Author** | Akshay Aswani |
-| **Status** | 🚧 In Development |
+| **Status** | 🚧 Active Development (120 / 375 KPIs Completed) |
 
 ---
 
@@ -313,16 +313,15 @@ The project demonstrates a wide range of SQL Server capabilities, including:
 
 ---
 
-### SQL Analytics *(Upcoming)*
+### SQL Analytics
 
-- JOIN Operations
-- Common Table Expressions (CTEs)
+- JOINs
+- Aggregate Functions
 - Window Functions
 - Ranking Functions
-- Aggregate Functions
-- PIVOT / UNPIVOT
-- Subqueries
-- Business Reporting Queries
+- CASE Expressions
+- CTEs
+- Business KPI Queries (120)
 
 ---
 
@@ -931,7 +930,7 @@ Follow these steps to run the project locally.
 ## Clone the Repository
 
 ```bash
-git clone https://github.com/<your-username>/Retail-Sales-Analytics-Inventory-Management-System.git
+git clone https://github.com/aaswani365/Retail-Sales-Analytics.git
 ```
 
 ---
@@ -1017,7 +1016,7 @@ The project is currently under active development.
 | Stored Procedures | ⏳ |
 | Functions | ⏳ |
 | Triggers | ⏳ |
-| SQL Analysis | ⏳ |
+| SQL Analysis (120 KPIs) | 🚧
 | Performance Tuning | ⏳ |
 | Power BI Dashboard | ⏳ |
 | Documentation | 🚧 |
