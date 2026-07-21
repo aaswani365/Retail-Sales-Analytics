@@ -1846,3 +1846,604 @@ PRINT '==============================================================';
 PRINT '';
 
 GO
+
+/*------------------------------------------------------------------------------
+KPI 096 : Revenue by Country
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which countries generate the highest revenue?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Country-wise revenue analysis helps businesses identify their strongest
+geographic markets and make informed expansion decisions.
+
+This KPI supports:
+
+• Geographic Revenue Analysis
+• International Market Performance
+• Regional Sales Strategy
+• Business Expansion Planning
+• Executive Reporting
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Country
+• Total Customers
+• Total Orders
+• Total Revenue
+• Average Revenue per Customer
+• Revenue Contribution (%)
+
+Countries are ranked by total revenue.
+
+------------------------------------------------------------------------------
+*/
+
+WITH CountryRevenue AS
+(
+    SELECT
+
+        C.Country,
+
+        COUNT(DISTINCT C.CustomerID) AS TotalCustomers,
+
+        COUNT(DISTINCT O.OrderID) AS TotalOrders,
+
+        SUM(OI.LineTotal) AS TotalRevenue
+
+    FROM dbo.Customer C
+
+    INNER JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+
+    INNER JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+
+    GROUP BY
+
+        C.Country
+)
+
+SELECT
+
+    DENSE_RANK()
+        OVER
+        (
+            ORDER BY TotalRevenue DESC
+        ) AS CountryRank,
+
+    Country,
+
+    TotalCustomers,
+
+    TotalOrders,
+
+    TotalRevenue,
+
+    ROUND
+    (
+        TotalRevenue * 1.0
+        /
+        NULLIF(TotalCustomers, 0),
+        2
+    ) AS AverageRevenuePerCustomer,
+
+    ROUND
+    (
+        TotalRevenue * 100.0
+        /
+        SUM(TotalRevenue) OVER(),
+        2
+    ) AS RevenueContributionPercentage
+
+FROM CountryRevenue
+
+ORDER BY
+
+    TotalRevenue DESC;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 096 : Revenue by Country Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 097 : Revenue by State
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which states generate the highest revenue?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+State-wise revenue analysis helps businesses identify their strongest
+regional markets and optimize sales strategies.
+
+This KPI supports:
+
+• Regional Revenue Analysis
+• Sales Territory Planning
+• State-wise Performance Evaluation
+• Business Expansion Strategy
+• Executive Reporting
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• State
+• Total Customers
+• Total Orders
+• Total Revenue
+• Average Revenue per Customer
+• Revenue Contribution (%)
+
+States are ranked by total revenue.
+
+------------------------------------------------------------------------------
+*/
+
+WITH StateRevenue AS
+(
+    SELECT
+
+        C.State,
+
+        COUNT(DISTINCT C.CustomerID) AS TotalCustomers,
+
+        COUNT(DISTINCT O.OrderID) AS TotalOrders,
+
+        SUM(OI.LineTotal) AS TotalRevenue
+
+    FROM dbo.Customer C
+
+    INNER JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+
+    INNER JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+
+    GROUP BY
+
+        C.State
+)
+
+SELECT
+
+    DENSE_RANK()
+        OVER
+        (
+            ORDER BY TotalRevenue DESC
+        ) AS StateRank,
+
+    State,
+
+    TotalCustomers,
+
+    TotalOrders,
+
+    TotalRevenue,
+
+    ROUND
+    (
+        TotalRevenue * 1.0
+        /
+        NULLIF(TotalCustomers, 0),
+        2
+    ) AS AverageRevenuePerCustomer,
+
+    ROUND
+    (
+        TotalRevenue * 100.0
+        /
+        SUM(TotalRevenue) OVER(),
+        2
+    ) AS RevenueContributionPercentage
+
+FROM StateRevenue
+
+ORDER BY
+
+    TotalRevenue DESC,
+    State;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 097 : Revenue by State Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 098 : Top 10 Cities by Revenue
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which cities generate the highest revenue?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+City-wise revenue analysis helps businesses identify their strongest local
+markets and optimize regional sales strategies.
+
+This KPI supports:
+
+• City Performance Analysis
+• Regional Sales Planning
+• Marketing Campaign Optimization
+• Business Expansion Decisions
+• Executive Reporting
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• City Rank
+• City
+• State
+• Total Customers
+• Total Orders
+• Total Revenue
+• Average Revenue per Customer
+• Revenue Contribution (%)
+
+Displays only the Top 10 revenue-generating cities.
+
+------------------------------------------------------------------------------
+*/
+
+WITH CityRevenue AS
+(
+    SELECT
+
+        C.City,
+
+        C.State,
+
+        COUNT(DISTINCT C.CustomerID) AS TotalCustomers,
+
+        COUNT(DISTINCT O.OrderID) AS TotalOrders,
+
+        SUM(OI.LineTotal) AS TotalRevenue
+
+    FROM dbo.Customer C
+
+    INNER JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+
+    INNER JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+
+    GROUP BY
+
+        C.City,
+        C.State
+)
+
+SELECT TOP (10)
+
+    DENSE_RANK()
+        OVER
+        (
+            ORDER BY TotalRevenue DESC
+        ) AS CityRank,
+
+    City,
+
+    State,
+
+    TotalCustomers,
+
+    TotalOrders,
+
+    TotalRevenue,
+
+    ROUND
+    (
+        TotalRevenue * 1.0
+        /
+        NULLIF(TotalCustomers,0),
+        2
+    ) AS AverageRevenuePerCustomer,
+
+    ROUND
+    (
+        TotalRevenue * 100.0
+        /
+        SUM(TotalRevenue) OVER(),
+        2
+    ) AS RevenueContributionPercentage
+
+FROM CityRevenue
+
+ORDER BY
+
+    TotalRevenue DESC,
+    City;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 098 : Top 10 Cities by Revenue Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 099 : Revenue Contribution by Region
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+How much does each state (region) contribute to the overall business revenue?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Revenue contribution by region helps management understand the geographic
+distribution of revenue and identify the highest-performing regions.
+
+This KPI supports:
+
+• Regional Performance Analysis
+• Pareto Analysis (80/20 Rule)
+• Sales Territory Planning
+• Business Expansion Decisions
+• Executive Reporting
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Region Rank
+• State
+• Total Customers
+• Total Orders
+• Total Revenue
+• Revenue Contribution (%)
+• Cumulative Revenue Contribution (%)
+
+------------------------------------------------------------------------------
+*/
+
+WITH RegionalRevenue AS
+(
+    SELECT
+
+        C.State,
+
+        COUNT(DISTINCT C.CustomerID) AS TotalCustomers,
+
+        COUNT(DISTINCT O.OrderID) AS TotalOrders,
+
+        SUM(OI.LineTotal) AS TotalRevenue
+
+    FROM dbo.Customer C
+
+    INNER JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+
+    INNER JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+
+    GROUP BY
+
+        C.State
+)
+
+SELECT
+
+    DENSE_RANK()
+        OVER
+        (
+            ORDER BY TotalRevenue DESC
+        ) AS RegionRank,
+
+    State,
+
+    TotalCustomers,
+
+    TotalOrders,
+
+    TotalRevenue,
+
+    ROUND
+    (
+        TotalRevenue * 100.0
+        /
+        SUM(TotalRevenue) OVER(),
+        2
+    ) AS RevenueContributionPercentage,
+
+    ROUND
+    (
+        SUM(TotalRevenue)
+            OVER
+            (
+                ORDER BY TotalRevenue DESC
+                ROWS UNBOUNDED PRECEDING
+            )
+        * 100.0
+        /
+        SUM(TotalRevenue) OVER(),
+        2
+    ) AS CumulativeRevenueContributionPercentage
+
+FROM RegionalRevenue
+
+ORDER BY
+
+    TotalRevenue DESC,
+    State;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 099 : Revenue Contribution by Region Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
+
+/*------------------------------------------------------------------------------
+KPI 100 : Customer Geographic Summary
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+What is the overall geographic distribution of customers and revenue?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Customer Geographic Summary provides an executive overview of the business's
+geographical presence.
+
+This KPI helps management:
+
+• Understand Geographic Coverage
+• Measure Market Reach
+• Identify Top Performing Locations
+• Support Expansion Planning
+• Monitor Regional Distribution
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Total Countries
+• Total States
+• Total Cities
+• Total Customers
+• Total Revenue
+• Highest Revenue Country
+• Highest Revenue State
+• Highest Revenue City
+• Average Customers per State
+• Average Customers per City
+
+------------------------------------------------------------------------------
+*/
+
+WITH CountryRevenue AS
+(
+    SELECT
+        Country,
+        SUM(OI.LineTotal) AS TotalRevenue
+    FROM dbo.Customer C
+    INNER JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+    INNER JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+    GROUP BY
+        Country
+),
+StateRevenue AS
+(
+    SELECT
+        State,
+        SUM(OI.LineTotal) AS TotalRevenue
+    FROM dbo.Customer C
+    INNER JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+    INNER JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+    GROUP BY
+        State
+),
+CityRevenue AS
+(
+    SELECT
+        City,
+        SUM(OI.LineTotal) AS TotalRevenue
+    FROM dbo.Customer C
+    INNER JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+    INNER JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+    GROUP BY
+        City
+)
+SELECT
+    (SELECT COUNT(DISTINCT Country)
+     FROM dbo.Customer) AS TotalCountries,
+    (SELECT COUNT(DISTINCT State)
+     FROM dbo.Customer) AS TotalStates,
+    (SELECT COUNT(DISTINCT City)
+     FROM dbo.Customer) AS TotalCities,
+    (SELECT COUNT(*)
+     FROM dbo.Customer) AS TotalCustomers,
+    (SELECT SUM(LineTotal)
+     FROM dbo.OrderItem) AS TotalRevenue,
+    (SELECT TOP (1) Country
+     FROM CountryRevenue
+     ORDER BY TotalRevenue DESC) AS HighestRevenueCountry,
+    (SELECT TOP (1) State
+     FROM StateRevenue
+     ORDER BY TotalRevenue DESC) AS HighestRevenueState,
+    (SELECT TOP (1) City
+     FROM CityRevenue
+     ORDER BY TotalRevenue DESC) AS HighestRevenueCity,
+    ROUND(CAST((SELECT COUNT(*) FROM dbo.Customer) AS DECIMAL(18,2)) / NULLIF ((SELECT COUNT(DISTINCT State) FROM dbo.Customer),0),2) AS AverageCustomersPerState,
+    ROUND(CAST((SELECT COUNT(*) FROM dbo.Customer) AS DECIMAL(18,2)) / NULLIF ((SELECT COUNT(DISTINCT City) FROM dbo.Customer),0),2) AS AverageCustomersPerCity;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 100 : Customer Geographic Summary Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+GO
