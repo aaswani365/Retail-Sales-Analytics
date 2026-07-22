@@ -1481,7 +1481,7 @@ KPI_001_Business_Overview/
 ### SQL Query & Output
 
 <p align="center">
-<img src="07_Business_Analysis_Output/23_Executive_KPIs/KPI_001_Business_Overview/001Query_And_Output.png" width="95%">
+<img src="07_Business_Analysis_Output/23_Executive_KPIs/KPI_001_Business_Overview/001_Query_And_Output.png" width="95%">
 </p>
 
 ---
