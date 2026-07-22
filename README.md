@@ -1,5 +1,6 @@
 # 🛒 Retail Sales Analytics & Inventory Management System
 
+<<<<<<< HEAD
 A production-inspired **Microsoft SQL Server** project that simulates the operations of a modern retail business. This project demonstrates end-to-end database design, data modeling, normalization, SQL development, data generation, performance optimization, and business analytics.
 
 Designed as a portfolio project for **Data Analyst**, **SQL Developer**, and **Business Intelligence** roles, it showcases industry-standard database development practices and serves as the foundation for interactive Power BI dashboards.
@@ -522,234 +523,1078 @@ The Entity Relationship Diagram (ERD) provides a visual representation of the da
 It serves as the blueprint for the database and helps developers understand how business entities are connected.
 
 ---
+=======
+### Enterprise SQL Portfolio Project | SQL Server | Business Intelligence | Retail Analytics
+>>>>>>> 1c1d022 (modified the README.md and rename the file)
 
 <p align="center">
 
-<img src="11_Documentation/Images/ER_Diagram.png" width="100%">
+![SQL Server](https://img.shields.io/badge/SQL_Server-T--SQL-red?style=for-the-badge&logo=microsoftsqlserver)
+![Status](https://img.shields.io/badge/Status-Active_Development-success?style=for-the-badge)
+![KPIs](https://img.shields.io/badge/KPIs-120%20of%20375-blue?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
 
 </p>
 
 ---
 
-## Relationship Summary
+A comprehensive **Retail Sales Analytics & Inventory Management System** built entirely using **Microsoft SQL Server**.
 
-The database contains **18 One-to-Many relationships**, ensuring strong referential integrity throughout the system.
+This project simulates a real-world retail environment by designing a normalized relational database, generating large-scale business data, and implementing **375 business-focused SQL KPIs** covering Sales, Customers, Products, Inventory, Stores, Employees, Finance, and Executive Reporting.
 
-| Parent Table | Child Table |
-|--------------|-------------|
-| Category | SubCategory |
-| SubCategory | Product |
-| Brand | Product |
-| Supplier | Product |
-| Store | Employee |
-| Store | Inventory |
-| Product | Inventory |
-| Customer | Order |
-| Employee | Order |
-| OrderStatus | Order |
-| Order | OrderItem |
-| Product | OrderItem |
-| Order | Payment |
-| PaymentMethod | Payment |
-| PaymentStatus | Payment |
-| OrderItem | Return |
-| ReturnReason | Return |
-| ReturnStatus | Return |
+The objective of this project is to demonstrate advanced SQL skills while solving real business problems through data analysis and reporting.
+
+# 🚀 Project Overview
+
+## 📌 Business Problem
+
+Retail organizations generate large volumes of transactional data every day, including sales, inventory movements, customer purchases, payments, and product information. Without an effective analytics system, it becomes difficult to answer critical business questions such as:
+
+- Which products generate the highest revenue?
+- Which customers contribute the most sales?
+- Which products require immediate replenishment?
+- Which stores are performing well?
+- How do monthly and yearly sales trends compare?
+- Which inventory items are overstocked or understocked?
+- Which products have never been sold?
+- Which employees and stores achieve the highest sales performance?
+
+To support better decision-making, businesses require structured data models, reliable reporting, and meaningful Key Performance Indicators (KPIs).
 
 ---
 
-## Database Design Highlights
+## 🎯 Project Objectives
 
-The RetailSalesDB has been designed using modern relational database principles.
+This project was built to simulate a real-world Retail Sales Analytics solution using Microsoft SQL Server.
 
-### Key Highlights
+The primary objectives are:
 
-- Fully Normalized (Third Normal Form - 3NF)
-- Enterprise Naming Conventions
-- Surrogate Primary Keys
-- Referential Integrity using Foreign Keys
-- Business Rules enforced using CHECK Constraints
-- Automatic auditing with `CreatedDate` and `ModifiedDate`
-- Optimized Indexing Strategy
-- Modular and Scalable Design
-- Power BI Ready Database
-- Enterprise Documentation
+- Design a fully normalized retail database using SQL Server.
+- Generate realistic business data for analysis.
+- Implement **375 business-focused SQL KPIs** covering multiple business domains.
+- Apply advanced SQL techniques to solve real business problems.
+- Build production-quality database documentation.
+- Demonstrate industry-standard SQL development practices.
+- Create a portfolio project suitable for Data Analyst and Business Intelligence roles.
 
 ---
 
-## Documentation
+## 💼 Business Value
 
-Comprehensive documentation has been created for every stage of the project.
+This solution enables business users to:
 
-| Document | Description |
-|----------|-------------|
-| Business Requirements | Project objectives and business requirements |
-| Project Architecture | Overall system architecture |
-| Naming Conventions | SQL naming standards |
-| Data Dictionary | Complete table and column reference |
-| Database Design Decisions | Design rationale and implementation choices |
-| Entity Relationship Diagram | Visual database model |
-
-These documents provide complete technical documentation for understanding, maintaining, and extending the database.
+- 📈 Monitor sales performance across products, categories, stores, and employees.
+- 👥 Understand customer purchasing behavior.
+- 📦 Optimize inventory levels and reduce stock-related issues.
+- 💰 Track revenue and business growth.
+- 🏪 Evaluate store performance using operational KPIs.
+- 📊 Support executive decision-making using data-driven insights.
+- ⚡ Improve reporting efficiency through reusable SQL analytics.
 
 ---
 
-# 10. Project Structure
+## 🎓 Learning Outcomes
 
-The repository is organized into logical folders to separate database scripts, data generation, documentation, analytics, and reporting components.
+Through this project, the following technical skills are demonstrated:
+
+- Database Design
+- Data Modeling
+- SQL Query Development
+- Business KPI Development
+- Window Functions
+- Common Table Expressions (CTEs)
+- Aggregate Analysis
+- Ranking Functions
+- Reporting Queries
+- Performance-Oriented SQL Development
+- Business Documentation
+- Git & GitHub Version Control
+
+# 📊 Project Status
+
+| Property | Details |
+|----------|---------|
+| **Project Version** | v1.2 |
+| **Development Status** | 🚧 Active Development |
+| **Current Phase** | Product & Inventory Analytics |
+| **Database** | Microsoft SQL Server |
+| **Total Planned KPIs** | 375 |
+| **KPIs Completed** | 120 |
+| **Project Completion** | 32% |
+| **Current Module** | Inventory Analytics (KPI 116–120) |
+| **Next Module** | Store Performance Analytics (KPI 121–140) |
+
+---
+
+## 📈 Development Progress
+
+| Module | KPI Range | Status |
+|---------|-----------|--------|
+| 📊 Business Overview | 001–020 | ✅ Completed |
+| 💰 Sales Analytics | 021–050 | ✅ Completed |
+| 👥 Customer Analytics | 051–080 | ✅ Completed |
+| 📦 Product Analytics | 081–115 | ✅ Completed |
+| 🏪 Inventory Analytics | 116–120 | ✅ Completed |
+| 🏬 Store Analytics | 121–140 | ⏳ Planned |
+| 👨‍💼 Employee Analytics | 141–170 | ⏳ Planned |
+| 💵 Financial Analytics | 171–220 | ⏳ Planned |
+| ⚡ Advanced SQL Analytics | 221–300 | ⏳ Planned |
+| 📈 Executive Reporting | 301–375 | ⏳ Planned |
+
+---
+
+## 🎯 Current Milestone
+
+✅ **120 Business KPIs Completed**
+
+Current focus:
+
+- Product Performance Analytics
+- Inventory Analytics
+- Advanced Business KPI Development
+- SQL Performance Optimization
+- Enterprise SQL Best Practices
+
+---
+
+## 🚀 Upcoming Milestone
+
+**Store Performance Analytics (KPI 121–140)**
+
+Upcoming topics include:
+
+- Store Revenue Analysis
+- Top Performing Stores
+- Store-wise Orders
+- Store-wise Inventory
+- Store Profitability
+- Store Growth Analysis
+- Store Ranking
+- Regional Performance Analysis
+
+# ⭐ Project Highlights
+
+This project has been designed to replicate a real-world **Retail Sales Analytics & Inventory Management System** used by modern retail organizations. It follows industry-standard database design principles, enterprise SQL development practices, and business-focused analytics.
+
+---
+
+## 🏗️ Enterprise Database Design
+
+- Fully normalized relational database (3NF)
+- Production-ready SQL Server database design
+- Well-defined Primary Keys, Foreign Keys, Constraints, and Indexes
+- Scalable schema supporting multiple business domains
+- Business-friendly naming conventions throughout the project
+
+---
+
+## 📊 Comprehensive Business Analytics
+
+This project aims to implement **375 business-focused SQL KPIs** covering multiple functional areas, including:
+
+- 📈 Business Overview
+- 💰 Sales Analytics
+- 👥 Customer Analytics
+- 📦 Product Analytics
+- 🏪 Inventory Analytics
+- 🏬 Store Analytics
+- 👨‍💼 Employee Analytics
+- 💵 Financial Analytics
+- 📊 Executive Reporting
+
+Current Progress:
+- ✅ **120 KPIs Completed**
+
+---
+
+## 🧠 Advanced SQL Concepts
+
+The project demonstrates practical usage of advanced SQL Server features, including:
+
+- INNER JOIN / LEFT JOIN
+- Common Table Expressions (CTEs)
+- Aggregate Functions
+- CASE Expressions
+- Window Functions
+- Ranking Functions
+- NULL Handling
+- Business Logic Implementation
+- Inventory Coverage Analysis
+- Performance-Oriented Query Design
+
+Additional advanced SQL concepts will be introduced in later phases, including:
+
+- LAG() / LEAD()
+- FIRST_VALUE() / LAST_VALUE()
+- NTILE()
+- PERCENT_RANK()
+- CUME_DIST()
+- Stored Procedures
+- User Defined Functions
+- Views
+- Dynamic Reporting Queries
+
+---
+
+## 📚 Professional Documentation
+
+Comprehensive project documentation has been created to simulate enterprise software documentation.
+
+Current documentation includes:
+
+- ✅ Business Requirements
+- ✅ Project Architecture
+- ✅ Naming Conventions
+- ✅ Data Dictionary
+- ✅ Database Design Decisions
+- ✅ Entity Relationship Diagram (ERD)
+
+---
+
+## 📂 Well-Organized Repository
+
+The repository follows a modular folder structure for easy navigation and maintenance.
+
+It includes:
+
+- SQL Scripts
+- Documentation
+- Sample Data
+- Database Objects
+- KPI Library
+- Supporting Assets
+
+---
+
+## 💼 Industry-Oriented Portfolio Project
+
+Unlike small SQL practice projects, this repository focuses on solving real business problems faced by retail organizations.
+
+Examples include:
+
+- Revenue Analysis
+- Customer Behavior Analysis
+- Inventory Optimization
+- Product Performance
+- Business Growth Analysis
+- Executive Reporting
+- Operational KPIs
+
+The objective is to demonstrate practical SQL skills expected from **Data Analysts**, **Business Intelligence Analysts**, and **SQL Developers**.
+
+# 🛠️ Technology Stack
+
+This project leverages industry-standard technologies for database design, SQL development, documentation, and version control.
+
+---
+
+## 💻 Database
+
+| Technology | Purpose |
+|------------|---------|
+| Microsoft SQL Server | Primary Relational Database Management System |
+| SQL Server Management Studio (SSMS) | Database Development & Query Execution |
+| T-SQL | Database Programming Language |
+
+---
+
+## 📊 SQL Development
+
+The project demonstrates practical implementation of:
+
+- Database Design
+- Data Modeling
+- SQL Query Development
+- Business KPI Development
+- Data Analysis
+- Reporting Queries
+- Query Optimization
+
+---
+
+## ⚙️ SQL Features Used
+
+### Database Objects
+
+- Database
+- Tables
+- Constraints
+- Primary Keys
+- Foreign Keys
+- Unique Constraints
+- Default Constraints
+- Indexes
+
+---
+
+### Query Techniques
+
+- SELECT
+- WHERE
+- GROUP BY
+- HAVING
+- ORDER BY
+- CASE Expressions
+- Aggregate Functions
+- Subqueries
+- Common Table Expressions (CTEs)
+
+---
+
+### Window Functions
+
+- ROW_NUMBER()
+- RANK()
+- DENSE_RANK()
+
+Upcoming:
+
+- LAG()
+- LEAD()
+- NTILE()
+- FIRST_VALUE()
+- LAST_VALUE()
+- PERCENT_RANK()
+- CUME_DIST()
+
+---
+
+### Data Analysis
+
+- Sales Analysis
+- Customer Analysis
+- Product Analysis
+- Inventory Analysis
+- Business KPI Reporting
+
+---
+
+## 📂 Version Control
+
+| Tool | Purpose |
+|------|---------|
+| Git | Version Control |
+| GitHub | Source Code Hosting & Portfolio |
+
+---
+
+## 📝 Documentation
+
+Project documentation is maintained using Markdown and includes:
+
+- Business Requirements
+- Project Architecture
+- Data Dictionary
+- Naming Conventions
+- Database Design Decisions
+- Entity Relationship Diagram (ERD)
+
+---
+
+## 🚀 Future Integrations
+
+Planned integrations include:
+
+- Power BI Dashboard
+- Stored Procedures
+- Views
+- User Defined Functions
+- Dynamic SQL
+- Performance Benchmarking
+
+# 🏛️ Database Architecture
+
+The Retail Sales Analytics & Inventory Management System is built using a fully normalized relational database following **Third Normal Form (3NF)** to ensure data integrity, scalability, and maintainability.
+
+The database is organized into three logical layers commonly used in enterprise database design.
+
+---
+
+# 📚 Database Layers
+
+## 1️⃣ Lookup Tables
+
+Lookup tables store static reference data that rarely changes and eliminate duplicate values throughout the database.
+
+### Tables
+
+| Table |
+|--------|
+| Brand |
+| Category |
+| OrderStatus |
+| PaymentMethod |
+| PaymentStatus |
+| ReturnReason |
+| ReturnStatus |
+| SubCategory |
+
+---
+
+## 2️⃣ Master Tables
+
+Master tables store core business entities used across multiple business processes.
+
+### Tables
+
+| Table |
+|--------|
+| Customer |
+| Employee |
+| Product |
+| Supplier |
+| Store |
+| Inventory |
+
+---
+
+## 3️⃣ Transaction Tables
+
+Transaction tables capture day-to-day business activities and continuously grow as business operations continue.
+
+### Tables
+
+| Table |
+|--------|
+| Order |
+| OrderItem |
+| Payment |
+| Return |
+
+---
+
+# 🔗 Entity Relationships
+
+The database is designed using well-defined relationships to maintain referential integrity.
+
+Examples include:
+
+- One Category → Many SubCategories
+- One Brand → Many Products
+- One Supplier → Many Products
+- One Product → Many Inventory Records
+- One Store → Many Inventory Records
+- One Customer → Many Orders
+- One Employee → Many Orders
+- One Order → Many Order Items
+- One Order → One Payment
+- One Order Item → Many Returns
+
+---
+
+# 📐 Database Design Principles
+
+The database follows industry-standard design practices.
+
+### ✔ Normalization
+
+- Third Normal Form (3NF)
+- Elimination of data redundancy
+- Improved data consistency
+
+---
+
+### ✔ Data Integrity
+
+Implemented using:
+
+- Primary Keys
+- Foreign Keys
+- Unique Constraints
+- Default Constraints
+
+---
+
+### ✔ Performance Optimization
+
+Performance improvements include:
+
+- Clustered Primary Keys
+- Non-Clustered Indexes
+- Optimized JOIN relationships
+- Query-friendly table design
+
+---
+
+### ✔ Scalability
+
+The schema has been designed to support future enhancements, including:
+
+- Multiple Store Locations
+- Additional Payment Methods
+- Product Promotions
+- Customer Loyalty Programs
+- Sales Forecasting
+- Business Intelligence Dashboards
+
+---
+
+# 🗂️ Database Statistics
+
+| Property | Value |
+|-----------|-------|
+| Database | RetailSalesDB |
+| Database Platform | Microsoft SQL Server |
+| Database Design | Relational |
+| Normalization | Third Normal Form (3NF) |
+| Total Tables | 18 |
+| Lookup Tables | 8 |
+| Master Tables | 6 |
+| Transaction Tables | 4 |
+| Primary Keys | 18 |
+| Foreign Keys | 20+ |
+| Business KPIs | 375 (Planned) |
+
+# 📂 Project Structure
+
+The repository is organized into modular components following a logical development lifecycle—from database creation to business analytics and reporting.
 
 ```text
-Retail-Sales-Analytics-Inventory-Management-System/
-│
-├── README.md
-├── LICENSE
-├── .gitignore
-│
-├── 01_Database/
-│   ├── 01_Create_Database.sql
-│   ├── 02_Create_Tables.sql
-│   ├── 03_Create_Constraints.sql
-│   └── 04_Create_Indexes.sql
-│
-├── 02_Master_Data/
-│   ├── 05_Generate_Lookup_Data.sql
-│   └── 06_Generate_Master_Data.sql
-│
-├── 03_Transaction_Data/
-│   ├── 07_Generate_Orders.sql
-│   ├── 08_Generate_OrderItems.sql
-│   ├── 09_Generate_Payments.sql
-│   ├── 10_Generate_Inventory.sql
-│   └── 11_Generate_Returns.sql
-│
-├── 04_Views/
-├── 05_Stored_Procedures/
-├── 06_Functions/
-├── 07_Triggers/
-├── 08_SQL_Analysis/
-├── 09_Performance_Tuning/
-├── 10_PowerBI/
-│
+Retail-Sales-Analytics/
+
+├── 01_Database_Setup/
+├── 02_Data_Generation/
+├── 03_Database_Objects/
+├── 04_Data_Validation/
+├── 05_Database_Maintenance/
+├── 06_Business_Analysis/
+├── 07_Business_Analysis_Output/
+├── 08_PowerBI/
+├── 09_Datasets/
+├── 10_Execution_Order/
 ├── 11_Documentation/
-│   ├── Images/
-│   │   └── ER_Diagram.png
-│   │
-│   ├── 01_Business_Requirements.md
-│   ├── 02_Project_Architecture.md
-│   ├── 03_Naming_Conventions.md
-│   ├── 04_Data_Dictionary.md
-│   ├── 05_Database_Design_Decisions.md
-│   └── 06_ER_Diagram.md
-│
-└── Dataset/
+├── 12_Case_Study/
 ```
 
 ---
 
-## Repository Organization
+## 📁 Repository Modules
 
-| Folder | Purpose |
-|----------|---------|
-| **01_Database** | Database creation, tables, constraints, and indexes |
-| **02_Master_Data** | Lookup and master data generation |
-| **03_Transaction_Data** | Transactional data generation scripts |
-| **04_Views** | Reporting and analytical views |
-| **05_Stored_Procedures** | Business logic using stored procedures |
-| **06_Functions** | User-defined functions |
-| **07_Triggers** | Database triggers |
-| **08_SQL_Analysis** | Business and analytical SQL queries |
-| **09_Performance_Tuning** | Query optimization and indexing |
-| **10_PowerBI** | Power BI reports and dashboards |
-| **11_Documentation** | Complete technical documentation |
-| **Dataset** | Sample datasets and exported files |
-
----
-
-# 11. SQL Features Implemented
-
-The project demonstrates a broad range of SQL Server concepts commonly used in enterprise database development.
-
-## Database Design
-
-- Database Creation
-- Relational Database Modeling
-- Third Normal Form (3NF)
-- Entity Relationship Design
-- Surrogate Primary Keys
-- Foreign Key Relationships
+| Folder | Description |
+|----------|-------------|
+| **01_Database_Setup** | Creates the database, tables, constraints, and indexes. |
+| **02_Data_Generation** | Generates realistic lookup, master, transaction, inventory, payment, and return data. |
+| **03_Database_Objects** | Contains reusable database objects such as Views, Stored Procedures, Functions, and Triggers. |
+| **04_Data_Validation** | Validates schema, constraints, indexes, data quality, and business rules after data generation. |
+| **05_Database_Maintenance** | Database maintenance tasks and SQL performance optimization scripts. |
+| **06_Business_Analysis** | Business-focused SQL analysis scripts covering multiple business domains and KPI reporting. |
+| **07_Business_Analysis_Output** | Contains execution results, screenshots, exported datasets, and supporting documentation for every business KPI organized by business module. |
+| **08_PowerBI** | Interactive Power BI dashboards built using the SQL database. |
+| **09_Datasets** | Source datasets, Excel files, CSV files, and ER Diagram resources. |
+| **10_Execution_Order** | Master execution script for running the complete project in the correct sequence. |
+| **11_Documentation** | Complete project documentation including architecture, ER diagram, data dictionary, naming conventions, and technical guides. |
+| **12_Case_Study** | Business case study explaining objectives, KPIs, insights, recommendations, and future improvements. |
 
 ---
 
-## Constraints
+## 📌 Repository Highlights
 
-- Primary Keys
-- Foreign Keys
-- CHECK Constraints
-- DEFAULT Constraints
-- UNIQUE Constraints
-- NOT NULL Constraints
+- ✅ Modular Enterprise Folder Structure
+- ✅ End-to-End SQL Development Lifecycle
+- ✅ Production-Oriented Database Design
+- ✅ Comprehensive Documentation
+- ✅ Business KPI Library
+- ✅ Power BI Integration
+- ✅ Organized Analytical Outputs
+- ✅ Case Study & Business Recommendations
 
----
+# 📚 Project Documentation
 
-## Indexing
-
-- Clustered Indexes
-- Non-Clustered Indexes
-- Optimized Search Columns
-- Performance-Oriented Index Design
+Comprehensive documentation has been created to ensure the project is easy to understand, maintain, and extend. Each document focuses on a specific aspect of the database design, implementation, or business analysis.
 
 ---
 
-## Data Generation
+## 📖 Documentation Library
 
-- Lookup Data
-- Master Data
-- Transaction Data
-- Realistic Business Scenarios
-- Large Volume Test Data
+| Document | Description | Status |
+|----------|-------------|--------|
+| 📄 **Business_Requirements.md** | Defines project objectives, business requirements, scope, stakeholders, and assumptions. | ✅ |
+| 🏛️ **Project_Architecture.md** | Explains the overall architecture, development workflow, and project organization. | ✅ |
+| 📐 **Naming_Conventions.md** | Standard naming conventions for databases, tables, columns, constraints, indexes, and SQL objects. | ✅ |
+| 📚 **Data_Dictionary.md** | Complete reference for tables, columns, keys, relationships, and business definitions. | ✅ |
+| 🗺️ **ER_Diagram.md** | Entity Relationship Diagram with table relationships and database structure. | ✅ |
+| ⚙️ **Database_Design_Decisions.md** | Design choices including normalization, indexing strategy, constraints, and scalability considerations. | ✅ |
+| 👁️ **Views_Documentation.md** | Documentation for all SQL Views implemented in the project. | ⏳ Planned |
+| ⚡ **Stored_Procedures_Documentation.md** | Documentation for reusable stored procedures. | ⏳ Planned |
+| 🔧 **Functions_Documentation.md** | Documentation for scalar and table-valued functions. | ⏳ Planned |
+| 🔄 **Triggers_Documentation.md** | Documentation for database triggers and automation logic. | ⏳ Planned |
+| 🛠️ **Maintenance_Guide.md** | Database maintenance tasks, backups, and optimization guidelines. | ⏳ Planned |
+| 🚀 **Performance_Optimization.md** | Query tuning, indexing strategies, and performance improvements. | ⏳ Planned |
+| 📊 **Business_Query_Explanations.md** | Business logic and explanations behind analytical SQL queries and KPIs. | 🚧 In Progress |
 
 ---
 
-## SQL Programming *(Upcoming)*
+## 🎯 Documentation Objectives
 
+The documentation has been designed to:
+
+- Provide a clear understanding of the database architecture.
+- Explain business rules and analytical requirements.
+- Standardize development using consistent naming conventions.
+- Support future enhancements and scalability.
+- Simulate enterprise-level project documentation.
+
+# 📊 Business KPI Library
+
+The Retail Sales Analytics & Inventory Management System includes a comprehensive collection of business-focused SQL analytics designed to simulate real-world reporting requirements.
+
+The KPI library is organized into logical business domains, making it easy to explore different aspects of retail operations.
+
+---
+
+## 📈 KPI Progress
+
+| Module | KPI Range | Planned | Completed | Status |
+|----------|-----------|----------|------------|--------|
+| Executive KPIs | 001–020 | 20 | 20 | ✅ |
+| Sales Analysis | 021–050 | 30 | 30 | ✅ |
+| Customer Analysis | 051–065 | 15 | 15 | ✅ |
+| Customer Behavior | 066–080 | 15 | 15 | ✅ |
+| Product Analysis | 081–115 | 35 | 35 | ✅ |
+| Inventory Analysis | 116–120 | 5 | 5 | ✅ |
+| Employee Performance | 121–140 | 20 | 0 | ⏳ |
+| Return Analysis | 141–160 | 20 | 0 | ⏳ |
+| Payment Analysis | 161–180 | 20 | 0 | ⏳ |
+| Supplier Analysis | 181–200 | 20 | 0 | ⏳ |
+| Time Series Analysis | 201–240 | 40 | 0 | ⏳ |
+| Advanced SQL Analysis | 241–340 | 100 | 0 | ⏳ |
+| Executive Business Reports | 341–375 | 35 | 0 | ⏳ |
+
+---
+
+## 📌 Current Progress
+
+| Metric | Value |
+|---------|------:|
+| Total Planned KPIs | **375** |
+| Completed KPIs | **120** |
+| Remaining KPIs | **255** |
+| Completion Progress | **32%** |
+
+---
+
+## 📂 KPI Organization
+
+Each KPI follows a standardized structure.
+
+```text
+06_Business_Analysis/
+
+├── Executive_KPIs/
+├── Sales_Analysis/
+├── Customer_Analysis/
+├── Customer_Behavior/
+├── Product_Analysis/
+├── Inventory_Analysis/
+├── Employee_Performance/
+├── Return_Analysis/
+├── Payment_Analysis/
+├── Supplier_Analysis/
+├── Time_Series_Analysis/
+├── Advanced_SQL_Analysis/
+└── Executive_Business_Report/
+```
+
+---
+
+## 📸 KPI Documentation
+
+Every KPI is documented with supporting material.
+
+```text
+07_Business_Analysis_Output/
+
+KPI_001_Business_Overview/
+
+├── Business_Context.png
+└── Query_And_Output.png
+```
+
+Each KPI folder contains:
+
+- 📄 Business Context
+- 💻 SQL Query
+- 📊 Query Result
+- ✅ Business Insight
+
+---
+
+## 🧠 SQL Concepts Covered
+
+The KPI library demonstrates practical use of:
+
+- Aggregate Functions
+- CASE Expressions
+- CTEs (Common Table Expressions)
+- Window Functions
+- Ranking Functions
+- Running Totals
+- Moving Averages
+- Conditional Aggregation
+- Date & Time Functions
+- Correlated Subqueries
+- EXISTS / NOT EXISTS
+- PIVOT & UNPIVOT *(Planned)*
+- Dynamic SQL *(Planned)*
+- Query Optimization Techniques *(Planned)*
+
+---
+
+## 🎯 Business Domains Covered
+
+- Executive Reporting
+- Sales Performance
+- Customer Analytics
+- Customer Behavior
+- Product Performance
+- Inventory Management
+- Employee Performance
+- Return Analysis
+- Payment Analysis
+- Supplier Performance
+- Time Series Analysis
+- Advanced SQL Analytics
+- Executive Business Reporting
+
+# 📈 Power BI Dashboards
+
+The SQL database serves as the backend for a collection of interactive Power BI dashboards designed to provide actionable business insights.
+
+Each dashboard focuses on a specific business function, enabling decision-makers to monitor KPIs, identify trends, and make data-driven decisions.
+
+---
+
+## 📊 Dashboard Library
+
+| Dashboard | Description | Status |
+|-----------|-------------|--------|
+| 👔 Executive Summary | High-level overview of business performance with key KPIs and trends. | ⏳ Planned |
+| 💰 Sales Dashboard | Revenue, sales trends, top-selling products, regional performance, and sales KPIs. | ⏳ Planned |
+| 👥 Customer Dashboard | Customer growth, segmentation, retention, purchasing behavior, and lifetime value. | ⏳ Planned |
+| 📦 Product Dashboard | Product performance, category analysis, top/bottom products, and profitability. | ⏳ Planned |
+| 🏪 Inventory Dashboard | Stock levels, inventory turnover, reorder alerts, and inventory health. | ⏳ Planned |
+| 👨‍💼 Employee Dashboard | Sales performance, productivity, and employee contribution analysis. | ⏳ Planned |
+| ↩️ Returns Dashboard | Return trends, return reasons, product return rates, and financial impact. | ⏳ Planned |
+
+---
+
+## 🎯 Dashboard Features
+
+Each dashboard includes:
+
+- Interactive Filters & Slicers
+- Drill-through Navigation
+- KPI Cards
+- Trend Analysis
+- Dynamic Charts & Visualizations
+- Conditional Formatting
+- Executive-Level Reporting
+
+---
+
+## 🔄 Data Flow
+
+```text
+SQL Server Database
+        │
+        ▼
+Business KPI Queries
+        │
+        ▼
+Power Query
+        │
+        ▼
+Data Model
+        │
+        ▼
+DAX Measures
+        │
+        ▼
+Interactive Power BI Dashboards
+```
+
+---
+
+## 🛠️ Power BI Skills Demonstrated
+
+- Data Modeling
+- Star Schema Design
+- DAX Measures & Calculated Columns
+- Power Query (M Language)
+- Drill-through Reports
+- Bookmarks & Navigation
+- KPI Cards
+- Dynamic Titles
+- Conditional Formatting
+- Performance Optimization
+
+---
+
+## 📂 Dashboard Location
+
+```text
+08_PowerBI/
+
+├── Executive Dashboard
+├── Sales Dashboard
+├── Customer Dashboard
+├── Product Dashboard
+├── Inventory Dashboard
+├── Employee Dashboard
+└── Returns Dashboard
+```
+
+# 🚀 Getting Started
+
+Follow the steps below to set up and execute the complete Retail Sales Analytics & Inventory Management System.
+
+---
+
+## 📋 Prerequisites
+
+Before running the project, ensure you have the following installed:
+
+- Microsoft SQL Server (2019 or later)
+- SQL Server Management Studio (SSMS)
+- Power BI Desktop *(Optional for dashboard visualization)*
+- Git
+
+---
+
+## 📥 Clone the Repository
+
+```bash
+git clone https://github.com/aaswani365/Retail-Sales-Analytics.git
+cd Retail-Sales-Analytics
+```
+
+---
+
+## ▶️ Project Execution Order
+
+Execute the SQL scripts in the following sequence.
+
+| Step | Folder | Purpose |
+|------|---------|----------|
+| 1 | 01_Database_Setup | Create database, tables, constraints, and indexes |
+| 2 | 02_Data_Generation | Generate lookup, master, transaction, payment, return, and inventory data |
+| 3 | 03_Database_Objects | Create Views, Stored Procedures, Functions, and Triggers |
+| 4 | 04_Data_Validation | Validate schema, data quality, constraints, and business rules |
+| 5 | 05_Database_Maintenance | Run maintenance and optimization scripts |
+| 6 | 06_Business_Analysis | Execute business KPI queries |
+| 7 | 08_PowerBI | Connect Power BI to SQL Server and refresh dashboards *(Optional)* |
+
+---
+
+## ⚡ Quick Start
+
+Alternatively, execute the master script:
+
+```sql
+10_Execution_Order/Run_Project.sql
+```
+
+This script executes all project modules in the correct order.
+
+---
+
+## 📊 Verify the Setup
+
+After successful execution, verify that:
+
+- Database is created successfully
+- All tables contain generated data
+- Views compile successfully
+- Stored Procedures execute correctly
+- Business KPI queries return results
+- Data validation scripts complete without errors
+
+---
+
+## 📈 Expected Dataset Size
+
+| Object | Approximate Records |
+|---------|-------------------:|
+| Customers | 5,000 |
+| Employees | 200 |
+| Products | 500 |
+| Orders | 20,000 |
+| Order Items | 50,000+ |
+| Payments | 20,000 |
+| Returns | 2,000+ |
+| Inventory Records | 2,000+ |
+
+---
+
+## 📌 Notes
+
+- Execute scripts in the recommended order.
+- Do not skip data generation scripts.
+- Validation scripts should be executed after all data has been generated.
+- Power BI dashboards require the SQL database to be fully populated.
+
+# 🖼️ Project Showcase
+
+The following screenshots demonstrate different stages of the project, from database design to SQL analytics and Power BI reporting.
+
+---
+
+## 🗺️ Database Design
+
+### Entity Relationship Diagram
+
+> Complete ER Diagram illustrating table relationships and database architecture.
+
+<p align="center">
+<img src="09_Datasets/ER_Diagram/ER_Diagram.png" width="95%">
+</p>
+
+---
+
+## 📂 SQL Business KPI Library
+
+Every KPI is documented with business context and SQL execution output.
+
+Example:
+
+```text
+07_Business_Analysis_Output/
+
+KPI_001_Business_Overview/
+
+├── Business_Context.png
+└── Query_And_Output.png
+```
+
+---
+
+## 📊 Sample KPI Output
+
+### Business Context
+
+<p align="center">
+<img src="07_Business_Analysis_Output/23_Executive_KPIs/KPI_001_Business_Overview/001_Business_Context.png" width="90%">
+</p>
+
+---
+
+### SQL Query & Output
+
+<p align="center">
+<img src="07_Business_Analysis_Output/23_Executive_KPIs/KPI_001_Business_Overview/001Query_And_Output.png" width="95%">
+</p>
+
+---
+
+## 📈 Power BI Dashboards
+
+Interactive dashboards built using the SQL database.
+
+| Dashboard | Preview |
+|------------|---------|
+| Executive Dashboard | 🚧 Coming Soon |
+| Sales Dashboard | 🚧 Coming Soon |
+| Customer Dashboard | 🚧 Coming Soon |
+| Product Dashboard | 🚧 Coming Soon |
+| Inventory Dashboard | 🚧 Coming Soon |
+| Employee Dashboard | 🚧 Coming Soon |
+| Returns Dashboard | 🚧 Coming Soon |
+
+---
+
+## 🖥️ SQL Server
+
+The project is developed using Microsoft SQL Server Management Studio (SSMS).
+
+Features demonstrated:
+
+- Database Design
+- Data Generation
+- Stored Procedures
+- Views
+- Functions
+- Triggers
+- Advanced SQL Analytics
+- Performance Optimization
+
+---
+
+## 📌 Repository Growth
+
+As the project progresses, additional screenshots will be added for:
+
+- Power BI Reports
+- SQL Execution Results
+- Dashboard Walkthroughs
+- Business Case Studies
+- KPI Visualizations
+
+# 🎯 Skills Demonstrated
+
+This project simulates a real-world retail analytics environment and demonstrates end-to-end SQL development, database design, business intelligence, and analytical problem-solving.
+
+---
+
+## 💾 Database Design
+
+- Database Modeling
+- Entity Relationship Design (ERD)
+- Normalization (3NF)
+- Primary & Foreign Keys
+- Constraints
+- Indexing Strategy
+- Data Integrity
+- Scalable Database Design
+
+---
+
+## 🛠 SQL Development
+
+- DDL (CREATE, ALTER, DROP)
+- DML (INSERT, UPDATE, DELETE)
 - Views
 - Stored Procedures
-- User Defined Functions
+- User Defined Functions (UDFs)
 - Triggers
 - Transactions
 - Error Handling
 
 ---
 
-## SQL Analytics *(Upcoming)*
+## 📊 SQL Analytics
 
-- JOIN Operations
 - Aggregate Functions
-- Window Functions
+- CASE Expressions
 - Common Table Expressions (CTEs)
+- Window Functions
 - Ranking Functions
-- PIVOT / UNPIVOT
-- Subqueries
-- Case Expressions
-- Business KPI Queries
+- Running Totals
+- Moving Averages
+- Date & Time Functions
+- Conditional Aggregation
+- Correlated Subqueries
+- EXISTS / NOT EXISTS
+- CROSS APPLY / OUTER APPLY *(Planned)*
+- PIVOT & UNPIVOT *(Planned)*
+- Dynamic SQL *(Planned)*
 
 ---
 
-# 12. Documentation
+## 📈 Business Intelligence
 
-Comprehensive documentation has been created to explain every aspect of the project.
-
-| Document | Purpose |
-|----------|---------|
-| **01_Business_Requirements.md** | Business objectives and project scope |
-| **02_Project_Architecture.md** | Overall database architecture |
-| **03_Naming_Conventions.md** | SQL naming standards |
-| **04_Data_Dictionary.md** | Detailed table and column definitions |
-| **05_Database_Design_Decisions.md** | Database design rationale |
-| **06_ER_Diagram.md** | Entity Relationship Diagram documentation |
+- KPI Development
+- Executive Reporting
+- Business Analysis
+- Customer Analytics
+- Product Analytics
+- Inventory Analytics
+- Sales Performance Analysis
+- Time Series Analysis
+- Financial Reporting
 
 ---
 
+<<<<<<< HEAD
 ## Documentation Highlights
 
 The documentation covers:
@@ -1072,97 +1917,387 @@ This project has provided practical experience in:
 ---
 
 ## Business Intelligence
+=======
+## 📊 Power BI
+>>>>>>> 1c1d022 (modified the README.md and rename the file)
 
 - Data Modeling
-- Reporting Dataset Preparation
-- Power BI Integration *(Upcoming)*
+- Star Schema
+- Power Query
+- DAX
+- KPI Cards
+- Interactive Dashboards
+- Drill-through Reports
+- Dynamic Filtering
+- Executive Dashboards
 
 ---
 
-# 18. Future Enhancements
+## 🚀 Software Engineering
 
-The following enhancements are planned for future releases.
+- Modular Project Structure
+- Git & GitHub
+- Documentation
+- Code Organization
+- Naming Conventions
+- Performance Optimization
+- Database Validation
+- Maintainable SQL Development
 
-## Database
+---
 
+## 🧠 Soft Skills Demonstrated
+
+- Analytical Thinking
+- Problem Solving
+- Business Understanding
+- Attention to Detail
+- Documentation
+- Project Organization
+- Reporting & Communication
+
+# 🚀 Future Enhancements
+
+This project is continuously evolving. The following enhancements are planned to make it even closer to a production-grade retail analytics platform.
+
+---
+
+## 📊 Business Analytics
+
+- Complete all **375 Business KPIs**
+- Add advanced executive scorecards
+- Build forecasting reports
+- Customer churn prediction analysis
+- Market basket analysis
+- Customer Lifetime Value (CLV) reporting
+- Sales forecasting
+- Demand forecasting
+
+---
+
+## 💾 Database Enhancements
+
+- Partition large transaction tables
+- Add audit logging
+- Implement Change Data Capture (CDC)
+- Database security with Roles & Permissions
+- Row-Level Security (RLS)
+- Data Encryption
+- Backup & Restore automation
+- Database Monitoring scripts
+
+---
+
+## ⚡ Advanced SQL
+
+- Dynamic SQL Reporting
+- Recursive CTEs
+- Advanced Window Functions
+- Query Performance Benchmarking
+- Execution Plan Analysis
+- Indexed Views
+- Table Partitioning
+- Temporal Tables
+
+---
+
+## 📈 Power BI
+
+- Executive Dashboard
+- Sales Dashboard
+- Customer Dashboard
+- Product Dashboard
+- Inventory Dashboard
+- Employee Dashboard
+- Returns Dashboard
+- Supplier Dashboard
+- Financial Dashboard
+
+---
+
+## 🤖 Automation
+
+- Scheduled SQL Jobs
+- Automatic KPI Refresh
+- Email Reporting
+- Power BI Service Deployment
+- Incremental Data Refresh
+- CI/CD Pipeline for Database Deployment
+
+---
+
+## ☁️ Cloud Integration
+
+- Azure SQL Database
+- Azure Data Factory
+- Azure Synapse Analytics
+- Microsoft Fabric
+- Power BI Service
+- Azure DevOps Pipeline
+
+---
+
+## 🧠 Machine Learning *(Future Phase)*
+
+- Customer Segmentation
+- Recommendation System
+- Sales Prediction
+- Inventory Optimization
+- Return Prediction
+- Fraud Detection
+
+---
+
+## 📌 Long-Term Goal
+
+Transform this project into a complete **Enterprise Retail Business Intelligence Platform** by integrating:
+
+- SQL Server
+- Power BI
+- Python
+- Azure Cloud
+- ETL Pipelines
+- Data Warehousing
+- Machine Learning
+
+# 🎓 Learning Outcomes
+
+Building this project provided hands-on experience across the complete data analytics lifecycle—from database design to business intelligence reporting.
+
+---
+
+## 💾 Database Engineering
+
+Through this project, I gained practical experience in:
+
+- Designing normalized relational databases (3NF)
+- Creating scalable database schemas
+- Defining primary keys, foreign keys, constraints, and indexes
+- Maintaining data integrity and consistency
+- Writing production-ready SQL scripts
+- Organizing enterprise-scale SQL projects
+
+---
+
+## 🛠 SQL Development
+
+This project strengthened my SQL skills by working with:
+
+- Data Definition Language (DDL)
+- Data Manipulation Language (DML)
 - Views
 - Stored Procedures
-- User Defined Functions
+- User Defined Functions (UDFs)
 - Triggers
 - Transactions
+- Error Handling
 
 ---
 
-## Analytics
+## 📊 Business Analytics
 
-- Advanced SQL Reporting
-- KPI Dashboards
+I developed business-focused analytical thinking by building KPIs for:
+
+- Executive Reporting
+- Sales Analysis
+- Customer Analytics
+- Customer Behavior
+- Product Performance
+- Inventory Management
+- Employee Performance
+- Returns Analysis
+- Payment Analysis
+- Supplier Performance
+- Time Series Analysis
+
+---
+
+## 📈 Advanced SQL
+
+Implemented and practiced:
+
+- Common Table Expressions (CTEs)
 - Window Functions
+- Ranking Functions
+- Running Totals
+- Moving Averages
+- CASE Expressions
+- Aggregate Functions
+- Conditional Aggregation
+- Date Functions
+- Complex Joins
+- Subqueries
 - Performance Optimization
 
 ---
 
-## Business Intelligence
+## 📊 Business Intelligence
 
-- Power BI Dashboards
-- Interactive Reports
-- Executive Dashboard
-- Sales Analytics
-- Inventory Analytics
-- Customer Analytics
+Learned how to transform raw data into meaningful insights by:
 
----
-
-## Application Features
-
-- Multi-Warehouse Support
-- Loyalty Program
-- Shipment Tracking
-- Product Reviews
-- Discount Management
-- Multi-Currency Support
-- Tax Module
+- Designing business KPIs
+- Creating executive reports
+- Structuring analytical queries
+- Preparing datasets for visualization
+- Supporting decision-making with data
 
 ---
 
-# 19. License
+## 📈 Power BI
 
-This project is intended for **educational, learning, and portfolio purposes**.
+This project also serves as the backend for interactive Power BI dashboards, providing experience in:
 
-You are welcome to explore, learn from, and adapt the project for personal use. If you build upon this work, appropriate attribution is appreciated.
-
----
-
-# 20. Author
-
-## Akshay Aswani
-
-**Data Analyst | SQL Developer | Business Intelligence Enthusiast**
-
-Passionate about designing scalable databases, writing efficient SQL, building analytical solutions, and transforming business data into meaningful insights.
+- Data Modeling
+- Star Schema Design
+- DAX
+- Power Query
+- Interactive Dashboards
+- Executive Reporting
+- KPI Visualization
 
 ---
 
-## Connect with Me
+## 🚀 Professional Growth
 
-- **GitHub:** https://github.com/aaswani365
-- **LinkedIn:** https://www.linkedin.com/in/akshay-aswani-ikka
+This project helped me understand how enterprise analytics solutions are designed, developed, documented, and maintained using industry best practices.
+
+It also strengthened my skills in:
+
+- Problem Solving
+- Business Understanding
+- Documentation
+- Project Organization
+- Git & GitHub
+- Analytical Thinking
+- SQL Best Practices
+
+# 👨‍💻 About the Author
+
+Hi, I'm **Akshay Aswani** 👋
+
+I'm a **Data Analytics Enthusiast** with a strong interest in transforming raw data into meaningful business insights through SQL, Power BI, and Business Intelligence solutions.
+
+This project represents my hands-on journey in designing an enterprise-scale retail analytics system using Microsoft SQL Server while following industry best practices in database design, SQL development, documentation, and reporting.
+
+My goal is to build real-world portfolio projects that demonstrate practical problem-solving skills and prepare me for roles in **Data Analytics**, **Business Intelligence**, and **Data Visualization**.
 
 ---
 
-## Acknowledgements
+## 💼 Core Skills
 
-Special thanks to the open-source community, Microsoft SQL Server documentation, and the data analytics community for providing valuable learning resources that contributed to the development of this project.
+- Microsoft SQL Server
+- SQL (Beginner to Advanced)
+- Database Design & Normalization
+- Business KPI Development
+- Power BI
+- DAX
+- Power Query
+- Microsoft Excel
+- Data Modeling
+- Business Intelligence
+- Git & GitHub
+
+---
+
+## 🎯 Career Objective
+
+I'm continuously improving my skills by building end-to-end analytics projects that simulate real business environments.
+
+My current focus is on:
+
+- Advanced SQL
+- Power BI
+- Business Analytics
+- Dashboard Development
+- Data Storytelling
+- Enterprise Reporting
+
+---
+
+## 🌱 Currently Learning
+
+- Advanced SQL Optimization
+- Advanced Power BI & DAX
+- Azure Data Services
+- Microsoft Fabric
+- Data Warehousing
+- ETL Development
+
+# 📬 Connect With Me
+
+I'm always open to connecting with fellow data professionals, recruiters, and technology enthusiasts.
+
+<div align="center">
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Akshay%20Aswani-0A66C2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/akshayaswani)
+
+[![GitHub](https://img.shields.io/badge/GitHub-aaswani365-181717?style=for-the-badge&logo=github)](https://github.com/aaswani365)
+
+[![Email](https://img.shields.io/badge/Email-akshayaswani09%40gmail.com-EA4335?style=for-the-badge&logo=gmail)](mailto:akshayaswani09@gmail.com)
+
+<!-- Add after your portfolio website is live -->
+<!--
+[![Portfolio](https://img.shields.io/badge/Portfolio-Live%20Website-00C853?style=for-the-badge&logo=googlechrome)](https://your-portfolio-url)
+-->
+
+</div>
+
+---
+
+## 💬 Let's Connect
+
+If you have any questions, suggestions, feedback, or would like to collaborate on SQL, Power BI, or Data Analytics projects, feel free to reach out.
+
+I’m always happy to connect with professionals and learn from the data community.
 
 ---
 
 ## ⭐ Support the Project
 
-If you found this project helpful or learned something from it:
+If you found this repository useful:
 
-- ⭐ Star this repository
-- 🍴 Fork the repository
-- 📝 Share feedback or suggestions
-- 🤝 Connect with me on LinkedIn
+⭐ Star the repository
 
+<<<<<<< HEAD
 Your support is greatly appreciated!
+=======
+🍴 Fork the project
+
+📢 Share it with others
+
+💡 Suggest improvements or open an issue
+
+Your support helps improve the project and motivates continued development.
+
+---
+
+# 🙏 Acknowledgements
+
+Special thanks to the open-source community and learning platforms that inspired and supported the development of this project.
+
+- Microsoft SQL Server
+- SQL Server Management Studio (SSMS)
+- Power BI Desktop
+- GitHub
+- SQL documentation and community resources
+
+---
+
+# 📄 License
+
+This project is licensed under the **MIT License**.
+
+See the **LICENSE** file for more information.
+
+---
+
+<div align="center">
+
+## ⭐ If you found this project helpful, please consider giving it a Star!
+
+**Thank you for visiting my repository!**
+
+**Happy Learning! 🚀**
+
+</div>
+>>>>>>> 1c1d022 (modified the README.md and rename the file)
