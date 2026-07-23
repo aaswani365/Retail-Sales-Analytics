@@ -992,54 +992,31 @@ Need Attention
 At Risk
 Lost Customers
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-WITH CustomerMetrics
-AS
+WITH CustomerMetrics AS
 (
     SELECT
-
         C.CustomerID,
-
         CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
-
-        DATEDIFF
-        (
-            DAY,
-            MAX(O.OrderDate),
-            GETDATE()
-        ) AS Recency,
-
+        DATEDIFF(DAY,MAX(O.OrderDate),GETDATE()) AS Recency,
         COUNT(O.OrderID) AS Frequency,
-
         SUM(O.NetAmount) AS Monetary
-
     FROM dbo.Customer C
-
     INNER JOIN dbo.[Order] O
         ON C.CustomerID = O.CustomerID
-
     GROUP BY
-
         C.CustomerID,
         C.FirstName,
         C.LastName
 ),
-
-RFMScore
-AS
+RFMScore AS
 (
     SELECT
-
         *,
-
         6 - NTILE(5) OVER (ORDER BY Recency ASC) AS RScore,
-
         NTILE(5) OVER (ORDER BY Frequency DESC) AS FScore,
-
         NTILE(5) OVER (ORDER BY Monetary DESC) AS MScore
-
     FROM CustomerMetrics
 )
 
@@ -3166,7 +3143,211 @@ Weekday
 ------------------------------------------------------------------------------
 */
 
-WITH CustomerShoppingPattern
+WITH CustomerShoppingPattern AS
+(
+    SELECT
+        C.CustomerID,
+        CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
+        SUM(
+            CASE
+                WHEN DATENAME(WEEKDAY, O.OrderDate) IN ('Saturday','Sunday') THEN 1
+                ELSE 0
+            END
+        ) AS WeekendOrders,
+        SUM(
+            CASE
+                WHEN DATENAME(WEEKDAY, O.OrderDate) NOT IN ('Saturday','Sunday') THEN 1
+                ELSE 0
+            END
+        ) AS WeekdayOrders,
+        COUNT(O.OrderID) AS TotalOrders
+    FROM dbo.Customer C
+    INNER JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+    GROUP BY
+        C.CustomerID,
+        C.FirstName,
+        C.LastName
+)
+SELECT
+    DENSE_RANK() OVER(ORDER BY TotalOrders DESC) AS CustomerRank,
+    CustomerID,
+    CustomerName,
+    WeekdayOrders,
+    WeekendOrders,
+    TotalOrders,
+    ROUND(WeekendOrders * 100.0 / TotalOrders,2) AS WeekendShoppingPercentage,
+    CASE
+        WHEN WeekendOrders > WeekdayOrders THEN 'Weekend Buyer'
+        ELSE 'Weekday Buyer'
+    END AS ShoppingPreference
+FROM CustomerShoppingPattern
+ORDER BY
+    WeekendShoppingPercentage DESC,
+    TotalOrders DESC;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 131 : Weekend vs Weekday Buyers Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+/*------------------------------------------------------------------------------
+KPI 132 : Customer Return Behavior
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which customers return products most frequently?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Understanding customer return behavior helps businesses identify customers
+with unusually high return rates, improve product quality, optimize return
+policies, and reduce operational costs.
+
+This KPI helps management:
+
+• Identify Frequent Return Customers
+• Improve Product Quality
+• Detect Return Abuse
+• Optimize Return Policies
+• Improve Customer Satisfaction
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Customer Rank
+• Customer ID
+• Customer Name
+• Total Orders
+• Total Returned Items
+• Total Refund Amount
+• Return Rate (%)
+• Return Behavior
+
+Business Rules
+
+Return Rate
+
+>= 30%  → Frequent Return Customer
+10–29%  → Moderate Return Customer
+< 10%   → Low Return Customer
+
+------------------------------------------------------------------------------
+*/
+
+WITH CustomerReturnSummary AS
+(
+    SELECT
+        C.CustomerID,
+        CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
+        COUNT(DISTINCT O.OrderID) AS TotalOrders,
+        ISNULL(SUM(R.QuantityReturned),0) AS TotalReturnedItems,
+        ISNULL(SUM(R.RefundAmount),0) AS TotalRefundAmount
+    FROM dbo.Customer C
+    INNER JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+    INNER JOIN dbo.OrderItem OI
+        ON O.OrderID = OI.OrderID
+    LEFT JOIN dbo.[Return] R
+        ON OI.OrderItemID = R.OrderItemID
+    GROUP BY
+        C.CustomerID,
+        C.FirstName,
+        C.LastName
+)
+SELECT
+    DENSE_RANK() OVER(ORDER BY TotalRefundAmount DESC) AS CustomerRank,
+    CustomerID,
+    CustomerName,
+    TotalOrders,
+    TotalReturnedItems,
+    TotalRefundAmount,
+    ROUND(TotalReturnedItems * 100.0 / NULLIF(TotalOrders,0),2) AS ReturnRate,
+    CASE
+        WHEN
+            TotalReturnedItems * 100.0 / NULLIF(TotalOrders,0) >= 30 THEN 'Frequent Return Customer'
+        WHEN
+            TotalReturnedItems * 100.0 / NULLIF(TotalOrders,0) >= 10 THEN 'Moderate Return Customer'
+        ELSE 'Low Return Customer'
+    END AS ReturnBehavior
+FROM CustomerReturnSummary
+ORDER BY
+    ReturnRate DESC,
+    TotalRefundAmount DESC;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 132 : Customer Return Behavior Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+/*------------------------------------------------------------------------------
+KPI 133 : Customer Loyalty Score
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+How can customers be assigned a loyalty score based on their purchasing
+behavior?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+A Customer Loyalty Score helps businesses identify customers who
+consistently purchase, spend more, and remain actively engaged.
+
+This KPI helps management:
+
+• Measure Customer Loyalty
+• Identify High-Value Customers
+• Improve Loyalty Programs
+• Increase Customer Retention
+• Support Personalized Marketing
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Customer Rank
+• Customer ID
+• Customer Name
+• Total Orders
+• Total Revenue
+• Average Order Value
+• Days Since Last Purchase
+• Loyalty Score (0-100)
+• Loyalty Level
+
+Weightage
+
+Purchase Frequency : 40%
+Revenue            : 40%
+Recency            : 20%
+
+------------------------------------------------------------------------------
+*/
+
+WITH CustomerMetrics
 AS
 (
     SELECT
@@ -3180,27 +3361,18 @@ AS
             C.LastName
         ) AS CustomerName,
 
-        SUM
-        (
-            CASE
-                WHEN DATENAME(WEEKDAY, O.OrderDate)
-                     IN ('Saturday','Sunday')
-                THEN 1
-                ELSE 0
-            END
-        ) AS WeekendOrders,
+        COUNT(O.OrderID) AS TotalOrders,
 
-        SUM
-        (
-            CASE
-                WHEN DATENAME(WEEKDAY, O.OrderDate)
-                     NOT IN ('Saturday','Sunday')
-                THEN 1
-                ELSE 0
-            END
-        ) AS WeekdayOrders,
+        SUM(O.NetAmount) AS TotalRevenue,
 
-        COUNT(O.OrderID) AS TotalOrders
+        AVG(O.NetAmount) AS AverageOrderValue,
+
+        DATEDIFF
+        (
+            DAY,
+            MAX(O.OrderDate),
+            GETDATE()
+        ) AS DaysSinceLastPurchase
 
     FROM dbo.Customer C
 
@@ -3211,57 +3383,413 @@ AS
     GROUP BY
 
         C.CustomerID,
-
         C.FirstName,
-
         C.LastName
+),
+
+ScoredCustomers
+AS
+(
+    SELECT
+
+        *,
+
+        NTILE(5) OVER
+        (
+            ORDER BY TotalOrders DESC
+        ) AS FrequencyScore,
+
+        NTILE(5) OVER
+        (
+            ORDER BY TotalRevenue DESC
+        ) AS RevenueScore,
+
+        6 - NTILE(5) OVER
+        (
+            ORDER BY DaysSinceLastPurchase ASC
+        ) AS RecencyScore
+
+    FROM CustomerMetrics
 )
 
 SELECT
 
     DENSE_RANK() OVER
     (
-        ORDER BY TotalOrders DESC
+        ORDER BY
+        (
+            (FrequencyScore * 0.40)
+          + (RevenueScore * 0.40)
+          + (RecencyScore * 0.20)
+        ) DESC
     ) AS CustomerRank,
 
     CustomerID,
 
     CustomerName,
 
-    WeekdayOrders,
-
-    WeekendOrders,
-
     TotalOrders,
+
+    TotalRevenue,
+
+    ROUND(AverageOrderValue,2) AS AverageOrderValue,
+
+    DaysSinceLastPurchase,
 
     ROUND
     (
-        WeekendOrders * 100.0 / TotalOrders,
+        (
+            (
+                (FrequencyScore * 0.40)
+              + (RevenueScore * 0.40)
+              + (RecencyScore * 0.20)
+            ) / 5.0
+        ) * 100,
         2
-    ) AS WeekendShoppingPercentage,
+    ) AS LoyaltyScore,
 
     CASE
 
-        WHEN WeekendOrders > WeekdayOrders
+        WHEN
+        (
+            (
+                (FrequencyScore * 0.40)
+              + (RevenueScore * 0.40)
+              + (RecencyScore * 0.20)
+            ) / 5.0
+        ) * 100 >= 80
 
-            THEN 'Weekend Buyer'
+            THEN 'Platinum'
 
-        ELSE 'Weekday Buyer'
+        WHEN
+        (
+            (
+                (FrequencyScore * 0.40)
+              + (RevenueScore * 0.40)
+              + (RecencyScore * 0.20)
+            ) / 5.0
+        ) * 100 >= 60
 
-    END AS ShoppingPreference
+            THEN 'Gold'
 
-FROM CustomerShoppingPattern
+        WHEN
+        (
+            (
+                (FrequencyScore * 0.40)
+              + (RevenueScore * 0.40)
+              + (RecencyScore * 0.20)
+            ) / 5.0
+        ) * 100 >= 40
+
+            THEN 'Silver'
+
+        ELSE 'Bronze'
+
+    END AS LoyaltyLevel
+
+FROM ScoredCustomers
 
 ORDER BY
 
-    WeekendShoppingPercentage DESC,
-
-    TotalOrders DESC;
+    LoyaltyScore DESC;
 
 PRINT '';
 
 PRINT '==============================================================';
-PRINT 'KPI 131 : Weekend vs Weekday Buyers Generated Successfully';
+PRINT 'KPI 133 : Customer Loyalty Score Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+/*------------------------------------------------------------------------------
+KPI 134 : Customer Engagement Score
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Which customers are the most engaged with the business based on their
+purchasing activity?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Customer Engagement measures how actively customers interact with the
+business.
+
+Highly engaged customers purchase frequently, spend consistently,
+remain active, and are less likely to churn.
+
+This KPI helps management:
+
+• Identify Highly Engaged Customers
+• Improve Customer Retention
+• Increase Customer Lifetime Value
+• Personalize Marketing Campaigns
+• Support Loyalty Programs
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Customer Rank
+• Customer ID
+• Customer Name
+• Total Orders
+• Total Revenue
+• Average Order Value
+• Days Since Last Purchase
+• Engagement Score (0-100)
+• Engagement Level
+
+Weightage
+
+Frequency : 35%
+Revenue   : 35%
+Recency   : 30%
+
+------------------------------------------------------------------------------
+*/
+
+WITH CustomerMetrics AS
+(
+    SELECT
+        C.CustomerID,
+        CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
+        COUNT(O.OrderID) AS TotalOrders,
+        SUM(O.NetAmount) AS TotalRevenue,
+        AVG(O.NetAmount) AS AverageOrderValue,
+        DATEDIFF(DAY,MAX(O.OrderDate),
+GETDATE()
+        ) AS DaysSinceLastPurchase
+
+    FROM dbo.Customer C
+
+    INNER JOIN dbo.[Order] O
+
+        ON C.CustomerID = O.CustomerID
+
+    GROUP BY
+
+        C.CustomerID,
+        C.FirstName,
+        C.LastName
+),
+
+CustomerScores
+AS
+(
+    SELECT
+
+        *,
+
+        NTILE(5) OVER
+        (
+            ORDER BY TotalOrders DESC
+        ) AS FrequencyScore,
+
+        NTILE(5) OVER
+        (
+            ORDER BY TotalRevenue DESC
+        ) AS RevenueScore,
+
+        6 - NTILE(5) OVER
+        (
+            ORDER BY DaysSinceLastPurchase ASC
+        ) AS RecencyScore
+
+    FROM CustomerMetrics
+)
+
+SELECT
+
+    DENSE_RANK() OVER
+    (
+        ORDER BY
+        (
+            (FrequencyScore * 0.35)
+          + (RevenueScore * 0.35)
+          + (RecencyScore * 0.30)
+        ) DESC
+    ) AS CustomerRank,
+
+    CustomerID,
+
+    CustomerName,
+
+    TotalOrders,
+
+    TotalRevenue,
+
+    ROUND(AverageOrderValue,2) AS AverageOrderValue,
+
+    DaysSinceLastPurchase,
+
+    ROUND
+    (
+        (
+            (
+                (FrequencyScore * 0.35)
+              + (RevenueScore * 0.35)
+              + (RecencyScore * 0.30)
+            ) / 5.0
+        ) * 100,
+        2
+    ) AS EngagementScore,
+
+    CASE
+
+        WHEN
+        (
+            (
+                (FrequencyScore * 0.35)
+              + (RevenueScore * 0.35)
+              + (RecencyScore * 0.30)
+            ) / 5.0
+        ) * 100 >= 80
+
+            THEN 'Highly Engaged'
+
+        WHEN
+        (
+            (
+                (FrequencyScore * 0.35)
+              + (RevenueScore * 0.35)
+              + (RecencyScore * 0.30)
+            ) / 5.0
+        ) * 100 >= 60
+
+            THEN 'Moderately Engaged'
+
+        WHEN
+        (
+            (
+                (FrequencyScore * 0.35)
+              + (RevenueScore * 0.35)
+              + (RecencyScore * 0.30)
+            ) / 5.0
+        ) * 100 >= 40
+
+            THEN 'Low Engagement'
+
+        ELSE 'Inactive'
+
+    END AS EngagementLevel
+
+FROM CustomerScores
+
+ORDER BY
+
+    EngagementScore DESC;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 134 : Customer Engagement Score Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+/*------------------------------------------------------------------------------
+KPI 135 : Customer Behavior Executive Scorecard
+------------------------------------------------------------------------------*/
+
+/*
+------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+What is the overall health and behavior summary of the customer base?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+The Customer Behavior Executive Scorecard provides a consolidated view of
+key customer behavior metrics for executive decision-making.
+
+This KPI helps management:
+
+• Monitor Customer Health
+• Track Customer Engagement
+• Evaluate Customer Loyalty
+• Measure Customer Retention
+• Support Strategic Planning
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query calculates:
+
+• Total Customers
+• Active Customers
+• Repeat Customers
+• Premium Customers
+• Average Orders per Customer
+• Average Revenue per Customer
+• Average Customer Lifetime Value
+• Average Days Since Last Purchase
+
+This KPI serves as the executive summary for the entire Customer Behavior
+Analysis module.
+
+------------------------------------------------------------------------------
+*/
+
+WITH CustomerSummary
+AS
+(
+    SELECT
+        C.CustomerID,
+        COUNT(O.OrderID) AS TotalOrders,
+        SUM(O.NetAmount) AS TotalRevenue,
+        MAX(O.OrderDate) AS LatestPurchaseDate,
+        C.IsActive
+    FROM dbo.Customer C
+    LEFT JOIN dbo.[Order] O
+        ON C.CustomerID = O.CustomerID
+    GROUP BY
+        C.CustomerID,
+        C.IsActive
+)
+SELECT
+    COUNT(CustomerID) AS TotalCustomers,
+    SUM(
+        CASE
+            WHEN IsActive = 1 THEN 1
+            ELSE 0
+        END
+    ) AS ActiveCustomers,
+    SUM(
+        CASE
+            WHEN TotalOrders > 1 THEN 1
+            ELSE 0
+        END
+    ) AS RepeatCustomers,
+    SUM
+    (
+        CASE
+            WHEN TotalRevenue >= 100000 AND TotalOrders >= 10 THEN 1
+            ELSE 0
+        END
+    ) AS PremiumCustomers,
+    ROUND(AVG(CAST(ISNULL(TotalOrders,0) AS DECIMAL(18,2))),2) AS AverageOrdersPerCustomer,
+    ROUND(AVG(CAST(ISNULL(TotalRevenue,0) AS DECIMAL(18,2))),2) AS AverageRevenuePerCustomer,
+    ROUND(AVG(CAST(ISNULL(TotalRevenue,0)AS DECIMAL(18,2))),2) AS AverageCustomerLifetimeValue,
+    ROUND(AVG(CAST(DATEDIFF(DAY,LatestPurchaseDate,GETDATE())AS DECIMAL(18,2))),2) AS AverageDaysSinceLastPurchase
+
+FROM CustomerSummary;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 135 : Customer Behavior Executive Scorecard Generated Successfully';
 PRINT '==============================================================';
 
 PRINT '';
