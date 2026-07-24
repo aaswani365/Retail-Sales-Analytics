@@ -1,9 +1,80 @@
+/*==============================================================================
+Project         : Retail Sales Analytics & Inventory Management System
+Module          : 25_Customer_Analysis.sql
+Description     : Customer Analysis KPIs for Customer Insights
+
+Author          : Akshay Aswani
+Version         : 1.0
+Database        : RetailSalesDB
+
+KPI Range       : 076 - 105
+Total KPIs      : 30
+Difficulty      : Intermediate SQL
+
+Purpose
+------------------------------------------------------------------------------
+This module analyzes customer demographics, engagement, loyalty,
+registration trends, purchasing behavior summaries, and customer
+performance to generate actionable business insights.
+
+These KPIs help organizations understand customer growth, customer
+activity, loyalty program effectiveness, customer value, and engagement
+patterns to support data-driven marketing, sales, and customer
+relationship management strategies.
+
+==============================================================================*/
+
+/*==============================================================================
+Module Statistics
+==============================================================================
+
+Module Name        : Customer Analysis
+
+KPI Range          : 076 - 105
+
+Total KPIs         : 30
+
+Estimated Runtime  : < 15 Seconds
+
+Primary SQL Concepts
+--------------------
+
+• SELECT
+• GROUP BY
+• INNER JOIN
+• Common Table Expressions (CTE)
+• Aggregate Functions
+• Window Functions
+• CASE
+• DATE Functions
+• DATEDIFF
+• DATEADD
+• ISNULL
+• NULLIF
+• HAVING
+• TOP
+• Ranking Functions
+• Conditional Aggregation
+
+==============================================================================*/
+
+USE RetailSalesDB;
+GO
+
+PRINT '==============================================================';
+PRINT 'Retail Sales Analytics & Inventory Management System';
+PRINT '25_Customer_Analysis.sql';
+PRINT '==============================================================';
+
+PRINT 'Starting Customer Analysis KPI Module...';
+PRINT '==============================================================';
+GO
+
 /*------------------------------------------------------------------------------
 KPI 076 : Customer Overview
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -38,8 +109,7 @@ The query calculates:
 • First Customer Registration
 • Latest Customer Registration
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
     COUNT(CustomerID) AS TotalCustomers,
@@ -82,8 +152,7 @@ GO
 KPI 077 : Active vs Inactive Customers
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
