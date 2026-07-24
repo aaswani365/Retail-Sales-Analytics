@@ -2300,4 +2300,3 @@ See the **LICENSE** file for more information.
 **Happy Learning! 🚀**
 
 </div>
->>>>>>> 1c1d022 (modified the README.md and rename the file)
