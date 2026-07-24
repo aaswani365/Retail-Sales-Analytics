@@ -1,4 +1,76 @@
-﻿/*------------------------------------------------------------------------------
+﻿/*==============================================================================
+Project         : Retail Sales Analytics & Inventory Management System
+Module          : 26_Customer_Behavior.sql
+Description     : Customer Behavior Analysis KPIs for Customer Insights
+
+Author          : Akshay Aswani
+Version         : 1.0
+Database        : RetailSalesDB
+
+KPI Range       : 106 - 135
+Total KPIs      : 30
+Difficulty      : Intermediate SQL
+
+Purpose
+------------------------------------------------------------------------------
+This module analyzes customer purchasing behavior, buying patterns,
+engagement, loyalty, and spending habits to provide actionable business
+insights.
+
+These KPIs help organizations understand customer purchase frequency,
+customer lifetime value, repeat purchases, buying trends, and customer
+performance to support data-driven marketing, sales, and retention
+strategies.
+
+==============================================================================*/
+
+/*==============================================================================
+Module Statistics
+==============================================================================
+
+Module Name        : Customer Behavior Analysis
+
+KPI Range          : 106 - 135
+
+Total KPIs         : 30
+
+Estimated Runtime  : < 15 Seconds
+
+Primary SQL Concepts
+--------------------
+
+• SELECT
+• GROUP BY
+• INNER JOIN
+• Common Table Expressions (CTE)
+• Aggregate Functions
+• Window Functions
+• CASE
+• DATE Functions
+• DATEDIFF
+• DATEADD
+• NULLIF
+• ISNULL
+• HAVING
+• TOP
+• Ranking Functions
+• Conditional Aggregation
+
+==============================================================================*/
+
+USE RetailSalesDB;
+GO
+
+PRINT '==============================================================';
+PRINT 'Retail Sales Analytics & Inventory Management System';
+PRINT '26_Customer_Behavior.sql';
+PRINT '==============================================================';
+
+PRINT 'Starting Customer Behavior KPI Analysis...';
+PRINT '==============================================================';
+GO
+
+/*------------------------------------------------------------------------------
 KPI 106 : Customer Purchase Frequency
 ------------------------------------------------------------------------------*/
 
@@ -296,8 +368,7 @@ SELECT
     MIN(O.OrderDate) AS FirstPurchaseDate,
     MAX(O.OrderDate) AS LatestPurchaseDate,
     CASE
-        WHEN COUNT(O.OrderID) = 1
-            THEN 'One-Time Customer'
+        WHEN COUNT(O.OrderID) = 1 THEN 'One-Time Customer'
         ELSE 'Repeat Customer'
     END AS CustomerType
 FROM dbo.Customer C
@@ -874,61 +945,24 @@ RFMScore AS
 (
     SELECT
         *,
-        NTILE(5) OVER(
-ORDER BY Recency ASC
-        ) AS RScore,
-
-        NTILE(5) OVER
-        (
-            ORDER BY Frequency DESC
-        ) AS FScore,
-
-        NTILE(5) OVER
-        (
-            ORDER BY Monetary DESC
-        ) AS MScore
-
+        NTILE(5) OVER(ORDER BY Recency ASC) AS RScore,
+        NTILE(5) OVER(ORDER BY Frequency DESC) AS FScore,
+        NTILE(5) OVER(ORDER BY Monetary DESC) AS MScore
     FROM CustomerMetrics
 )
-
 SELECT
-
     CustomerID,
-
     CustomerName,
-
     Recency,
-
     Frequency,
-
     Monetary,
-
     RScore,
-
     FScore,
-
     MScore,
-
-    CONCAT
-    (
-        RScore,
-        FScore,
-        MScore
-    ) AS RFMScore,
-
-    DENSE_RANK() OVER
-    (
-        ORDER BY
-
-            (RScore + FScore + MScore) DESC,
-
-            Monetary DESC
-    ) AS CustomerRank
-
+    CONCAT(RScore,FScore,MScore) AS RFMScore,
+    DENSE_RANK() OVER(ORDER BY (RScore + FScore + MScore) DESC,Monetary DESC) AS CustomerRank
 FROM RFMScore
-
 ORDER BY
-
     CustomerRank;
 
 PRINT '';
@@ -943,8 +977,7 @@ PRINT '';
 KPI 117 : Customer Segmentation
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1019,62 +1052,27 @@ RFMScore AS
         NTILE(5) OVER (ORDER BY Monetary DESC) AS MScore
     FROM CustomerMetrics
 )
-
 SELECT
-
     CustomerID,
-
     CustomerName,
-
     Recency,
-
     Frequency,
-
     Monetary,
-
     RScore,
-
     FScore,
-
     MScore,
-
     CONCAT(RScore,FScore,MScore) AS RFMScore,
-
     CASE
-
-        WHEN RScore >= 4
-         AND FScore >= 4
-         AND MScore >= 4
-            THEN 'Champions'
-
-        WHEN RScore >= 3
-         AND FScore >= 4
-            THEN 'Loyal Customers'
-
-        WHEN RScore >= 4
-         AND FScore >= 2
-            THEN 'Potential Loyalists'
-
-        WHEN RScore >= 3
-         AND FScore <= 2
-            THEN 'Promising'
-
-        WHEN RScore = 2
-         AND FScore >= 3
-            THEN 'Need Attention'
-
-        WHEN RScore <= 2
-         AND FScore >= 3
-            THEN 'At Risk'
-
+        WHEN RScore >= 4 AND FScore >= 4 AND MScore >= 4 THEN 'Champions'
+        WHEN RScore >= 3 AND FScore >= 4 THEN 'Loyal Customers'
+        WHEN RScore >= 4 AND FScore >= 2 THEN 'Potential Loyalists'
+        WHEN RScore >= 3 AND FScore <= 2 THEN 'Promising'
+        WHEN RScore = 2 AND FScore >= 3 THEN 'Need Attention'
+        WHEN RScore <= 2 AND FScore >= 3 THEN 'At Risk'
         ELSE 'Lost Customers'
-
     END AS CustomerSegment
-
 FROM RFMScore
-
 ORDER BY
-
     CustomerSegment,
     Monetary DESC;
 
@@ -1090,8 +1088,7 @@ PRINT '';
 KPI 118 : Dormant Customers
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1132,82 +1129,30 @@ Business Rule
 Customers with more than 180 days since their last purchase are
 considered Dormant.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
-    DENSE_RANK() OVER
-    (
-        ORDER BY
-            DATEDIFF
-            (
-                DAY,
-                MAX(O.OrderDate),
-                GETDATE()
-            ) DESC
-    ) AS CustomerRank,
-
+    DENSE_RANK() OVER(ORDER BY DATEDIFF(DAY,MAX(O.OrderDate),GETDATE()) DESC) AS CustomerRank,
     C.CustomerID,
-
-    CONCAT
-    (
-        C.FirstName,
-        ' ',
-        C.LastName
-    ) AS CustomerName,
-
+    CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
     COUNT(O.OrderID) AS TotalOrders,
-
     SUM(O.NetAmount) AS TotalRevenue,
-
     MAX(O.OrderDate) AS LatestPurchaseDate,
-
-    DATEDIFF
-    (
-        DAY,
-        MAX(O.OrderDate),
-        GETDATE()
-    ) AS DaysSinceLastPurchase,
-
+    DATEDIFF(DAY,MAX(O.OrderDate),GETDATE()) AS DaysSinceLastPurchase,
     CASE
-
-        WHEN DATEDIFF
-             (
-                DAY,
-                MAX(O.OrderDate),
-                GETDATE()
-             ) > 180
-
-            THEN 'Dormant'
-
+        WHEN DATEDIFF(DAY,MAX(O.OrderDate),GETDATE()) > 180 THEN 'Dormant'
         ELSE 'Active'
-
     END AS DormancyStatus
-
 FROM dbo.Customer C
-
 INNER JOIN dbo.[Order] O
-
     ON C.CustomerID = O.CustomerID
-
 GROUP BY
-
     C.CustomerID,
     C.FirstName,
     C.LastName
-
 HAVING
-
-    DATEDIFF
-    (
-        DAY,
-        MAX(O.OrderDate),
-        GETDATE()
-    ) > 180
-
+    DATEDIFF(DAY,MAX(O.OrderDate),GETDATE()) > 180
 ORDER BY
-
     DaysSinceLastPurchase DESC;
 
 PRINT '';
@@ -1222,8 +1167,7 @@ PRINT '';
 KPI 119 : Reactivated Customers
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1264,86 +1208,32 @@ Business Rule
 Gap Between Purchases > 180 Days
 → Reactivated Customer
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-WITH CustomerPurchaseHistory
-AS
+WITH CustomerPurchaseHistory AS
 (
     SELECT
-
         O.CustomerID,
-
         O.OrderID,
-
         O.OrderDate,
-
-        LAG(O.OrderDate)
-        OVER
-        (
-            PARTITION BY O.CustomerID
-            ORDER BY O.OrderDate
-        ) AS PreviousPurchaseDate
-
+        LAG(O.OrderDate) OVER(PARTITION BY O.CustomerID ORDER BY O.OrderDate) AS PreviousPurchaseDate
     FROM dbo.[Order] O
 )
-
 SELECT
-
-    DENSE_RANK() OVER
-    (
-        ORDER BY
-            DATEDIFF
-            (
-                DAY,
-                PreviousPurchaseDate,
-                OrderDate
-            ) DESC
-    ) AS CustomerRank,
-
+    DENSE_RANK() OVER(ORDER BY DATEDIFF(DAY,PreviousPurchaseDate,OrderDate) DESC) AS CustomerRank,
     C.CustomerID,
-
-    CONCAT
-    (
-        C.FirstName,
-        ' ',
-        C.LastName
-    ) AS CustomerName,
-
+    CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
     PreviousPurchaseDate,
-
     OrderDate AS LatestPurchaseDate,
-
-    DATEDIFF
-    (
-        DAY,
-        PreviousPurchaseDate,
-        OrderDate
-    ) AS GapBetweenPurchases,
-
+    DATEDIFF(DAY,PreviousPurchaseDate,OrderDate) AS GapBetweenPurchases,
     'Reactivated Customer' AS ReactivationStatus
-
 FROM CustomerPurchaseHistory CPH
-
 INNER JOIN dbo.Customer C
-
     ON CPH.CustomerID = C.CustomerID
-
 WHERE
-
-    PreviousPurchaseDate IS NOT NULL
-
-    AND
-
-    DATEDIFF
-    (
-        DAY,
-        PreviousPurchaseDate,
-        OrderDate
-    ) > 180
-
+    PreviousPurchaseDate IS NOT NULL AND
+    DATEDIFF(DAY,PreviousPurchaseDate,OrderDate) > 180
 ORDER BY
-
     GapBetweenPurchases DESC;
 
 PRINT '';
@@ -1358,8 +1248,7 @@ PRINT '';
 KPI 120 : High-Value Loyal Customers
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1415,106 +1304,42 @@ Otherwise
 
 Regular Customer
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-WITH CustomerSummary
-AS
+WITH CustomerSummary AS
 (
     SELECT
-
         C.CustomerID,
-
-        CONCAT
-        (
-            C.FirstName,
-            ' ',
-            C.LastName
-        ) AS CustomerName,
-
+        CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
         COUNT(O.OrderID) AS TotalOrders,
-
         SUM(O.NetAmount) AS TotalRevenue,
-
         AVG(O.NetAmount) AS AverageOrderValue,
-
         MAX(O.OrderDate) AS LatestPurchaseDate,
-
-        DATEDIFF
-        (
-            DAY,
-            MAX(O.OrderDate),
-            GETDATE()
-        ) AS DaysSinceLastPurchase
-
+        DATEDIFF(DAY,MAX(O.OrderDate),GETDATE()) AS DaysSinceLastPurchase
     FROM dbo.Customer C
-
     INNER JOIN dbo.[Order] O
-
         ON C.CustomerID = O.CustomerID
-
     GROUP BY
-
         C.CustomerID,
         C.FirstName,
         C.LastName
 )
-
 SELECT
-
-    DENSE_RANK() OVER
-    (
-        ORDER BY
-
-            TotalRevenue DESC,
-
-            TotalOrders DESC
-    ) AS CustomerRank,
-
+    DENSE_RANK() OVER(ORDER BY TotalRevenue DESC,TotalOrders DESC) AS CustomerRank,
     CustomerID,
-
     CustomerName,
-
     TotalOrders,
-
     TotalRevenue,
-
-    ROUND
-    (
-        AverageOrderValue,
-        2
-    ) AS AverageOrderValue,
-
+    ROUND(AverageOrderValue,2) AS AverageOrderValue,
     LatestPurchaseDate,
-
     DaysSinceLastPurchase,
-
     CASE
-
-        WHEN
-
-            TotalOrders >= 10
-
-            AND
-
-            TotalRevenue >= 100000
-
-            AND
-
-            DaysSinceLastPurchase <= 90
-
-        THEN 'VIP Customer'
-
+        WHEN TotalOrders >= 10 AND TotalRevenue >= 100000 AND DaysSinceLastPurchase <= 90 THEN 'VIP Customer'
         ELSE 'Regular Customer'
-
     END AS LoyaltyStatus
-
 FROM CustomerSummary
-
 ORDER BY
-
     TotalRevenue DESC,
-
     TotalOrders DESC;
 
 PRINT '';
@@ -1529,8 +1354,7 @@ PRINT '';
 KPI 121 : Customers at Risk of Churn
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1577,87 +1401,41 @@ Days Since Last Purchase
 181 - 365 Days   → High Risk
 >365 Days        → Very High Risk
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-WITH CustomerSummary
-AS
+WITH CustomerSummary AS
 (
     SELECT
-
         C.CustomerID,
-
-        CONCAT
-        (
-            C.FirstName,
-            ' ',
-            C.LastName
-        ) AS CustomerName,
-
+        CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
         COUNT(O.OrderID) AS TotalOrders,
-
         SUM(O.NetAmount) AS TotalRevenue,
-
         MAX(O.OrderDate) AS LatestPurchaseDate,
-
-        DATEDIFF
-        (
-            DAY,
-            MAX(O.OrderDate),
-            GETDATE()
-        ) AS DaysSinceLastPurchase
-
+        DATEDIFF(DAY,MAX(O.OrderDate),GETDATE()) AS DaysSinceLastPurchase
     FROM dbo.Customer C
-
     INNER JOIN dbo.[Order] O
-
         ON C.CustomerID = O.CustomerID
-
     GROUP BY
-
         C.CustomerID,
         C.FirstName,
         C.LastName
 )
-
 SELECT
-
-    DENSE_RANK() OVER
-    (
-        ORDER BY DaysSinceLastPurchase DESC
-    ) AS CustomerRank,
-
+    DENSE_RANK() OVER(ORDER BY DaysSinceLastPurchase DESC) AS CustomerRank,
     CustomerID,
-
     CustomerName,
-
     TotalOrders,
-
     TotalRevenue,
-
     LatestPurchaseDate,
-
     DaysSinceLastPurchase,
-
     CASE
-
-        WHEN DaysSinceLastPurchase <= 90
-            THEN 'Low Risk'
-
-        WHEN DaysSinceLastPurchase <= 180
-            THEN 'Medium Risk'
-
-        WHEN DaysSinceLastPurchase <= 365
-            THEN 'High Risk'
-
+        WHEN DaysSinceLastPurchase <= 90 THEN 'Low Risk'
+        WHEN DaysSinceLastPurchase <= 180 THEN 'Medium Risk'
+        WHEN DaysSinceLastPurchase <= 365 THEN 'High Risk'
         ELSE 'Very High Risk'
-
     END AS ChurnRiskLevel
-
 FROM CustomerSummary
-
 ORDER BY
-
     DaysSinceLastPurchase DESC,
     TotalRevenue DESC;
 
@@ -1673,8 +1451,7 @@ PRINT '';
 KPI 122 : Customer Churn Risk Score
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1718,152 +1495,49 @@ Recency   : 50%
 Frequency : 30%
 Monetary  : 20%
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-WITH CustomerMetrics
-AS
+WITH CustomerMetrics AS
 (
     SELECT
-
         C.CustomerID,
-
-        CONCAT
-        (
-            C.FirstName,
-            ' ',
-            C.LastName
-        ) AS CustomerName,
-
-        DATEDIFF
-        (
-            DAY,
-            MAX(O.OrderDate),
-            GETDATE()
-        ) AS Recency,
-
+        CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
+        DATEDIFF(DAY,MAX(O.OrderDate),GETDATE()) AS Recency,
         COUNT(O.OrderID) AS Frequency,
-
         SUM(O.NetAmount) AS Monetary
-
     FROM dbo.Customer C
-
     INNER JOIN dbo.[Order] O
-
         ON C.CustomerID = O.CustomerID
-
     GROUP BY
-
         C.CustomerID,
         C.FirstName,
         C.LastName
 ),
-
-RFMScore
-AS
-(
+RFMScore AS(
     SELECT
-
         *,
-
-        NTILE(5) OVER
-        (
-            ORDER BY Recency DESC
-        ) AS RScore,
-
-        NTILE(5) OVER
-        (
-            ORDER BY Frequency ASC
-        ) AS FScore,
-
-        NTILE(5) OVER
-        (
-            ORDER BY Monetary ASC
-        ) AS MScore
-
+        NTILE(5) OVER(ORDER BY Recency DESC) AS RScore,
+        NTILE(5) OVER(ORDER BY Frequency ASC) AS FScore,
+        NTILE(5) OVER(ORDER BY Monetary ASC) AS MScore
     FROM CustomerMetrics
 )
-
 SELECT
-
-    DENSE_RANK() OVER
-    (
-        ORDER BY
-
-            (
-                (RScore * 0.50)
-              + (FScore * 0.30)
-              + (MScore * 0.20)
-            ) DESC
-    ) AS CustomerRank,
-
+    DENSE_RANK() OVER(ORDER BY((RScore * 0.50) + (FScore * 0.30) + (MScore * 0.20)) DESC) AS CustomerRank,
     CustomerID,
-
     CustomerName,
-
     Recency,
-
     Frequency,
-
     Monetary,
-
-    ROUND
-    (
-        (
-            (
-                (RScore * 0.50)
-              + (FScore * 0.30)
-              + (MScore * 0.20)
-            ) / 5.0
-        ) * 100,
-        2
-    ) AS ChurnRiskScore,
-
+    ROUND((((RScore * 0.50) + (FScore * 0.30) + (MScore * 0.20)) / 5.0) * 100,2) AS ChurnRiskScore,
     CASE
-
-        WHEN
-        (
-            (
-                (RScore * 0.50)
-              + (FScore * 0.30)
-              + (MScore * 0.20)
-            ) / 5.0
-        ) * 100 >= 80
-
-            THEN 'Very High Risk'
-
-        WHEN
-        (
-            (
-                (RScore * 0.50)
-              + (FScore * 0.30)
-              + (MScore * 0.20)
-            ) / 5.0
-        ) * 100 >= 60
-
-            THEN 'High Risk'
-
-        WHEN
-        (
-            (
-                (RScore * 0.50)
-              + (FScore * 0.30)
-              + (MScore * 0.20)
-            ) / 5.0
-        ) * 100 >= 40
-
-            THEN 'Medium Risk'
-
+        WHEN(((RScore * 0.50) + (FScore * 0.30) + (MScore * 0.20)) / 5.0) * 100 >= 80 THEN 'Very High Risk'
+        WHEN(((RScore * 0.50) + (FScore * 0.30) + (MScore * 0.20)) / 5.0) * 100 >= 60 THEN 'High Risk'
+        WHEN(((RScore * 0.50) + (FScore * 0.30) + (MScore * 0.20)) / 5.0) * 100 >= 40 THEN 'Medium Risk'
         ELSE 'Low Risk'
-
     END AS ChurnRiskLevel
-
 FROM RFMScore
-
 ORDER BY
-
     ChurnRiskScore DESC;
-
 PRINT '';
 
 PRINT '==============================================================';
@@ -1876,8 +1550,7 @@ PRINT '';
 KPI 123 : Preferred Payment Method by Customer
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1916,89 +1589,41 @@ The preferred payment method is determined by the highest number of
 transactions. If multiple methods have the same count, the one with the
 higher payment amount is selected.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-WITH PaymentSummary
-AS
+WITH PaymentSummary AS
 (
     SELECT
-
         C.CustomerID,
-
-        CONCAT
-        (
-            C.FirstName,
-            ' ',
-            C.LastName
-        ) AS CustomerName,
-
+        CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
         PM.MethodName,
-
         COUNT(P.PaymentID) AS TotalTransactions,
-
         SUM(P.Amount) AS TotalAmountPaid,
-
-        ROW_NUMBER() OVER
-        (
-            PARTITION BY C.CustomerID
-            ORDER BY
-
-                COUNT(P.PaymentID) DESC,
-
-                SUM(P.Amount) DESC
-        ) AS RN
-
+        ROW_NUMBER() OVER(PARTITION BY C.CustomerID ORDER BY COUNT(P.PaymentID) DESC,SUM(P.Amount) DESC) AS RN
     FROM dbo.Customer C
-
     INNER JOIN dbo.[Order] O
-
         ON C.CustomerID = O.CustomerID
-
     INNER JOIN dbo.Payment P
-
         ON O.OrderID = P.OrderID
-
     INNER JOIN dbo.PaymentMethod PM
-
         ON P.PaymentMethodID = PM.PaymentMethodID
-
     GROUP BY
-
         C.CustomerID,
-
         C.FirstName,
-
         C.LastName,
-
         PM.MethodName
 )
-
 SELECT
-
-    DENSE_RANK() OVER
-    (
-        ORDER BY TotalAmountPaid DESC
-    ) AS CustomerRank,
-
+    DENSE_RANK() OVER(ORDER BY TotalAmountPaid DESC) AS CustomerRank,
     CustomerID,
-
     CustomerName,
-
     MethodName AS PreferredPaymentMethod,
-
     TotalTransactions,
-
     TotalAmountPaid
-
 FROM PaymentSummary
-
 WHERE RN = 1
-
 ORDER BY
-
     TotalAmountPaid DESC,
-
     TotalTransactions DESC;
 
 PRINT '';
@@ -2013,8 +1638,7 @@ PRINT '';
 KPI 124 : Preferred Shopping Day
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -2055,81 +1679,37 @@ The preferred shopping day is determined by:
 
 Each customer appears only once with their preferred shopping day.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-WITH ShoppingDaySummary
-AS
+WITH ShoppingDaySummary AS
 (
     SELECT
-
         C.CustomerID,
-
-        CONCAT
-        (
-            C.FirstName,
-            ' ',
-            C.LastName
-        ) AS CustomerName,
-
+        CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
         DATENAME(WEEKDAY, O.OrderDate) AS ShoppingDay,
-
         COUNT(O.OrderID) AS TotalOrders,
-
         SUM(O.NetAmount) AS TotalRevenue,
-
-        ROW_NUMBER() OVER
-        (
-            PARTITION BY C.CustomerID
-            ORDER BY
-
-                COUNT(O.OrderID) DESC,
-
-                SUM(O.NetAmount) DESC
-        ) AS RN
-
+        ROW_NUMBER() OVER(PARTITION BY C.CustomerID ORDER BY COUNT(O.OrderID) DESC,SUM(O.NetAmount) DESC) AS RN
     FROM dbo.Customer C
-
     INNER JOIN dbo.[Order] O
-
         ON C.CustomerID = O.CustomerID
-
     GROUP BY
-
         C.CustomerID,
-
         C.FirstName,
-
         C.LastName,
-
         DATENAME(WEEKDAY, O.OrderDate)
 )
-
 SELECT
-
-    DENSE_RANK() OVER
-    (
-        ORDER BY TotalRevenue DESC
-    ) AS CustomerRank,
-
+    DENSE_RANK() OVER(ORDER BY TotalRevenue DESC) AS CustomerRank,
     CustomerID,
-
     CustomerName,
-
     ShoppingDay AS PreferredShoppingDay,
-
     TotalOrders,
-
     TotalRevenue
-
 FROM ShoppingDaySummary
-
 WHERE RN = 1
-
 ORDER BY
-
     TotalRevenue DESC,
-
     TotalOrders DESC;
 
 PRINT '';
@@ -2144,8 +1724,7 @@ PRINT '';
 KPI 125 : Preferred Shopping Month
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -2186,87 +1765,39 @@ The preferred shopping month is determined by:
 
 Each customer appears only once with their preferred shopping month.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-WITH ShoppingMonthSummary
-AS
+WITH ShoppingMonthSummary AS
 (
     SELECT
-
         C.CustomerID,
-
-        CONCAT
-        (
-            C.FirstName,
-            ' ',
-            C.LastName
-        ) AS CustomerName,
-
+        CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
         DATENAME(MONTH, O.OrderDate) AS ShoppingMonth,
-
         MONTH(O.OrderDate) AS MonthNumber,
-
         COUNT(O.OrderID) AS TotalOrders,
-
         SUM(O.NetAmount) AS TotalRevenue,
-
-        ROW_NUMBER() OVER
-        (
-            PARTITION BY C.CustomerID
-            ORDER BY
-
-                COUNT(O.OrderID) DESC,
-
-                SUM(O.NetAmount) DESC,
-
-                MONTH(O.OrderDate)
-        ) AS RN
-
+        ROW_NUMBER() OVER(PARTITION BY C.CustomerID ORDER BY COUNT(O.OrderID) DESC,SUM(O.NetAmount) DESC,MONTH(O.OrderDate)) AS RN
     FROM dbo.Customer C
-
     INNER JOIN dbo.[Order] O
-
         ON C.CustomerID = O.CustomerID
-
     GROUP BY
-
         C.CustomerID,
-
         C.FirstName,
-
         C.LastName,
-
         DATENAME(MONTH, O.OrderDate),
-
         MONTH(O.OrderDate)
 )
-
 SELECT
-
-    DENSE_RANK() OVER
-    (
-        ORDER BY TotalRevenue DESC
-    ) AS CustomerRank,
-
+    DENSE_RANK() OVER(ORDER BY TotalRevenue DESC) AS CustomerRank,
     CustomerID,
-
     CustomerName,
-
     ShoppingMonth AS PreferredShoppingMonth,
-
     TotalOrders,
-
     TotalRevenue
-
 FROM ShoppingMonthSummary
-
 WHERE RN = 1
-
 ORDER BY
-
     TotalRevenue DESC,
-
     TotalOrders DESC;
 
 PRINT '';
@@ -2281,8 +1812,7 @@ PRINT '';
 KPI 126 : Customer Buying Pattern
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -2324,79 +1854,38 @@ Buying Pattern Classification
 • Medium Value Buyer
 • Low Value Buyer
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-WITH CustomerPurchaseSummary
-AS
+WITH CustomerPurchaseSummary AS
 (
     SELECT
-
         C.CustomerID,
-
-        CONCAT
-        (
-            C.FirstName,
-            ' ',
-            C.LastName
-        ) AS CustomerName,
-
+        CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
         COUNT(O.OrderID) AS TotalOrders,
-
         SUM(O.NetAmount) AS TotalRevenue,
-
-        ROUND
-        (
-            AVG(O.NetAmount),
-            2
-        ) AS AverageOrderValue
-
+        ROUND(AVG(O.NetAmount),2) AS AverageOrderValue
     FROM dbo.Customer C
-
     INNER JOIN dbo.[Order] O
-
         ON C.CustomerID = O.CustomerID
-
     GROUP BY
-
         C.CustomerID,
         C.FirstName,
         C.LastName
 )
-
 SELECT
-
-    DENSE_RANK() OVER
-    (
-        ORDER BY AverageOrderValue DESC
-    ) AS CustomerRank,
-
+    DENSE_RANK() OVER(ORDER BY AverageOrderValue DESC) AS CustomerRank,
     CustomerID,
-
     CustomerName,
-
     TotalOrders,
-
     TotalRevenue,
-
     AverageOrderValue,
-
     CASE
-
-        WHEN AverageOrderValue >= 10000
-            THEN 'High Value Buyer'
-
-        WHEN AverageOrderValue >= 5000
-            THEN 'Medium Value Buyer'
-
+        WHEN AverageOrderValue >= 10000 THEN 'High Value Buyer'
+        WHEN AverageOrderValue >= 5000 THEN 'Medium Value Buyer'
         ELSE 'Low Value Buyer'
-
     END AS BuyingPattern
-
 FROM CustomerPurchaseSummary
-
 ORDER BY
-
     AverageOrderValue DESC,
     TotalRevenue DESC;
 
@@ -2412,8 +1901,7 @@ PRINT '';
 KPI 127 : Cross-Category Buyers
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -2454,101 +1942,47 @@ Business Rules
 2-3 Categories  → Cross-Category Buyer
 4+ Categories   → Multi-Category Buyer
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-WITH CustomerCategorySummary
-AS
+WITH CustomerCategorySummary AS
 (
     SELECT
-
         C.CustomerID,
-
-        CONCAT
-        (
-            C.FirstName,
-            ' ',
-            C.LastName
-        ) AS CustomerName,
-
+        CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
         COUNT(DISTINCT CAT.CategoryID) AS CategoriesPurchased,
-
         COUNT(DISTINCT O.OrderID) AS TotalOrders,
-
         SUM(OI.LineTotal) AS TotalRevenue
-
     FROM dbo.Customer C
-
     INNER JOIN dbo.[Order] O
-
         ON C.CustomerID = O.CustomerID
-
     INNER JOIN dbo.OrderItem OI
-
         ON O.OrderID = OI.OrderID
-
     INNER JOIN dbo.Product P
-
         ON OI.ProductID = P.ProductID
-
     INNER JOIN dbo.SubCategory SC
-
         ON P.SubCategoryID = SC.SubCategoryID
-
     INNER JOIN dbo.Category CAT
-
         ON SC.CategoryID = CAT.CategoryID
-
     GROUP BY
-
         C.CustomerID,
-
         C.FirstName,
-
         C.LastName
 )
-
 SELECT
-
-    DENSE_RANK() OVER
-    (
-        ORDER BY
-
-            CategoriesPurchased DESC,
-
-            TotalRevenue DESC
-    ) AS CustomerRank,
-
+    DENSE_RANK() OVER(ORDER BY CategoriesPurchased DESC,TotalRevenue DESC) AS CustomerRank,
     CustomerID,
-
     CustomerName,
-
     CategoriesPurchased,
-
     TotalOrders,
-
     TotalRevenue,
-
     CASE
-
-        WHEN CategoriesPurchased = 1
-
-            THEN 'Single Category Buyer'
-
-        WHEN CategoriesPurchased BETWEEN 2 AND 3
-
-            THEN 'Cross-Category Buyer'
-
+        WHEN CategoriesPurchased = 1 THEN 'Single Category Buyer'
+        WHEN CategoriesPurchased BETWEEN 2 AND 3 THEN 'Cross-Category Buyer'
         ELSE 'Multi-Category Buyer'
-
     END AS CustomerType
-
 FROM CustomerCategorySummary
-
 ORDER BY
-
     CategoriesPurchased DESC,
-
     TotalRevenue DESC;
 
 PRINT '';
@@ -2563,8 +1997,7 @@ PRINT '';
 KPI 128 : Premium Customers
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -2614,104 +2047,42 @@ Otherwise
 
 Regular Customer
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-WITH CustomerSummary
-AS
+WITH CustomerSummary AS
 (
     SELECT
-
         C.CustomerID,
-
-        CONCAT
-        (
-            C.FirstName,
-            ' ',
-            C.LastName
-        ) AS CustomerName,
-
+        CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
         COUNT(O.OrderID) AS TotalOrders,
-
         SUM(O.NetAmount) AS TotalRevenue,
-
-        ROUND
-        (
-            AVG(O.NetAmount),
-            2
-        ) AS AverageOrderValue,
-
+        ROUND(AVG(O.NetAmount),2) AS AverageOrderValue,
         MAX(O.OrderDate) AS LatestPurchaseDate,
-
-        DATEDIFF
-        (
-            DAY,
-            MAX(O.OrderDate),
-            GETDATE()
-        ) AS DaysSinceLastPurchase
-
+        DATEDIFF(DAY,MAX(O.OrderDate),GETDATE()) AS DaysSinceLastPurchase
     FROM dbo.Customer C
-
     INNER JOIN dbo.[Order] O
-
         ON C.CustomerID = O.CustomerID
-
     GROUP BY
-
         C.CustomerID,
         C.FirstName,
         C.LastName
 )
-
 SELECT
-
-    DENSE_RANK() OVER
-    (
-        ORDER BY
-
-            TotalRevenue DESC,
-
-            TotalOrders DESC
-    ) AS CustomerRank,
-
+    DENSE_RANK() OVER(ORDER BY TotalRevenue DESC,TotalOrders DESC) AS CustomerRank,
     CustomerID,
-
     CustomerName,
-
     TotalOrders,
-
     TotalRevenue,
-
     AverageOrderValue,
-
     LatestPurchaseDate,
-
     DaysSinceLastPurchase,
-
     CASE
-
-        WHEN
-
-            TotalRevenue >= 100000
-
-            AND TotalOrders >= 10
-
-            AND AverageOrderValue >= 5000
-
-            AND DaysSinceLastPurchase <= 90
-
-            THEN 'Premium Customer'
-
+        WHEN TotalRevenue >= 100000 AND TotalOrders >= 10 AND AverageOrderValue >= 5000 AND DaysSinceLastPurchase <= 90 THEN 'Premium Customer'
         ELSE 'Regular Customer'
-
     END AS PremiumStatus
-
 FROM CustomerSummary
-
 ORDER BY
-
     TotalRevenue DESC,
-
     TotalOrders DESC;
 
 PRINT '';
@@ -2726,8 +2097,7 @@ PRINT '';
 KPI 129 : Discount-Oriented Customers
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -2771,98 +2141,46 @@ Discount Usage
 40–69%  → Moderate Discount-Oriented
 < 40%   → Regular Buyer
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-WITH CustomerDiscountSummary
-AS
+WITH CustomerDiscountSummary AS
 (
     SELECT
-
         C.CustomerID,
-
-        CONCAT
-        (
-            C.FirstName,
-            ' ',
-            C.LastName
-        ) AS CustomerName,
-
+        CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
         COUNT(DISTINCT O.OrderID) AS TotalOrders,
-
-        COUNT
-        (
+        COUNT(
             CASE
-                WHEN OI.DiscountAmount > 0
-                THEN 1
+                WHEN OI.DiscountAmount > 0 THEN 1
             END
         ) AS DiscountedOrders,
-
         SUM(OI.DiscountAmount) AS TotalDiscountReceived
-
     FROM dbo.Customer C
-
     INNER JOIN dbo.[Order] O
-
         ON C.CustomerID = O.CustomerID
-
     INNER JOIN dbo.OrderItem OI
-
         ON O.OrderID = OI.OrderID
-
     GROUP BY
-
         C.CustomerID,
-
         C.FirstName,
-
         C.LastName
 )
-
 SELECT
-
-    DENSE_RANK() OVER
-    (
-        ORDER BY
-            TotalDiscountReceived DESC
-    ) AS CustomerRank,
-
+    DENSE_RANK() OVER(ORDER BY TotalDiscountReceived DESC) AS CustomerRank,
     CustomerID,
-
     CustomerName,
-
     TotalOrders,
-
     DiscountedOrders,
-
-    ROUND
-    (
-        DiscountedOrders * 100.0 / TotalOrders,
-        2
-    ) AS DiscountUsagePercentage,
-
+    ROUND(DiscountedOrders * 100.0 / TotalOrders,2) AS DiscountUsagePercentage,
     TotalDiscountReceived,
-
     CASE
-
-        WHEN DiscountedOrders * 100.0 / TotalOrders >= 70
-
-            THEN 'Highly Discount-Oriented'
-
-        WHEN DiscountedOrders * 100.0 / TotalOrders >= 40
-
-            THEN 'Moderate Discount-Oriented'
-
+        WHEN DiscountedOrders * 100.0 / TotalOrders >= 70 THEN 'Highly Discount-Oriented'
+        WHEN DiscountedOrders * 100.0 / TotalOrders >= 40 THEN 'Moderate Discount-Oriented'
         ELSE 'Regular Buyer'
-
     END AS CustomerType
-
 FROM CustomerDiscountSummary
-
 ORDER BY
-
     DiscountUsagePercentage DESC,
-
     TotalDiscountReceived DESC;
 
 PRINT '';
@@ -2877,8 +2195,7 @@ PRINT '';
 KPI 130 : Seasonal Customers
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -2927,146 +2244,61 @@ Spring : Mar, Apr, May
 Summer : Jun, Jul, Aug
 Autumn : Sep, Oct, Nov
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-WITH SeasonalOrders
-AS
+WITH SeasonalOrders AS
 (
     SELECT
-
         C.CustomerID,
-
-        CONCAT
-        (
-            C.FirstName,
-            ' ',
-            C.LastName
-        ) AS CustomerName,
-
+        CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
         CASE
-
-            WHEN MONTH(O.OrderDate) IN (12,1,2)
-                THEN 'Winter'
-
-            WHEN MONTH(O.OrderDate) IN (3,4,5)
-                THEN 'Spring'
-
-            WHEN MONTH(O.OrderDate) IN (6,7,8)
-                THEN 'Summer'
-
+            WHEN MONTH(O.OrderDate) IN (12,1,2)THEN 'Winter'
+            WHEN MONTH(O.OrderDate) IN (3,4,5) THEN 'Spring'
+            WHEN MONTH(O.OrderDate) IN (6,7,8) THEN 'Summer'
             ELSE 'Autumn'
-
         END AS Season,
-
         COUNT(O.OrderID) AS SeasonOrders,
-
         SUM(O.NetAmount) AS SeasonRevenue
-
     FROM dbo.Customer C
-
     INNER JOIN dbo.[Order] O
-
         ON C.CustomerID = O.CustomerID
-
     GROUP BY
-
         C.CustomerID,
-
         C.FirstName,
-
         C.LastName,
-
         CASE
-
-            WHEN MONTH(O.OrderDate) IN (12,1,2)
-                THEN 'Winter'
-
-            WHEN MONTH(O.OrderDate) IN (3,4,5)
-                THEN 'Spring'
-
-            WHEN MONTH(O.OrderDate) IN (6,7,8)
-                THEN 'Summer'
-
+            WHEN MONTH(O.OrderDate) IN (12,1,2) THEN 'Winter'
+            WHEN MONTH(O.OrderDate) IN (3,4,5) THEN 'Spring'
+            WHEN MONTH(O.OrderDate) IN (6,7,8) THEN 'Summer'
             ELSE 'Autumn'
-
         END
 ),
-
-SeasonRanking
-AS
+SeasonRanking AS
 (
     SELECT
-
         *,
-
-        SUM(SeasonOrders)
-        OVER
-        (
-            PARTITION BY CustomerID
-        ) AS TotalOrders,
-
-        ROW_NUMBER()
-        OVER
-        (
-            PARTITION BY CustomerID
-            ORDER BY
-
-                SeasonOrders DESC,
-
-                SeasonRevenue DESC
-        ) AS RN
-
+        SUM(SeasonOrders)OVER(PARTITION BY CustomerID) AS TotalOrders,
+        ROW_NUMBER() OVER (PARTITION BY CustomerID ORDER BY SeasonOrders DESC, SeasonRevenue DESC) AS RN
     FROM SeasonalOrders
 )
-
 SELECT
-
-    DENSE_RANK() OVER
-    (
-        ORDER BY SeasonRevenue DESC
-    ) AS CustomerRank,
-
+    DENSE_RANK() OVER(ORDER BY SeasonRevenue DESC) AS CustomerRank,
     CustomerID,
-
     CustomerName,
-
     Season AS PreferredSeason,
-
     SeasonOrders,
-
     TotalOrders,
-
     SeasonRevenue,
-
-    ROUND
-    (
-        SeasonOrders * 100.0 / TotalOrders,
-        2
-    ) AS SeasonalPurchasePercentage,
-
+    ROUND(SeasonOrders * 100.0 / TotalOrders,2) AS SeasonalPurchasePercentage,
     CASE
-
-        WHEN SeasonOrders * 100.0 / TotalOrders >= 70
-
-            THEN 'Highly Seasonal'
-
-        WHEN SeasonOrders * 100.0 / TotalOrders >= 40
-
-            THEN 'Moderately Seasonal'
-
+        WHEN SeasonOrders * 100.0 / TotalOrders >= 70 THEN 'Highly Seasonal'
+        WHEN SeasonOrders * 100.0 / TotalOrders >= 40 THEN 'Moderately Seasonal'
         ELSE 'Regular Customer'
-
     END AS CustomerType
-
 FROM SeasonRanking
-
 WHERE RN = 1
-
 ORDER BY
-
     SeasonalPurchasePercentage DESC,
-
     SeasonRevenue DESC;
 
 PRINT '';
@@ -3081,8 +2313,7 @@ PRINT '';
 KPI 131 : Weekend vs Weekday Buyers
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -3140,8 +2371,7 @@ Weekday
 • Thursday
 • Friday
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 WITH CustomerShoppingPattern AS
 (
@@ -3198,8 +2428,7 @@ PRINT '';
 KPI 132 : Customer Return Behavior
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -3244,8 +2473,7 @@ Return Rate
 10–29%  → Moderate Return Customer
 < 10%   → Low Return Customer
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 WITH CustomerReturnSummary AS
 (
@@ -3299,8 +2527,7 @@ PRINT '';
 KPI 133 : Customer Loyalty Score
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -3344,153 +2571,52 @@ Purchase Frequency : 40%
 Revenue            : 40%
 Recency            : 20%
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 WITH CustomerMetrics
 AS
 (
     SELECT
-
         C.CustomerID,
-
-        CONCAT
-        (
-            C.FirstName,
-            ' ',
-            C.LastName
-        ) AS CustomerName,
-
+        CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
         COUNT(O.OrderID) AS TotalOrders,
-
         SUM(O.NetAmount) AS TotalRevenue,
-
         AVG(O.NetAmount) AS AverageOrderValue,
-
-        DATEDIFF
-        (
-            DAY,
-            MAX(O.OrderDate),
-            GETDATE()
-        ) AS DaysSinceLastPurchase
-
+        DATEDIFF(DAY,MAX(O.OrderDate),GETDATE()) AS DaysSinceLastPurchase
     FROM dbo.Customer C
-
     INNER JOIN dbo.[Order] O
-
         ON C.CustomerID = O.CustomerID
-
     GROUP BY
-
         C.CustomerID,
         C.FirstName,
         C.LastName
 ),
-
-ScoredCustomers
-AS
+ScoredCustomers AS
 (
     SELECT
-
         *,
-
-        NTILE(5) OVER
-        (
-            ORDER BY TotalOrders DESC
-        ) AS FrequencyScore,
-
-        NTILE(5) OVER
-        (
-            ORDER BY TotalRevenue DESC
-        ) AS RevenueScore,
-
-        6 - NTILE(5) OVER
-        (
-            ORDER BY DaysSinceLastPurchase ASC
-        ) AS RecencyScore
-
+        NTILE(5) OVER(ORDER BY TotalOrders DESC) AS FrequencyScore,
+        NTILE(5) OVER(ORDER BY TotalRevenue DESC) AS RevenueScore,
+        6 - NTILE(5) OVER(ORDER BY DaysSinceLastPurchase ASC) AS RecencyScore
     FROM CustomerMetrics
 )
-
 SELECT
-
-    DENSE_RANK() OVER
-    (
-        ORDER BY
-        (
-            (FrequencyScore * 0.40)
-          + (RevenueScore * 0.40)
-          + (RecencyScore * 0.20)
-        ) DESC
-    ) AS CustomerRank,
-
+    DENSE_RANK() OVER(ORDER BY((FrequencyScore * 0.40) + (RevenueScore * 0.40) + (RecencyScore * 0.20)) DESC) AS CustomerRank,
     CustomerID,
-
     CustomerName,
-
     TotalOrders,
-
     TotalRevenue,
-
     ROUND(AverageOrderValue,2) AS AverageOrderValue,
-
     DaysSinceLastPurchase,
-
-    ROUND
-    (
-        (
-            (
-                (FrequencyScore * 0.40)
-              + (RevenueScore * 0.40)
-              + (RecencyScore * 0.20)
-            ) / 5.0
-        ) * 100,
-        2
-    ) AS LoyaltyScore,
-
+    ROUND((((FrequencyScore * 0.40) + (RevenueScore * 0.40) + (RecencyScore * 0.20)) / 5.0) * 100,2) AS LoyaltyScore,
     CASE
-
-        WHEN
-        (
-            (
-                (FrequencyScore * 0.40)
-              + (RevenueScore * 0.40)
-              + (RecencyScore * 0.20)
-            ) / 5.0
-        ) * 100 >= 80
-
-            THEN 'Platinum'
-
-        WHEN
-        (
-            (
-                (FrequencyScore * 0.40)
-              + (RevenueScore * 0.40)
-              + (RecencyScore * 0.20)
-            ) / 5.0
-        ) * 100 >= 60
-
-            THEN 'Gold'
-
-        WHEN
-        (
-            (
-                (FrequencyScore * 0.40)
-              + (RevenueScore * 0.40)
-              + (RecencyScore * 0.20)
-            ) / 5.0
-        ) * 100 >= 40
-
-            THEN 'Silver'
-
+        WHEN(((FrequencyScore * 0.40) + (RevenueScore * 0.40) + (RecencyScore * 0.20)) / 5.0) * 100 >= 80 THEN 'Platinum'
+        WHEN(((FrequencyScore * 0.40) + (RevenueScore * 0.40) + (RecencyScore * 0.20)) / 5.0) * 100 >= 60 THEN 'Gold'
+        WHEN(((FrequencyScore * 0.40) + (RevenueScore * 0.40) + (RecencyScore * 0.20)) / 5.0) * 100 >= 40 THEN 'Silver'
         ELSE 'Bronze'
-
     END AS LoyaltyLevel
-
 FROM ScoredCustomers
-
 ORDER BY
-
     LoyaltyScore DESC;
 
 PRINT '';
@@ -3505,8 +2631,7 @@ PRINT '';
 KPI 134 : Customer Engagement Score
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -3553,8 +2678,7 @@ Frequency : 35%
 Revenue   : 35%
 Recency   : 30%
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 WITH CustomerMetrics AS
 (
@@ -3564,127 +2688,41 @@ WITH CustomerMetrics AS
         COUNT(O.OrderID) AS TotalOrders,
         SUM(O.NetAmount) AS TotalRevenue,
         AVG(O.NetAmount) AS AverageOrderValue,
-        DATEDIFF(DAY,MAX(O.OrderDate),
-GETDATE()
-        ) AS DaysSinceLastPurchase
-
+        DATEDIFF(DAY,MAX(O.OrderDate),GETDATE()) AS DaysSinceLastPurchase
     FROM dbo.Customer C
-
     INNER JOIN dbo.[Order] O
-
         ON C.CustomerID = O.CustomerID
-
     GROUP BY
-
         C.CustomerID,
         C.FirstName,
         C.LastName
 ),
-
-CustomerScores
-AS
+CustomerScores AS
 (
     SELECT
-
         *,
-
-        NTILE(5) OVER
-        (
-            ORDER BY TotalOrders DESC
-        ) AS FrequencyScore,
-
-        NTILE(5) OVER
-        (
-            ORDER BY TotalRevenue DESC
-        ) AS RevenueScore,
-
-        6 - NTILE(5) OVER
-        (
-            ORDER BY DaysSinceLastPurchase ASC
-        ) AS RecencyScore
-
+        NTILE(5) OVER(ORDER BY TotalOrders DESC) AS FrequencyScore,
+        NTILE(5) OVER(ORDER BY TotalRevenue DESC) AS RevenueScore,
+        6 - NTILE(5) OVER(ORDER BY DaysSinceLastPurchase ASC) AS RecencyScore
     FROM CustomerMetrics
 )
-
 SELECT
-
-    DENSE_RANK() OVER
-    (
-        ORDER BY
-        (
-            (FrequencyScore * 0.35)
-          + (RevenueScore * 0.35)
-          + (RecencyScore * 0.30)
-        ) DESC
-    ) AS CustomerRank,
-
+    DENSE_RANK() OVER(ORDER BY((FrequencyScore * 0.35) + (RevenueScore * 0.35) + (RecencyScore * 0.30)) DESC) AS CustomerRank,
     CustomerID,
-
     CustomerName,
-
     TotalOrders,
-
     TotalRevenue,
-
     ROUND(AverageOrderValue,2) AS AverageOrderValue,
-
     DaysSinceLastPurchase,
-
-    ROUND
-    (
-        (
-            (
-                (FrequencyScore * 0.35)
-              + (RevenueScore * 0.35)
-              + (RecencyScore * 0.30)
-            ) / 5.0
-        ) * 100,
-        2
-    ) AS EngagementScore,
-
+    ROUND((((FrequencyScore * 0.35) + (RevenueScore * 0.35) + (RecencyScore * 0.30)) / 5.0) * 100,2) AS EngagementScore,
     CASE
-
-        WHEN
-        (
-            (
-                (FrequencyScore * 0.35)
-              + (RevenueScore * 0.35)
-              + (RecencyScore * 0.30)
-            ) / 5.0
-        ) * 100 >= 80
-
-            THEN 'Highly Engaged'
-
-        WHEN
-        (
-            (
-                (FrequencyScore * 0.35)
-              + (RevenueScore * 0.35)
-              + (RecencyScore * 0.30)
-            ) / 5.0
-        ) * 100 >= 60
-
-            THEN 'Moderately Engaged'
-
-        WHEN
-        (
-            (
-                (FrequencyScore * 0.35)
-              + (RevenueScore * 0.35)
-              + (RecencyScore * 0.30)
-            ) / 5.0
-        ) * 100 >= 40
-
-            THEN 'Low Engagement'
-
+        WHEN(((FrequencyScore * 0.35) + (RevenueScore * 0.35) + (RecencyScore * 0.30)) / 5.0) * 100 >= 80 THEN 'Highly Engaged'
+        WHEN(((FrequencyScore * 0.35) + (RevenueScore * 0.35) + (RecencyScore * 0.30)) / 5.0) * 100 >= 60 THEN 'Moderately Engaged'
+        WHEN(((FrequencyScore * 0.35) + (RevenueScore * 0.35) + (RecencyScore * 0.30)) / 5.0) * 100 >= 40 THEN 'Low Engagement'
         ELSE 'Inactive'
-
     END AS EngagementLevel
-
 FROM CustomerScores
-
 ORDER BY
-
     EngagementScore DESC;
 
 PRINT '';
@@ -3699,8 +2737,7 @@ PRINT '';
 KPI 135 : Customer Behavior Executive Scorecard
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -3739,11 +2776,9 @@ The query calculates:
 This KPI serves as the executive summary for the entire Customer Behavior
 Analysis module.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-WITH CustomerSummary
-AS
+WITH CustomerSummary AS
 (
     SELECT
         C.CustomerID,
@@ -3772,8 +2807,7 @@ SELECT
             ELSE 0
         END
     ) AS RepeatCustomers,
-    SUM
-    (
+    SUM(
         CASE
             WHEN TotalRevenue >= 100000 AND TotalOrders >= 10 THEN 1
             ELSE 0
@@ -3783,7 +2817,6 @@ SELECT
     ROUND(AVG(CAST(ISNULL(TotalRevenue,0) AS DECIMAL(18,2))),2) AS AverageRevenuePerCustomer,
     ROUND(AVG(CAST(ISNULL(TotalRevenue,0)AS DECIMAL(18,2))),2) AS AverageCustomerLifetimeValue,
     ROUND(AVG(CAST(DATEDIFF(DAY,LatestPurchaseDate,GETDATE())AS DECIMAL(18,2))),2) AS AverageDaysSinceLastPurchase
-
 FROM CustomerSummary;
 
 PRINT '';
