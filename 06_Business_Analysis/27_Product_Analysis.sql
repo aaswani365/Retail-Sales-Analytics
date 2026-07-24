@@ -1,9 +1,80 @@
-﻿/*------------------------------------------------------------------------------
+﻿/*==============================================================================
+Project         : Retail Sales Analytics & Inventory Management System
+Module          : 27_Product_Analysis.sql
+Description     : Product Performance Analysis KPIs for Product Insights
+
+Author          : Akshay Aswani
+Version         : 1.0
+Database        : RetailSalesDB
+
+KPI Range       : 136 - 165
+Total KPIs      : 30
+Difficulty      : Intermediate SQL
+
+Purpose
+------------------------------------------------------------------------------
+This module analyzes product performance, sales trends, revenue contribution,
+profitability, inventory movement, and product rankings to generate actionable
+business insights.
+
+These KPIs help organizations evaluate product performance, identify
+best-selling and underperforming products, optimize inventory planning,
+improve product portfolio management, and support data-driven pricing,
+marketing, and sales strategies.
+
+==============================================================================*/
+
+/*==============================================================================
+Module Statistics
+==============================================================================
+
+Module Name        : Product Analysis
+
+KPI Range          : 136 - 165
+
+Total KPIs         : 30
+
+Estimated Runtime  : < 20 Seconds
+
+Primary SQL Concepts
+--------------------
+
+• SELECT
+• GROUP BY
+• INNER JOIN
+• Common Table Expressions (CTE)
+• Aggregate Functions
+• Window Functions
+• CASE
+• DATE Functions
+• DATEDIFF
+• DATEADD
+• NULLIF
+• ISNULL
+• HAVING
+• TOP
+• Ranking Functions
+• Conditional Aggregation
+
+==============================================================================*/
+
+USE RetailSalesDB;
+GO
+
+PRINT '==============================================================';
+PRINT 'Retail Sales Analytics & Inventory Management System';
+PRINT '27_Product_Analysis.sql';
+PRINT '==============================================================';
+
+PRINT 'Starting Product Analysis KPI Module...';
+PRINT '==============================================================';
+GO
+
+/*------------------------------------------------------------------------------
 KPI 136 : Top Selling Products
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -39,8 +110,7 @@ The query calculates:
 
 Displays the Top 10 selling products based on quantity sold.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT TOP (10)
     DENSE_RANK() OVER ( ORDER BY SUM(OI.Quantity) DESC) AS ProductRank,
@@ -81,8 +151,7 @@ GO
 KPI 137 : Lowest Selling Products
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -116,8 +185,7 @@ The query calculates:
 
 Displays the Bottom 10 selling products based on quantity sold.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT TOP (10)
     DENSE_RANK() OVER (ORDER BY SUM(OI.Quantity) ASC) AS ProductRank,
@@ -158,8 +226,7 @@ GO
 KPI 138 : Revenue by Product
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -197,85 +264,44 @@ The query calculates:
 
 Displays the Top 10 products based on revenue.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 WITH ProductRevenue AS
 (
     SELECT
-
         P.ProductID,
-
         P.ProductName,
-
         B.BrandName,
-
         CAT.CategoryName,
-
         SUM(OI.Quantity) AS TotalQuantitySold,
-
         SUM(OI.LineTotal) AS TotalRevenue,
-
         AVG(OI.UnitPrice) AS AverageSellingPrice
-
     FROM dbo.Product P
-
     INNER JOIN dbo.Brand B
         ON P.BrandID = B.BrandID
-
     INNER JOIN dbo.SubCategory SC
         ON P.SubCategoryID = SC.SubCategoryID
-
     INNER JOIN dbo.Category CAT
         ON SC.CategoryID = CAT.CategoryID
-
     INNER JOIN dbo.OrderItem OI
         ON P.ProductID = OI.ProductID
-
     GROUP BY
-
         P.ProductID,
         P.ProductName,
         B.BrandName,
         CAT.CategoryName
 )
-
 SELECT TOP (10)
-
-    DENSE_RANK()
-        OVER
-        (
-            ORDER BY TotalRevenue DESC
-        ) AS ProductRank,
-
+    DENSE_RANK()OVER(ORDER BY TotalRevenue DESC) AS ProductRank,
     ProductName,
-
     BrandName,
-
     CategoryName,
-
     TotalQuantitySold,
-
     TotalRevenue,
-
-    ROUND
-    (
-        AverageSellingPrice,
-        2
-    ) AS AverageSellingPrice,
-
-    ROUND
-    (
-        TotalRevenue * 100.0
-        /
-        SUM(TotalRevenue) OVER(),
-        2
-    ) AS RevenueContributionPercentage
-
+    ROUND(AverageSellingPrice,2) AS AverageSellingPrice,
+    ROUND(TotalRevenue * 100.0 / SUM(TotalRevenue) OVER(),2) AS RevenueContributionPercentage
 FROM ProductRevenue
-
 ORDER BY
-
     TotalRevenue DESC,
     TotalQuantitySold DESC;
 
@@ -293,8 +319,7 @@ GO
 KPI 139 : Revenue by Category
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -331,8 +356,7 @@ The query calculates:
 
 Categories are ranked based on total revenue.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 WITH CategoryRevenue AS
 (
@@ -381,8 +405,7 @@ GO
 KPI 140 : Revenue by SubCategory
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -420,8 +443,7 @@ The query calculates:
 
 SubCategories are ranked based on revenue.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 WITH SubCategoryRevenue AS
 (
@@ -474,8 +496,7 @@ GO
 KPI 141 : Product Profitability Analysis
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -513,8 +534,7 @@ The query calculates:
 
 Products are ranked based on Total Profit.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 WITH ProductProfitability AS
 (
@@ -571,8 +591,7 @@ GO
 KPI 142 : Product Margin Analysis
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -669,8 +688,7 @@ GO
 KPI 143 : Product Performance Ranking
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -712,8 +730,7 @@ Products are ranked by:
 2. Total Profit
 3. Quantity Sold
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 WITH ProductPerformance AS
 (
@@ -771,8 +788,7 @@ GO
 KPI 144 : Product Sales Contribution
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -808,8 +824,7 @@ The query calculates:
 
 Products are ranked by total revenue.
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 WITH ProductRevenue AS
 (
@@ -861,8 +876,7 @@ GO
 KPI 145 : Product Pareto Analysis (80/20 Rule)
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -906,8 +920,7 @@ Remaining products are classified as:
 
 • Remaining 20%
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 WITH ProductRevenue AS
 (
@@ -974,8 +987,7 @@ GO
 KPI 146 : Fast Moving Products
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -987,19 +999,14 @@ Business Logic
 ------------------------------------------------------------------------------
 
 Inventory Coverage Ratio =
-
 Current Stock / Total Quantity Sold
 
 Coverage Ratio < 20  -> Critical
-
 Coverage Ratio < 30  -> Low Stock
-
 Coverage Ratio < 45  -> Healthy
-
 Coverage Ratio >=45  -> Overstocked
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 WITH ProductSales AS
 (
@@ -1083,8 +1090,7 @@ GO
 KPI 147 : Products Never Sold
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1102,8 +1108,7 @@ This KPI helps identify:
 • Products requiring promotion
 • Product Catalog Optimization
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
     P.ProductID,
@@ -1148,8 +1153,7 @@ GO
 KPI 148 : Top 10 Slow Moving Products
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1167,8 +1171,7 @@ This KPI helps identify:
 • Promotion Opportunities
 • Product Portfolio Optimization
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT TOP (10)
     DENSE_RANK() OVER (ORDER BY SUM(OI.Quantity)) AS ProductRank,
@@ -1216,8 +1219,7 @@ GO
 KPI 149 : Top 10 Overstocked Products
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1235,8 +1237,7 @@ This KPI helps identify:
 • Capital Locked in Inventory
 • Products requiring promotions
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 WITH ProductSales AS
 (
@@ -1292,8 +1293,7 @@ GO
 KPI 150 : Products Requiring Immediate Reorder
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1317,8 +1317,7 @@ Business Logic
 
 Current Stock < 2500
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 WITH InventorySummary AS
 (
@@ -1428,11 +1427,7 @@ SELECT
     BrandName,
     CategoryName,
     TotalRevenue,
-    ROUND(
-        TotalRevenue * 100.0 /
-        SUM(TotalRevenue) OVER (),
-        2
-    ) AS RevenueContributionPercentage
+    ROUND(TotalRevenue * 100.0 / SUM(TotalRevenue) OVER (),2) AS RevenueContributionPercentage
 FROM ProductRevenue
 ORDER BY TotalRevenue DESC;
 
@@ -2235,7 +2230,6 @@ The query calculates:
 • Return Rate (%)
 
 Formula:
-
 Return Rate (%) =
 (Quantity Returned / Quantity Sold) × 100
 
@@ -2606,8 +2600,7 @@ PRINT '';
 KPI 165 : Product Performance Scorecard
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -2651,12 +2644,10 @@ The query calculates:
 Performance Rating Rules
 
 Excellent
-    Revenue >= 100000
-    AND Return Rate < 5%
+    Revenue >= 100000 AND Return Rate < 5%
 
 Good
-    Revenue >= 50000
-    AND Return Rate < 10%
+    Revenue >= 50000 AND Return Rate < 10%
 
 Average
     Revenue >= 25000
@@ -2664,8 +2655,7 @@ Average
 Needs Attention
     Otherwise
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 WITH SalesSummary AS
 (
