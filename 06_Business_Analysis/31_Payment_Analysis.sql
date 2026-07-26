@@ -1,4 +1,82 @@
-﻿/*------------------------------------------------------------------------------
+﻿/*==============================================================================
+Project         : Retail Sales Analytics & Inventory Management System
+Module          : 31_Payment_Analysis.sql
+Description     : Payment Analytics KPIs for Payment Performance & Revenue Insights
+
+Author          : Akshay Aswani
+Version         : 1.0
+Database        : RetailSalesDB
+
+KPI Range       : 256 - 285
+Total KPIs      : 30
+Difficulty      : Intermediate → Advanced SQL
+
+Purpose
+------------------------------------------------------------------------------
+This module analyzes payment transactions, payment methods, payment status,
+collection efficiency, payment success rates, payment trends, revenue
+contribution, and financial performance to generate actionable business
+insights.
+
+These KPIs help organizations monitor payment processing efficiency,
+measure payment collection performance, identify preferred payment methods,
+track successful and failed payments, analyze payment growth trends, improve
+cash flow visibility, and support executive financial decision-making.
+
+==============================================================================*/
+
+/*==============================================================================
+Module Statistics
+==============================================================================
+
+Module Name        : Payment Analysis
+
+KPI Range          : 256 - 285
+
+Total KPIs         : 30
+
+Estimated Runtime  : < 20 Seconds
+
+Primary SQL Concepts
+--------------------
+
+• SELECT
+• GROUP BY
+• INNER JOIN
+• Common Table Expressions (CTE)
+• Aggregate Functions
+• Window Functions
+• CASE
+• DATE Functions
+• YEAR
+• MONTH
+• DATENAME
+• DATEPART
+• DATEDIFF
+• LAG
+• CAST
+• ROUND
+• CONCAT
+• ISNULL
+• NULLIF
+• HAVING
+• Conditional Aggregation
+
+==============================================================================*/
+
+USE RetailSalesDB;
+GO
+
+PRINT '==============================================================';
+PRINT 'Retail Sales Analytics & Inventory Management System';
+PRINT '31_Payment_Analysis.sql';
+PRINT '==============================================================';
+
+PRINT 'Starting Payment Analysis KPI Module...';
+PRINT '==============================================================';
+GO
+
+/*------------------------------------------------------------------------------
 KPI 256 : Payment Overview
 ------------------------------------------------------------------------------*/
 
