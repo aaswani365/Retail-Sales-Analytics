@@ -1,4 +1,108 @@
-﻿/*------------------------------------------------------------------------------
+﻿/*==============================================================================
+Project         : Retail Sales Analytics & Inventory Management System
+Module          : 34_Advanced_Business_Analysis.sql
+Description     : Advanced Business Analytics, Executive KPIs & Strategic Insights
+
+Author          : Akshay Aswani
+Version         : 1.0
+Database        : RetailSalesDB
+
+KPI Range       : 346 - 375
+Total KPIs      : 30
+Difficulty      : Advanced → Expert SQL
+
+Purpose
+------------------------------------------------------------------------------
+This module delivers advanced business intelligence using enterprise-level
+SQL analytics techniques. It focuses on customer behavior, product
+classification, benchmarking, executive scorecards, business health
+measurement, and dashboard-ready datasets.
+
+These KPIs transform transactional data into strategic business insights,
+helping executives, finance teams, sales leaders, supply chain managers,
+and business analysts make data-driven decisions.
+
+Business Areas Covered
+------------------------------------------------------------------------------
+• Pareto Analysis (80/20 Rule)
+• ABC Product Classification
+• XYZ Inventory Classification
+• Customer RFM Analysis
+• Customer Cohort Analysis
+• Customer Lifetime Segmentation
+• Cross-Sell & Up-Sell Opportunities
+• Product Affinity Analysis
+• Revenue Waterfall & Contribution Analysis
+• Store, Employee, Product & Supplier Benchmarking
+• Inventory & Return Benchmarking
+• Business KPI Scorecards
+• Business Health Index
+• Revenue Efficiency
+• Profitability Analysis
+• Customer Satisfaction Index (CSI)
+• Operational Efficiency
+• Financial Performance Dashboard
+• Executive Performance Dashboard
+• Business Intelligence Dashboard
+• Executive Business Scorecard
+
+==============================================================================*/
+
+/*==============================================================================
+Module Statistics
+==============================================================================
+
+Module Name        : Advanced Business Analysis
+
+KPI Range          : 346 - 375
+
+Total KPIs         : 30
+
+Estimated Runtime  : < 30 Seconds
+
+Primary SQL Concepts
+--------------------
+
+• Common Table Expressions (CTE)
+• Window Functions
+• DENSE_RANK()
+• RANK()
+• ROW_NUMBER()
+• NTILE()
+• PERCENT_RANK()
+• Aggregate Functions
+• CASE Expressions
+• CROSS JOIN
+• INNER JOIN
+• LEFT JOIN
+• Self JOIN
+• Subqueries
+• Correlated Subqueries
+• EXISTS
+• Common Business Scoring Models
+• RFM Analysis
+• ABC Classification
+• Pareto Analysis
+• Running Totals
+• Benchmarking
+• Dashboard-ready Datasets
+• Executive KPI Scorecards
+
+==============================================================================*/
+
+USE RetailSalesDB;
+GO
+
+PRINT '==============================================================';
+PRINT 'Retail Sales Analytics & Inventory Management System';
+PRINT '34_Advanced_Business_Analysis.sql';
+PRINT '==============================================================';
+
+PRINT 'Starting Advanced Business Analysis KPI Module...';
+PRINT '==============================================================';
+GO
+
+/*------------------------------------------------------------------------------
 KPI 346 : Pareto Analysis (80/20 Rule)
 ------------------------------------------------------------------------------*/
 
@@ -498,8 +602,7 @@ PRINT '';
 KPI 351 : Customer Lifetime Segmentation
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -544,101 +647,39 @@ Standard     → Next 40%
 
 Basic        → Remaining Customers
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 ;WITH CustomerLifetime AS
 (
     SELECT
-
         C.CustomerID,
-
-        CONCAT
-        (
-            C.FirstName,
-            ' ',
-            C.LastName
-        ) AS CustomerName,
-
+        CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
         COUNT(DISTINCT O.OrderID) AS TotalOrders,
-
         SUM(OI.LineTotal) AS LifetimeRevenue
-
     FROM dbo.Customer AS C
-
     INNER JOIN dbo.[Order] AS O
-
         ON C.CustomerID = O.CustomerID
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON O.OrderID = OI.OrderID
-
     GROUP BY
-
         C.CustomerID,
-
         C.FirstName,
-
         C.LastName
 )
-
 SELECT
-
     CustomerID,
-
     CustomerName,
-
     TotalOrders,
-
-    ROUND
-    (
-        LifetimeRevenue,
-        2
-    ) AS LifetimeRevenue,
-
-    ROUND
-    (
-        LifetimeRevenue
-        /
-        NULLIF(TotalOrders,0),
-        2
-    ) AS AverageOrderValue,
-
+    ROUND(LifetimeRevenue,2) AS LifetimeRevenue,
+    ROUND(LifetimeRevenue /NULLIF(TotalOrders,0),2) AS AverageOrderValue,
     CASE
-
-        WHEN NTILE(10)
-             OVER
-             (
-                 ORDER BY LifetimeRevenue DESC
-             ) = 1
-
-            THEN 'VIP'
-
-        WHEN NTILE(10)
-             OVER
-             (
-                 ORDER BY LifetimeRevenue DESC
-             ) <= 3
-
-            THEN 'Premium'
-
-        WHEN NTILE(10)
-             OVER
-             (
-                 ORDER BY LifetimeRevenue DESC
-             ) <= 7
-
-            THEN 'Standard'
-
+        WHEN NTILE(10) OVER (ORDER BY LifetimeRevenue DESC) = 1 THEN 'VIP'
+        WHEN NTILE(10) OVER (ORDER BY LifetimeRevenue DESC) <= 3 THEN 'Premium'
+        WHEN NTILE(10) OVER (ORDER BY LifetimeRevenue DESC) <= 7 THEN 'Standard'
         ELSE 'Basic'
-
     END AS LifetimeSegment
-
 FROM CustomerLifetime
-
 ORDER BY
-
     LifetimeRevenue DESC;
 
 PRINT '';
@@ -653,8 +694,7 @@ PRINT '';
 KPI 352 : Cross-Sell Opportunity Analysis
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -690,30 +730,16 @@ The query returns:
 • Orders Purchased Together
 • Cross-Sell Rank
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
     P1.ProductID AS ProductAID,
-
     P1.ProductName AS ProductA,
-
     P2.ProductID AS ProductBID,
-
     P2.ProductName AS ProductB,
-
     COUNT(DISTINCT OI1.OrderID) AS OrdersPurchasedTogether,
-
-    DENSE_RANK()
-    OVER
-    (
-        ORDER BY
-            COUNT(DISTINCT OI1.OrderID) DESC
-    ) AS CrossSellRank
-
+    DENSE_RANK() OVER (ORDER BY COUNT(DISTINCT OI1.OrderID) DESC) AS CrossSellRank
 FROM dbo.OrderItem AS OI1
-
 INNER JOIN dbo.OrderItem AS OI2
     ON OI1.OrderID = OI2.OrderID
    AND OI1.ProductID < OI2.ProductID
@@ -745,8 +771,7 @@ PRINT '';
 KPI 353 : Up-Sell Opportunity Analysis
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -792,100 +817,45 @@ Up-Sell Category
 • Premium Candidate
 • Standard Product
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-;WITH OverallASP AS
+WITH OverallASP AS
 (
     SELECT
-
-        AVG
-        (
-            CAST(LineTotal / NULLIF(Quantity,0) AS DECIMAL(18,2))
-        ) AS BusinessASP
-
+        AVG(CAST(LineTotal / NULLIF(Quantity,0) AS DECIMAL(18,2))) AS BusinessASP
     FROM dbo.OrderItem
 ),
-
 ProductSales AS
 (
     SELECT
-
         P.ProductID,
-
         P.ProductName,
-
         SUM(OI.Quantity) AS QuantitySold,
-
         SUM(OI.LineTotal) AS TotalRevenue,
-
-        SUM(OI.LineTotal)
-        /
-        NULLIF(SUM(OI.Quantity),0) AS AverageSellingPrice
-
+        SUM(OI.LineTotal) / NULLIF(SUM(OI.Quantity),0) AS AverageSellingPrice
     FROM dbo.Product AS P
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON P.ProductID = OI.ProductID
-
     GROUP BY
-
         P.ProductID,
-
         P.ProductName
 )
-
 SELECT
-
     PS.ProductID,
-
     PS.ProductName,
-
     PS.QuantitySold,
-
-    ROUND
-    (
-        PS.TotalRevenue,
-        2
-    ) AS TotalRevenue,
-
-    ROUND
-    (
-        PS.AverageSellingPrice,
-        2
-    ) AS AverageSellingPrice,
-
-    ROUND
-    (
-        OA.BusinessASP,
-        2
-    ) AS OverallBusinessASP,
-
-    DENSE_RANK()
-    OVER
-    (
-        ORDER BY PS.TotalRevenue DESC
-    ) AS RevenueRank,
-
+    ROUND(PS.TotalRevenue,2) AS TotalRevenue,
+    ROUND(PS.AverageSellingPrice,2) AS AverageSellingPrice,
+    ROUND(OA.BusinessASP,2) AS OverallBusinessASP,
+    DENSE_RANK() OVER (ORDER BY PS.TotalRevenue DESC) AS RevenueRank,
     CASE
-
-        WHEN PS.AverageSellingPrice > OA.BusinessASP
-
-            THEN 'Premium Candidate'
-
+        WHEN PS.AverageSellingPrice > OA.BusinessASP THEN 'Premium Candidate'
         ELSE 'Standard Product'
-
     END AS UpSellCategory
-
 FROM ProductSales AS PS
-
 CROSS JOIN OverallASP AS OA
-
 ORDER BY
-
     AverageSellingPrice DESC,
-
     TotalRevenue DESC;
 
 PRINT '';
@@ -902,8 +872,7 @@ PRINT '';
 KPI 354 : Product Affinity Analysis
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -940,97 +909,51 @@ The query returns:
 • Product B Orders
 • Affinity Score (%)
 
-Affinity Score =
-(Orders Purchased Together ÷ Product A Orders) × 100
+Affinity Score = (Orders Purchased Together ÷ Product A Orders) × 100
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 ;WITH ProductOrders AS
 (
     SELECT
-
         ProductID,
-
         COUNT(DISTINCT OrderID) AS TotalOrders
-
     FROM dbo.OrderItem
-
     GROUP BY
-
         ProductID
 )
-
 SELECT
-
     P1.ProductID AS ProductAID,
-
     P1.ProductName AS ProductA,
-
     P2.ProductID AS ProductBID,
-
     P2.ProductName AS ProductB,
-
     COUNT(DISTINCT OI1.OrderID) AS OrdersPurchasedTogether,
-
     PO1.TotalOrders AS ProductAOrders,
-
     PO2.TotalOrders AS ProductBOrders,
-
-    ROUND
-    (
-        COUNT(DISTINCT OI1.OrderID) * 100.0
-        /
-        NULLIF(PO1.TotalOrders,0),
-        2
-    ) AS AffinityScorePercentage
-
+    ROUND(COUNT(DISTINCT OI1.OrderID) * 100.0 / NULLIF(PO1.TotalOrders,0),2) AS AffinityScorePercentage
 FROM dbo.OrderItem AS OI1
-
 INNER JOIN dbo.OrderItem AS OI2
-
     ON OI1.OrderID = OI2.OrderID
-
    AND OI1.ProductID < OI2.ProductID
-
 INNER JOIN dbo.Product AS P1
-
     ON OI1.ProductID = P1.ProductID
-
 INNER JOIN dbo.Product AS P2
-
     ON OI2.ProductID = P2.ProductID
-
 INNER JOIN ProductOrders AS PO1
-
     ON P1.ProductID = PO1.ProductID
-
 INNER JOIN ProductOrders AS PO2
-
     ON P2.ProductID = PO2.ProductID
-
 GROUP BY
-
     P1.ProductID,
-
     P1.ProductName,
-
     P2.ProductID,
-
     P2.ProductName,
-
     PO1.TotalOrders,
-
     PO2.TotalOrders
-
 HAVING
-
     COUNT(DISTINCT OI1.OrderID) >= 2
-
 ORDER BY
-
     AffinityScorePercentage DESC,
-
     OrdersPurchasedTogether DESC;
 
 PRINT '';
@@ -1045,8 +968,7 @@ PRINT '';
 KPI 355 : Revenue Waterfall Analysis
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1085,87 +1007,24 @@ The query returns:
 
 Calculation
 
-Gross Revenue
-− Discounts
-= Net Revenue
+Gross Revenue − Discounts = Net Revenue
 
-Net Revenue
-+ Tax
-= Revenue Including Tax
+Net Revenue + Tax = Revenue Including Tax
 
-Revenue Including Tax
-− Refund Amount
-= Final Net Revenue
+Revenue Including Tax − Refund Amount = Final Net Revenue
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
-    ROUND
-    (
-        SUM(OI.UnitPrice * OI.Quantity),
-        2
-    ) AS GrossRevenue,
-
-    ROUND
-    (
-        SUM(OI.DiscountAmount),
-        2
-    ) AS TotalDiscount,
-
-    ROUND
-    (
-        SUM(OI.UnitPrice * OI.Quantity)
-        -
-        SUM(OI.DiscountAmount),
-        2
-    ) AS NetRevenueAfterDiscount,
-
-    ROUND
-    (
-        SUM(OI.TaxAmount),
-        2
-    ) AS TotalTax,
-
-    ROUND
-    (
-        (
-            SUM(OI.UnitPrice * OI.Quantity)
-            -
-            SUM(OI.DiscountAmount)
-        )
-        +
-        SUM(OI.TaxAmount),
-        2
-    ) AS RevenueIncludingTax,
-
-    ROUND
-    (
-        ISNULL(SUM(R.RefundAmount),0),
-        2
-    ) AS TotalRefundAmount,
-
-    ROUND
-    (
-        (
-            (
-                SUM(OI.UnitPrice * OI.Quantity)
-                -
-                SUM(OI.DiscountAmount)
-            )
-            +
-            SUM(OI.TaxAmount)
-        )
-        -
-        ISNULL(SUM(R.RefundAmount),0),
-        2
-    ) AS FinalNetRevenue
-
+    ROUND(SUM(OI.UnitPrice * OI.Quantity),2) AS GrossRevenue,
+    ROUND(SUM(OI.DiscountAmount),2) AS TotalDiscount,
+    ROUND(SUM(OI.UnitPrice * OI.Quantity) - SUM(OI.DiscountAmount),2) AS NetRevenueAfterDiscount,
+    ROUND(SUM(OI.TaxAmount),2) AS TotalTax,
+    ROUND((SUM(OI.UnitPrice * OI.Quantity) - SUM(OI.DiscountAmount)) + SUM(OI.TaxAmount),2) AS RevenueIncludingTax,
+    ROUND(ISNULL(SUM(R.RefundAmount),0),2) AS TotalRefundAmount,
+    ROUND(((SUM(OI.UnitPrice * OI.Quantity) - SUM(OI.DiscountAmount)) + SUM(OI.TaxAmount)) - ISNULL(SUM(R.RefundAmount),0),2) AS FinalNetRevenue
 FROM dbo.OrderItem AS OI
-
 LEFT JOIN dbo.[Return] AS R
-
     ON OI.OrderItemID = R.OrderItemID;
 
 PRINT '';
@@ -1180,8 +1039,7 @@ PRINT '';
 KPI 356 : Profit Bridge Analysis
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1232,69 +1090,19 @@ Gross Margin
 − Refund
 = Final Gross Profit
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 SELECT
-
-    ROUND
-    (
-        SUM(OI.UnitPrice * OI.Quantity),
-        2
-    ) AS GrossRevenue,
-
-    ROUND
-    (
-        SUM(OI.CostPrice * OI.Quantity),
-        2
-    ) AS ProductCost,
-
-    ROUND
-    (
-        SUM((OI.UnitPrice - OI.CostPrice) * OI.Quantity),
-        2
-    ) AS GrossMargin,
-
-    ROUND
-    (
-        SUM(OI.DiscountAmount),
-        2
-    ) AS TotalDiscount,
-
-    ROUND
-    (
-        SUM(OI.LineTotal),
-        2
-    ) AS NetRevenue,
-
-    ROUND
-    (
-        SUM(OI.TaxAmount),
-        2
-    ) AS TotalTax,
-
-    ROUND
-    (
-        ISNULL(SUM(R.RefundAmount),0),
-        2
-    ) AS TotalRefundAmount,
-
-    ROUND
-    (
-        SUM((OI.UnitPrice - OI.CostPrice) * OI.Quantity)
-        -
-        SUM(OI.DiscountAmount)
-        +
-        SUM(OI.TaxAmount)
-        -
-        ISNULL(SUM(R.RefundAmount),0),
-        2
-    ) AS FinalGrossProfit
-
+    ROUND(SUM(OI.UnitPrice * OI.Quantity),2) AS GrossRevenue,
+    ROUND(SUM(OI.CostPrice * OI.Quantity),2) AS ProductCost,
+    ROUND(SUM((OI.UnitPrice - OI.CostPrice) * OI.Quantity),2) AS GrossMargin,
+    ROUND(SUM(OI.DiscountAmount),2) AS TotalDiscount,
+    ROUND(SUM(OI.LineTotal),2) AS NetRevenue,
+    ROUND(SUM(OI.TaxAmount),2) AS TotalTax,
+    ROUND(ISNULL(SUM(R.RefundAmount),0),2) AS TotalRefundAmount,
+    ROUND(SUM((OI.UnitPrice - OI.CostPrice) * OI.Quantity) - SUM(OI.DiscountAmount) + SUM(OI.TaxAmount) - ISNULL(SUM(R.RefundAmount),0),2) AS FinalGrossProfit
 FROM dbo.OrderItem AS OI
-
 LEFT JOIN dbo.[Return] AS R
-
     ON OI.OrderItemID = R.OrderItemID;
 
 PRINT '';
@@ -1309,8 +1117,7 @@ PRINT '';
 KPI 357 : Revenue Contribution Analysis
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1347,156 +1154,69 @@ The query returns:
 • Revenue Contribution (%)
 • Revenue Rank
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 ;WITH RevenueContribution AS
 (
-    /* Store Contribution */
-
     SELECT
-
-        'Store' AS ContributionType,
-
+        'Store' AS ContributionType, -- Store Contribution
         S.StoreName AS ContributionName,
-
         SUM(OI.LineTotal) AS TotalRevenue
-
     FROM dbo.Store AS S
-
     INNER JOIN dbo.[Order] AS O
-
         ON S.StoreID = O.StoreID
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON O.OrderID = OI.OrderID
-
     GROUP BY
-
         S.StoreName
-
     UNION ALL
-
-    /* Category Contribution */
-
     SELECT
-
-        'Category',
-
+        'Category',  --  Category Contribution 
         C.CategoryName,
-
         SUM(OI.LineTotal)
-
     FROM dbo.Category AS C
-
     INNER JOIN dbo.SubCategory AS SC
-
         ON C.CategoryID = SC.CategoryID
-
     INNER JOIN dbo.Product AS P
-
         ON SC.SubCategoryID = P.SubCategoryID
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON P.ProductID = OI.ProductID
-
     GROUP BY
-
         C.CategoryName
-
     UNION ALL
-
-    /* Brand Contribution */
-
     SELECT
-
-        'Brand',
-
+        'Brand',  -- Brand Contribution
         B.BrandName,
-
         SUM(OI.LineTotal)
-
     FROM dbo.Brand AS B
-
     INNER JOIN dbo.Product AS P
-
         ON B.BrandID = P.BrandID
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON P.ProductID = OI.ProductID
-
     GROUP BY
-
         B.BrandName
-
     UNION ALL
-
-    /* Supplier Contribution */
-
     SELECT
-
-        'Supplier',
-
+        'Supplier',  -- Supplier Contribution
         S.SupplierName,
-
         SUM(OI.LineTotal)
-
     FROM dbo.Supplier AS S
-
     INNER JOIN dbo.Product AS P
-
         ON S.SupplierID = P.SupplierID
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON P.ProductID = OI.ProductID
-
     GROUP BY
-
         S.SupplierName
 )
-
 SELECT
-
     ContributionType,
-
     ContributionName,
-
-    ROUND
-    (
-        TotalRevenue,
-        2
-    ) AS TotalRevenue,
-
-    ROUND
-    (
-        TotalRevenue * 100.0
-        /
-        SUM(TotalRevenue)
-        OVER
-        (
-            PARTITION BY ContributionType
-        ),
-        2
-    ) AS RevenueContributionPercentage,
-
-    DENSE_RANK()
-    OVER
-    (
-        PARTITION BY ContributionType
-
-        ORDER BY TotalRevenue DESC
-    ) AS RevenueRank
-
+    ROUND(TotalRevenue,2) AS TotalRevenue,
+    ROUND(TotalRevenue * 100.0 / SUM(TotalRevenue) OVER (PARTITION BY ContributionType),2) AS RevenueContributionPercentage,
+    DENSE_RANK() OVER (PARTITION BY ContributionType ORDER BY TotalRevenue DESC) AS RevenueRank
 FROM RevenueContribution
-
 ORDER BY
-
     ContributionType,
-
     RevenueRank;
 
 PRINT '';
@@ -1511,8 +1231,7 @@ PRINT '';
 KPI 358 : Store Benchmarking
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1557,92 +1276,39 @@ Above Average
 Average
 Below Average
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 ;WITH StorePerformance AS
 (
     SELECT
-
         S.StoreID,
-
         S.StoreName,
-
         COUNT(DISTINCT O.OrderID) AS TotalOrders,
-
         SUM(OI.LineTotal) AS TotalRevenue
-
     FROM dbo.Store AS S
-
     INNER JOIN dbo.[Order] AS O
-
         ON S.StoreID = O.StoreID
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON O.OrderID = OI.OrderID
-
     GROUP BY
-
         S.StoreID,
-
         S.StoreName
 )
-
 SELECT
-
     StoreID,
-
     StoreName,
-
     TotalOrders,
-
-    ROUND
-    (
-        TotalRevenue,
-        2
-    ) AS TotalRevenue,
-
-    ROUND
-    (
-        TotalRevenue
-        /
-        NULLIF(TotalOrders,0),
-        2
-    ) AS AverageOrderValue,
-
-    ROUND
-    (
-        AVG(TotalRevenue) OVER(),
-        2
-    ) AS BusinessAverageRevenue,
-
-    ROUND
-    (
-        TotalRevenue
-        -
-        AVG(TotalRevenue) OVER(),
-        2
-    ) AS RevenueDifference,
-
+    ROUND(TotalRevenue,2) AS TotalRevenue,
+    ROUND(TotalRevenue / NULLIF(TotalOrders,0),2) AS AverageOrderValue,
+    ROUND(AVG(TotalRevenue) OVER(),2) AS BusinessAverageRevenue,
+    ROUND(TotalRevenue - AVG(TotalRevenue) OVER(),2) AS RevenueDifference,
     CASE
-
-        WHEN TotalRevenue > AVG(TotalRevenue) OVER()
-
-            THEN 'Above Average'
-
-        WHEN TotalRevenue = AVG(TotalRevenue) OVER()
-
-            THEN 'Average'
-
+        WHEN TotalRevenue > AVG(TotalRevenue) OVER() THEN 'Above Average'
+        WHEN TotalRevenue = AVG(TotalRevenue) OVER() THEN 'Average'
         ELSE 'Below Average'
-
     END AS PerformanceBenchmark
-
 FROM StorePerformance
-
 ORDER BY
-
     TotalRevenue DESC;
 
 PRINT '';
@@ -1657,8 +1323,7 @@ PRINT '';
 KPI 359 : Employee Benchmarking
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1701,101 +1366,40 @@ Above Average
 Average
 Below Average
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-;WITH EmployeePerformance AS
+WITH EmployeePerformance AS
 (
     SELECT
-
         E.EmployeeID,
-
-        CONCAT
-        (
-            E.FirstName,
-            ' ',
-            E.LastName
-        ) AS EmployeeName,
-
+        CONCAT(E.FirstName,' ',E.LastName) AS EmployeeName,
         COUNT(DISTINCT O.OrderID) AS TotalOrders,
-
         SUM(OI.LineTotal) AS TotalRevenue
-
     FROM dbo.Employee AS E
-
     INNER JOIN dbo.[Order] AS O
-
         ON E.EmployeeID = O.EmployeeID
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON O.OrderID = OI.OrderID
-
     GROUP BY
-
         E.EmployeeID,
-
         E.FirstName,
-
         E.LastName
 )
-
 SELECT
-
     EmployeeID,
-
     EmployeeName,
-
     TotalOrders,
-
-    ROUND
-    (
-        TotalRevenue,
-        2
-    ) AS TotalRevenue,
-
-    ROUND
-    (
-        TotalRevenue
-        /
-        NULLIF(TotalOrders,0),
-        2
-    ) AS AverageOrderValue,
-
-    ROUND
-    (
-        AVG(TotalRevenue)
-        OVER(),
-        2
-    ) AS BusinessAverageRevenue,
-
-    ROUND
-    (
-        TotalRevenue
-        -
-        AVG(TotalRevenue)
-        OVER(),
-        2
-    ) AS RevenueDifference,
-
+    ROUND(TotalRevenue,2) AS TotalRevenue,
+    ROUND(TotalRevenue / NULLIF(TotalOrders,0),2) AS AverageOrderValue,
+    ROUND(AVG(TotalRevenue) OVER(),2) AS BusinessAverageRevenue,
+    ROUND(TotalRevenue - AVG(TotalRevenue) OVER(),2) AS RevenueDifference,
     CASE
-
-        WHEN TotalRevenue > AVG(TotalRevenue) OVER()
-
-            THEN 'Above Average'
-
-        WHEN TotalRevenue = AVG(TotalRevenue) OVER()
-
-            THEN 'Average'
-
+        WHEN TotalRevenue > AVG(TotalRevenue) OVER() THEN 'Above Average'
+        WHEN TotalRevenue = AVG(TotalRevenue) OVER() THEN 'Average'
         ELSE 'Below Average'
-
     END AS PerformanceBenchmark
-
 FROM EmployeePerformance
-
 ORDER BY
-
     TotalRevenue DESC;
 
 PRINT '';
@@ -1810,8 +1414,7 @@ PRINT '';
 KPI 360 : Product Benchmarking
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1856,90 +1459,37 @@ Above Average
 Average
 Below Average
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-;WITH ProductPerformance AS
+WITH ProductPerformance AS
 (
     SELECT
-
         P.ProductID,
-
         P.ProductName,
-
         SUM(OI.Quantity) AS QuantitySold,
-
         SUM(OI.LineTotal) AS TotalRevenue
-
     FROM dbo.Product AS P
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON P.ProductID = OI.ProductID
-
     GROUP BY
-
         P.ProductID,
-
         P.ProductName
 )
-
 SELECT
-
     ProductID,
-
     ProductName,
-
     QuantitySold,
-
-    ROUND
-    (
-        TotalRevenue,
-        2
-    ) AS TotalRevenue,
-
-    ROUND
-    (
-        TotalRevenue
-        /
-        NULLIF(QuantitySold,0),
-        2
-    ) AS AverageSellingPrice,
-
-    ROUND
-    (
-        AVG(TotalRevenue)
-        OVER(),
-        2
-    ) AS BusinessAverageRevenue,
-
-    ROUND
-    (
-        TotalRevenue
-        -
-        AVG(TotalRevenue)
-        OVER(),
-        2
-    ) AS RevenueDifference,
-
+    ROUND(TotalRevenue,2) AS TotalRevenue,
+    ROUND(TotalRevenue / NULLIF(QuantitySold,0),2) AS AverageSellingPrice,
+    ROUND(AVG(TotalRevenue) OVER(),2) AS BusinessAverageRevenue,
+    ROUND(TotalRevenue - AVG(TotalRevenue) OVER(),2) AS RevenueDifference,
     CASE
-
-        WHEN TotalRevenue > AVG(TotalRevenue) OVER()
-
-            THEN 'Above Average'
-
-        WHEN TotalRevenue = AVG(TotalRevenue) OVER()
-
-            THEN 'Average'
-
+        WHEN TotalRevenue > AVG(TotalRevenue) OVER() THEN 'Above Average'
+        WHEN TotalRevenue = AVG(TotalRevenue) OVER() THEN 'Average'
         ELSE 'Below Average'
-
     END AS PerformanceBenchmark
-
 FROM ProductPerformance
-
 ORDER BY
-
     TotalRevenue DESC;
 
 PRINT '';
@@ -1954,8 +1504,7 @@ PRINT '';
 KPI 361 : Customer Benchmarking
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -2001,101 +1550,40 @@ Above Average
 Average
 Below Average
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-;WITH CustomerPerformance AS
+WITH CustomerPerformance AS
 (
     SELECT
-
         C.CustomerID,
-
-        CONCAT
-        (
-            C.FirstName,
-            ' ',
-            C.LastName
-        ) AS CustomerName,
-
+        CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
         COUNT(DISTINCT O.OrderID) AS TotalOrders,
-
         SUM(OI.LineTotal) AS TotalRevenue
-
     FROM dbo.Customer AS C
-
     INNER JOIN dbo.[Order] AS O
-
         ON C.CustomerID = O.CustomerID
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON O.OrderID = OI.OrderID
-
     GROUP BY
-
         C.CustomerID,
-
         C.FirstName,
-
         C.LastName
 )
-
 SELECT
-
     CustomerID,
-
     CustomerName,
-
     TotalOrders,
-
-    ROUND
-    (
-        TotalRevenue,
-        2
-    ) AS TotalRevenue,
-
-    ROUND
-    (
-        TotalRevenue
-        /
-        NULLIF(TotalOrders,0),
-        2
-    ) AS AverageOrderValue,
-
-    ROUND
-    (
-        AVG(TotalRevenue)
-        OVER(),
-        2
-    ) AS BusinessAverageRevenue,
-
-    ROUND
-    (
-        TotalRevenue
-        -
-        AVG(TotalRevenue)
-        OVER(),
-        2
-    ) AS RevenueDifference,
-
+    ROUND(TotalRevenue,2) AS TotalRevenue,
+    ROUND(TotalRevenue / NULLIF(TotalOrders,0),2) AS AverageOrderValue,
+    ROUND(AVG(TotalRevenue) OVER(),2) AS BusinessAverageRevenue,
+    ROUND(TotalRevenue - AVG(TotalRevenue) OVER(),2) AS RevenueDifference,
     CASE
-
-        WHEN TotalRevenue > AVG(TotalRevenue) OVER()
-
-            THEN 'Above Average'
-
-        WHEN TotalRevenue = AVG(TotalRevenue) OVER()
-
-            THEN 'Average'
-
+        WHEN TotalRevenue > AVG(TotalRevenue) OVER() THEN 'Above Average'
+        WHEN TotalRevenue = AVG(TotalRevenue) OVER() THEN 'Average'
         ELSE 'Below Average'
-
     END AS PerformanceBenchmark
-
 FROM CustomerPerformance
-
 ORDER BY
-
     TotalRevenue DESC;
 
 PRINT '';
@@ -3984,3 +3472,604 @@ PRINT '==============================================================';
 
 PRINT '';
 
+/*------------------------------------------------------------------------------
+KPI 372 : Financial Performance Dashboard Dataset
+------------------------------------------------------------------------------*/
+
+/*------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Can we create a finance-focused dashboard dataset containing the key financial
+KPIs required by business leaders?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Finance teams and executives require a single dataset that summarizes the
+organization's financial performance.
+
+This KPI creates a Power BI-ready dataset covering revenue, cost, profit,
+refunds, returns, average order value, and profitability.
+
+This KPI helps management:
+
+• Monitor Financial Performance
+• Track Revenue & Profitability
+• Analyze Refund Impact
+• Evaluate Return Costs
+• Support Executive Financial Reporting
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query returns:
+
+• Total Revenue
+• Total Product Cost
+• Gross Profit
+• Gross Margin %
+• Total Orders
+• Average Order Value
+• Total Refund Amount
+• Total Returns
+• Return Rate %
+• Profitability Score
+
+------------------------------------------------------------------------------
+*/
+
+WITH SalesMetrics AS
+(
+    SELECT
+        SUM(OI.LineTotal) AS TotalRevenue,
+        SUM(OI.CostPrice * OI.Quantity) AS TotalProductCost,
+        COUNT(DISTINCT O.OrderID) AS TotalOrders
+    FROM dbo.[Order] AS O
+    INNER JOIN dbo.OrderItem AS OI
+        ON O.OrderID = OI.OrderID
+),
+ReturnMetrics AS
+(
+    SELECT
+        COUNT(ReturnID) AS TotalReturns,
+        ISNULL(SUM(RefundAmount),0) AS TotalRefundAmount
+    FROM dbo.[Return]
+)
+SELECT
+    ROUND(SM.TotalRevenue,2) AS TotalRevenue,
+    ROUND(SM.TotalProductCost,2) AS TotalProductCost,
+    ROUND(SM.TotalRevenue - SM.TotalProductCost,2) AS GrossProfit,
+    ROUND((SM.TotalRevenue - SM.TotalProductCost) * 100.0 / NULLIF(SM.TotalRevenue,0),2) AS GrossMarginPercentage,
+    SM.TotalOrders,
+    ROUND(SM.TotalRevenue / NULLIF(SM.TotalOrders,0),2) AS AverageOrderValue,
+    RM.TotalReturns,
+    ROUND(RM.TotalRefundAmount,2) AS TotalRefundAmount,
+    ROUND(RM.TotalReturns * 100.0 / NULLIF(SM.TotalOrders,0),2) AS ReturnRatePercentage,
+    ROUND((SM.TotalRevenue - SM.TotalProductCost) * 100.0 / NULLIF(SM.TotalRevenue,0),2) AS ProfitabilityScore,
+    CASE
+        WHEN((SM.TotalRevenue - SM.TotalProductCost) * 100.0 / NULLIF(SM.TotalRevenue,0)) >= 40 THEN 'Excellent'
+        WHEN((SM.TotalRevenue - SM.TotalProductCost) * 100.0 / NULLIF(SM.TotalRevenue,0)) >= 30 THEN 'Good'
+        WHEN((SM.TotalRevenue - SM.TotalProductCost) * 100.0 / NULLIF(SM.TotalRevenue,0)) >= 20 THEN 'Average'
+        ELSE 'Needs Improvement'
+    END AS FinancialPerformanceCategory
+FROM SalesMetrics AS SM
+CROSS JOIN ReturnMetrics AS RM;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 372 : Financial Performance Dashboard Dataset Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+/*------------------------------------------------------------------------------
+KPI 373 : Executive Performance Dashboard Dataset
+------------------------------------------------------------------------------*/
+
+/*------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Can we create a single executive dataset that benchmarks the performance of
+stores, employees, customers, products, suppliers, inventory, and returns?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Executives require one consolidated operational dataset instead of reviewing
+multiple reports.
+
+This KPI creates a Power BI-ready executive dataset that summarizes the
+performance of every business function.
+
+This KPI helps management:
+
+• Executive Performance Monitoring
+• Cross-Functional Performance Analysis
+• Store Performance Evaluation
+• Employee Productivity Tracking
+• Customer Performance Analysis
+• Product Performance Monitoring
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query returns:
+
+• Store Name
+• Revenue
+• Orders
+• Customers
+• Employees
+• Products Sold
+• Inventory Units
+• Returns
+• Return Rate
+• Average Order Value
+• Executive Performance Score
+
+------------------------------------------------------------------------------*/
+
+WITH SalesSummary AS
+(
+    SELECT
+        O.StoreID,
+        COUNT(DISTINCT O.OrderID) AS TotalOrders,
+        COUNT(DISTINCT O.CustomerID) AS TotalCustomers,
+        COUNT(DISTINCT O.EmployeeID) AS TotalEmployees,
+        COUNT(DISTINCT OI.ProductID) AS ProductsSold,
+        SUM(OI.Quantity) AS QuantitySold,
+        SUM(OI.LineTotal) AS TotalRevenue
+    FROM dbo.[Order] AS O
+    INNER JOIN dbo.OrderItem AS OI
+        ON O.OrderID = OI.OrderID
+    GROUP BY
+        O.StoreID
+),
+InventorySummary AS
+(
+    SELECT
+        StoreID,
+        SUM(QuantityInStock) AS InventoryUnits
+    FROM dbo.Inventory
+    GROUP BY
+        StoreID
+),
+ReturnSummary AS
+(
+    SELECT
+        O.StoreID,
+        COUNT(R.ReturnID) AS TotalReturns
+    FROM dbo.[Return] AS R
+    INNER JOIN dbo.OrderItem AS OI
+        ON R.OrderItemID = OI.OrderItemID
+    INNER JOIN dbo.[Order] AS O
+        ON OI.OrderID = O.OrderID
+    GROUP BY
+        O.StoreID
+)
+SELECT
+    S.StoreID,
+    S.StoreName,
+    SS.TotalRevenue,
+    SS.TotalOrders,
+    SS.TotalCustomers,
+    SS.TotalEmployees,
+    SS.ProductsSold,
+    SS.QuantitySold,
+    ISNULL(ISU.InventoryUnits,0) AS InventoryUnits,
+    ISNULL(RS.TotalReturns,0) AS TotalReturns,
+    ROUND(ISNULL(RS.TotalReturns,0) * 100.0 / NULLIF(SS.TotalOrders,0),2) AS ReturnRatePercentage,
+    ROUND(SS.TotalRevenue / NULLIF(SS.TotalOrders,0),2) AS AverageOrderValue,
+    DENSE_RANK() OVER (ORDER BY SS.TotalRevenue DESC) AS ExecutivePerformanceRank
+FROM dbo.Store AS S
+INNER JOIN SalesSummary AS SS
+    ON S.StoreID = SS.StoreID
+LEFT JOIN InventorySummary AS ISU
+    ON S.StoreID = ISU.StoreID
+LEFT JOIN ReturnSummary AS RS
+    ON S.StoreID = RS.StoreID
+ORDER BY
+    SS.TotalRevenue DESC;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 373 : Executive Performance Dashboard Dataset Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+/*------------------------------------------------------------------------------
+KPI 374 : Business Intelligence Dashboard Dataset
+------------------------------------------------------------------------------*/
+
+/*------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Can we create a comprehensive Business Intelligence dataset that combines
+Sales, Customers, Products, Employees, Inventory, Returns, Payments, and
+Suppliers into a single Power BI-ready model?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+Business Intelligence dashboards require a single denormalized dataset that
+can drive multiple visualizations without repeatedly joining transactional
+tables.
+
+This KPI creates an enterprise-ready dataset suitable for Executive,
+Operational, Finance, Sales, Customer, Inventory, and Supply Chain
+dashboards.
+
+This KPI helps management:
+
+• Enterprise Reporting
+• Business Intelligence
+• Executive Dashboards
+• Power BI Semantic Model
+• Cross-Functional Analysis
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query returns:
+
+• Order Details
+• Customer Details
+• Employee Details
+• Store Details
+• Product Details
+• Category Details
+• Brand Details
+• Supplier Details
+• Payment Details
+• Revenue Metrics
+• Profit Metrics
+• Return Metrics
+• Inventory Metrics
+
+------------------------------------------------------------------------------*/
+
+SELECT
+    O.OrderID,
+    CAST(O.OrderDate AS DATE) AS OrderDate,
+    S.StoreID,
+    S.StoreName,
+    C.CustomerID,
+    CONCAT(C.FirstName,' ',C.LastName) AS CustomerName,
+    E.EmployeeID,
+    CONCAT(E.FirstName,' ',E.LastName) AS EmployeeName,
+    P.ProductID,
+    P.ProductName,
+    SC.SubCategoryName,
+    CAT.CategoryName,
+    B.BrandName,
+    SUP.SupplierName,
+    OI.Quantity,
+    P.CostPrice,
+    P.SellingPrice,
+    ROUND(OI.LineTotal,2) AS SalesAmount,
+    ROUND((P.SellingPrice - P.CostPrice) * OI.Quantity,2) AS GrossProfit,
+    ROUND(((P.SellingPrice - P.CostPrice) * OI.Quantity) * 100.0 / NULLIF(OI.LineTotal,0),2) AS GrossMarginPercentage,
+    PM.MethodName,
+    PS.StatusName,
+    PAY.Amount,
+    ISNULL(R.QuantityReturned,0) AS QuantityReturned,
+    ISNULL(R.RefundAmount,0) AS RefundAmount,
+    RS.StatusName,
+    RR.ReasonName,
+    ISNULL(I.QuantityInStock,0) AS CurrentInventory,
+    P.ReorderLevel
+FROM dbo.[Order] AS O
+INNER JOIN dbo.OrderItem AS OI
+    ON O.OrderID = OI.OrderID
+INNER JOIN dbo.Customer AS C
+    ON O.CustomerID = C.CustomerID
+INNER JOIN dbo.Employee AS E
+    ON O.EmployeeID = E.EmployeeID
+INNER JOIN dbo.Store AS S
+    ON O.StoreID = S.StoreID
+INNER JOIN dbo.Product AS P
+    ON OI.ProductID = P.ProductID
+INNER JOIN dbo.SubCategory AS SC
+    ON P.SubCategoryID = SC.SubCategoryID
+INNER JOIN dbo.Category AS CAT
+    ON SC.CategoryID = CAT.CategoryID
+INNER JOIN dbo.Brand AS B
+    ON P.BrandID = B.BrandID
+INNER JOIN dbo.Supplier AS SUP
+    ON P.SupplierID = SUP.SupplierID
+LEFT JOIN dbo.Payment AS PAY
+    ON O.OrderID = PAY.OrderID
+LEFT JOIN dbo.PaymentMethod AS PM
+    ON PAY.PaymentMethodID = PM.PaymentMethodID
+LEFT JOIN dbo.PaymentStatus AS PS
+    ON PAY.PaymentStatusID = PS.PaymentStatusID
+LEFT JOIN dbo.Inventory AS I
+    ON P.ProductID = I.ProductID
+   AND S.StoreID = I.StoreID
+LEFT JOIN dbo.[Return] AS R
+    ON OI.OrderItemID = R.OrderItemID
+LEFT JOIN dbo.ReturnReason AS RR
+    ON R.ReturnReasonID = RR.ReturnReasonID
+LEFT JOIN dbo.ReturnStatus AS RS
+    ON R.ReturnStatusID = RS.ReturnStatusID
+ORDER BY
+    O.OrderDate DESC,
+    O.OrderID;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 374 : Business Intelligence Dashboard Dataset Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
+
+/*------------------------------------------------------------------------------
+KPI 375 : Executive Business Scorecard
+------------------------------------------------------------------------------*/
+
+/*------------------------------------------------------------------------------
+Business Question
+------------------------------------------------------------------------------
+
+Can we create a final Executive Business Scorecard that consolidates the most
+important business KPIs into a single executive report with KPI status and an
+overall business rating?
+
+------------------------------------------------------------------------------
+Business Importance
+------------------------------------------------------------------------------
+
+This is the final KPI of the Retail Sales Analytics project.
+
+It provides CXOs, Directors, and Business Leaders with a one-page summary of
+overall business performance.
+
+Instead of reviewing hundreds of reports, executives can instantly evaluate
+the health of the organization using a single scorecard.
+
+This KPI helps management:
+
+• Executive Business Review
+• Monthly Leadership Meetings
+• Board Presentations
+• Business Health Monitoring
+• Strategic Decision Making
+
+------------------------------------------------------------------------------
+Scorecard KPIs
+------------------------------------------------------------------------------
+
+• Total Revenue
+• Gross Profit
+• Gross Margin %
+• Total Orders
+• Average Order Value
+• Total Customers
+• Total Returns
+• Return Rate %
+• Customer Satisfaction Index
+• Business Health Index
+
+------------------------------------------------------------------------------
+Expected Insight
+------------------------------------------------------------------------------
+
+The query returns:
+
+• KPI Name
+• KPI Value
+• KPI Status
+
+Status
+
+Excellent
+Good
+Average
+Needs Improvement
+
+------------------------------------------------------------------------------*/
+
+WITH BusinessMetrics AS
+(
+    SELECT
+
+        SUM(OI.LineTotal) AS TotalRevenue,
+
+        SUM(OI.CostPrice * OI.Quantity) AS TotalCost,
+
+        COUNT(DISTINCT O.OrderID) AS TotalOrders,
+
+        COUNT(DISTINCT O.CustomerID) AS TotalCustomers
+
+    FROM dbo.[Order] AS O
+
+    INNER JOIN dbo.OrderItem AS OI
+
+        ON O.OrderID = OI.OrderID
+),
+
+ReturnMetrics AS
+(
+    SELECT
+
+        COUNT(*) AS TotalReturns,
+
+        SUM(RefundAmount) AS TotalRefundAmount
+
+    FROM dbo.[Return]
+)
+
+SELECT
+
+    KPIName,
+
+    KPIValue,
+
+    KPIStatus
+
+FROM
+(
+
+    /*------------------------------------------------------*/
+
+    SELECT
+
+        'Total Revenue' AS KPIName,
+
+        CAST(ROUND(BM.TotalRevenue,2) AS DECIMAL(18,2)) AS KPIValue,
+
+        CASE
+
+            WHEN BM.TotalRevenue >= 5000000 THEN 'Excellent'
+            WHEN BM.TotalRevenue >= 3000000 THEN 'Good'
+            WHEN BM.TotalRevenue >= 1000000 THEN 'Average'
+            ELSE 'Needs Improvement'
+
+        END AS KPIStatus
+
+    FROM BusinessMetrics BM
+
+    UNION ALL
+
+    /*------------------------------------------------------*/
+
+    SELECT
+
+        'Gross Profit',
+
+        CAST
+        (
+            ROUND(BM.TotalRevenue - BM.TotalCost,2)
+            AS DECIMAL(18,2)
+        ),
+
+        CASE
+
+            WHEN ((BM.TotalRevenue-BM.TotalCost)*100.0/NULLIF(BM.TotalRevenue,0)) >= 40 THEN 'Excellent'
+            WHEN ((BM.TotalRevenue-BM.TotalCost)*100.0/NULLIF(BM.TotalRevenue,0)) >= 30 THEN 'Good'
+            WHEN ((BM.TotalRevenue-BM.TotalCost)*100.0/NULLIF(BM.TotalRevenue,0)) >= 20 THEN 'Average'
+            ELSE 'Needs Improvement'
+
+        END
+
+    FROM BusinessMetrics BM
+
+    UNION ALL
+
+    /*------------------------------------------------------*/
+
+    SELECT
+
+        'Gross Margin %',
+
+        CAST
+        (
+            ROUND
+            (
+                (BM.TotalRevenue-BM.TotalCost)*100.0
+                /
+                NULLIF(BM.TotalRevenue,0),
+                2
+            )
+            AS DECIMAL(18,2)
+        ),
+
+        CASE
+
+            WHEN ((BM.TotalRevenue-BM.TotalCost)*100.0/NULLIF(BM.TotalRevenue,0)) >= 40 THEN 'Excellent'
+            WHEN ((BM.TotalRevenue-BM.TotalCost)*100.0/NULLIF(BM.TotalRevenue,0)) >= 30 THEN 'Good'
+            WHEN ((BM.TotalRevenue-BM.TotalCost)*100.0/NULLIF(BM.TotalRevenue,0)) >= 20 THEN 'Average'
+            ELSE 'Needs Improvement'
+
+        END
+
+    FROM BusinessMetrics BM
+
+    UNION ALL
+
+    /*------------------------------------------------------*/
+
+    SELECT
+
+        'Average Order Value',
+
+        CAST
+        (
+            ROUND
+            (
+                BM.TotalRevenue
+                /
+                NULLIF(BM.TotalOrders,0),
+                2
+            )
+            AS DECIMAL(18,2)
+        ),
+
+        CASE
+
+            WHEN (BM.TotalRevenue/NULLIF(BM.TotalOrders,0)) >= 500 THEN 'Excellent'
+            WHEN (BM.TotalRevenue/NULLIF(BM.TotalOrders,0)) >= 300 THEN 'Good'
+            WHEN (BM.TotalRevenue/NULLIF(BM.TotalOrders,0)) >= 150 THEN 'Average'
+            ELSE 'Needs Improvement'
+
+        END
+
+    FROM BusinessMetrics BM
+
+    UNION ALL
+
+    /*------------------------------------------------------*/
+
+    SELECT
+
+        'Return Rate %',
+
+        CAST
+        (
+            ROUND
+            (
+                RM.TotalReturns*100.0
+                /
+                NULLIF(BM.TotalOrders,0),
+                2
+            )
+            AS DECIMAL(18,2)
+        ),
+
+        CASE
+
+            WHEN (RM.TotalReturns*100.0/NULLIF(BM.TotalOrders,0)) <= 5 THEN 'Excellent'
+            WHEN (RM.TotalReturns*100.0/NULLIF(BM.TotalOrders,0)) <= 10 THEN 'Good'
+            WHEN (RM.TotalReturns*100.0/NULLIF(BM.TotalOrders,0)) <= 15 THEN 'Average'
+            ELSE 'Needs Improvement'
+
+        END
+
+    FROM BusinessMetrics BM
+
+    CROSS JOIN ReturnMetrics RM
+
+) AS ExecutiveScorecard
+
+ORDER BY KPIName;
+
+PRINT '';
+
+PRINT '==============================================================';
+PRINT 'KPI 375 : Executive Business Scorecard Generated Successfully';
+PRINT '==============================================================';
+
+PRINT '';
