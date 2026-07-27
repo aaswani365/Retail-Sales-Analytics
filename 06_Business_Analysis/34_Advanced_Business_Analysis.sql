@@ -1598,8 +1598,7 @@ PRINT '';
 KPI 362 : Supplier Benchmarking
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1643,94 +1642,39 @@ Above Average
 Average
 Below Average
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-;WITH SupplierPerformance AS
+WITH SupplierPerformance AS
 (
     SELECT
-
         S.SupplierID,
-
         S.SupplierName,
-
         COUNT(DISTINCT P.ProductID) AS ProductsSupplied,
-
         SUM(OI.LineTotal) AS TotalRevenue
-
     FROM dbo.Supplier AS S
-
     INNER JOIN dbo.Product AS P
-
         ON S.SupplierID = P.SupplierID
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON P.ProductID = OI.ProductID
-
     GROUP BY
-
         S.SupplierID,
-
         S.SupplierName
 )
-
 SELECT
-
     SupplierID,
-
     SupplierName,
-
     ProductsSupplied,
-
-    ROUND
-    (
-        TotalRevenue,
-        2
-    ) AS TotalRevenue,
-
-    ROUND
-    (
-        TotalRevenue
-        /
-        NULLIF(ProductsSupplied,0),
-        2
-    ) AS AverageRevenuePerProduct,
-
-    ROUND
-    (
-        AVG(TotalRevenue)
-        OVER(),
-        2
-    ) AS BusinessAverageRevenue,
-
-    ROUND
-    (
-        TotalRevenue
-        -
-        AVG(TotalRevenue)
-        OVER(),
-        2
-    ) AS RevenueDifference,
-
+    ROUND(TotalRevenue,2) AS TotalRevenue,
+    ROUND(TotalRevenue / NULLIF(ProductsSupplied,0),2) AS AverageRevenuePerProduct,
+    ROUND(AVG(TotalRevenue) OVER(),2) AS BusinessAverageRevenue,
+    ROUND(TotalRevenue - AVG(TotalRevenue) OVER(),2) AS RevenueDifference,
     CASE
-
-        WHEN TotalRevenue > AVG(TotalRevenue) OVER()
-
-            THEN 'Above Average'
-
-        WHEN TotalRevenue = AVG(TotalRevenue) OVER()
-
-            THEN 'Average'
-
+        WHEN TotalRevenue > AVG(TotalRevenue) OVER() THEN 'Above Average'
+        WHEN TotalRevenue = AVG(TotalRevenue) OVER() THEN 'Average'
         ELSE 'Below Average'
-
     END AS PerformanceBenchmark
-
 FROM SupplierPerformance
-
 ORDER BY
-
     TotalRevenue DESC;
 
 PRINT '';
@@ -1745,8 +1689,7 @@ PRINT '';
 KPI 363 : Inventory Benchmarking
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1791,80 +1734,37 @@ Above Average Stock
 Average Stock
 Below Average Stock
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-;WITH InventoryPerformance AS
+WITH InventoryPerformance AS
 (
     SELECT
-
         P.ProductID,
-
         P.ProductName,
-
         SUM(I.QuantityInStock) AS CurrentStock,
-
         P.ReorderLevel
-
     FROM dbo.Product AS P
-
     INNER JOIN dbo.Inventory AS I
-
         ON P.ProductID = I.ProductID
-
     GROUP BY
-
         P.ProductID,
-
         P.ProductName,
-
         P.ReorderLevel
 )
-
 SELECT
-
     ProductID,
-
     ProductName,
-
     CurrentStock,
-
     ReorderLevel,
-
-    ROUND
-    (
-        AVG(CurrentStock)
-        OVER(),
-        2
-    ) AS BusinessAverageStock,
-
-    ROUND
-    (
-        CurrentStock
-        -
-        AVG(CurrentStock)
-        OVER(),
-        2
-    ) AS StockDifference,
-
+    ROUND(AVG(CurrentStock) OVER(),2) AS BusinessAverageStock,
+    ROUND(CurrentStock - AVG(CurrentStock) OVER(),2) AS StockDifference,
     CASE
-
-        WHEN CurrentStock > AVG(CurrentStock) OVER()
-
-            THEN 'Above Average Stock'
-
-        WHEN CurrentStock = AVG(CurrentStock) OVER()
-
-            THEN 'Average Stock'
-
+        WHEN CurrentStock > AVG(CurrentStock) OVER() THEN 'Above Average Stock'
+        WHEN CurrentStock = AVG(CurrentStock) OVER() THEN 'Average Stock'
         ELSE 'Below Average Stock'
-
     END AS InventoryBenchmark
-
 FROM InventoryPerformance
-
 ORDER BY
-
     CurrentStock DESC;
 
 PRINT '';
@@ -1879,8 +1779,7 @@ PRINT '';
 KPI 364 : Return Benchmarking
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -1924,113 +1823,50 @@ Above Average Returns
 Average Returns
 Below Average Returns
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-;WITH SalesData AS
+WITH SalesData AS
 (
     SELECT
-
         P.ProductID,
-
         P.ProductName,
-
         SUM(OI.Quantity) AS QuantitySold,
-
-        ISNULL
-        (
-            SUM(R.QuantityReturned),
-            0
-        ) AS QuantityReturned
-
+        ISNULL(SUM(R.QuantityReturned),0) AS QuantityReturned
     FROM dbo.Product AS P
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON P.ProductID = OI.ProductID
-
     LEFT JOIN dbo.[Return] AS R
-
         ON OI.OrderItemID = R.OrderItemID
-
     GROUP BY
-
         P.ProductID,
-
         P.ProductName
 ),
-
 ReturnPerformance AS
 (
     SELECT
-
         ProductID,
-
         ProductName,
-
         QuantitySold,
-
         QuantityReturned,
-
-        CAST
-        (
-            QuantityReturned * 100.0
-            /
-            NULLIF(QuantitySold,0)
-            AS DECIMAL(18,2)
-        ) AS ReturnRate
-
+        CAST(QuantityReturned * 100.0 / NULLIF(QuantitySold,0) AS DECIMAL(18,2)) AS ReturnRate
     FROM SalesData
 )
-
 SELECT
-
     ProductID,
-
     ProductName,
-
     QuantitySold,
-
     QuantityReturned,
-
     ReturnRate,
-
-    ROUND
-    (
-        AVG(ReturnRate)
-        OVER(),
-        2
-    ) AS BusinessAverageReturnRate,
-
-    ROUND
-    (
-        ReturnRate
-        -
-        AVG(ReturnRate)
-        OVER(),
-        2
-    ) AS ReturnRateDifference,
-
+    ROUND(AVG(ReturnRate) OVER(),2) AS BusinessAverageReturnRate,
+    ROUND(ReturnRate - AVG(ReturnRate) OVER(),2) AS ReturnRateDifference,
     CASE
-
-        WHEN ReturnRate > AVG(ReturnRate) OVER()
-
-            THEN 'Above Average Returns'
-
-        WHEN ReturnRate = AVG(ReturnRate) OVER()
-
-            THEN 'Average Returns'
-
+        WHEN ReturnRate > AVG(ReturnRate) OVER() THEN 'Above Average Returns'
+        WHEN ReturnRate = AVG(ReturnRate) OVER() THEN 'Average Returns'
         ELSE 'Below Average Returns'
-
     END AS ReturnBenchmark
-
 FROM ReturnPerformance
-
 ORDER BY
-
     ReturnRate DESC,
-
     QuantityReturned DESC;
 
 PRINT '';
@@ -2045,8 +1881,7 @@ PRINT '';
 KPI 365 : Business KPI Scorecard
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -2089,110 +1924,53 @@ The query returns
 • Total Inventory
 • Inventory Value
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-;WITH BusinessSummary AS
+WITH BusinessSummary AS
 (
     SELECT
-
         SUM(OI.LineTotal) AS TotalRevenue,
-
         COUNT(DISTINCT O.OrderID) AS TotalOrders,
-
         COUNT(DISTINCT O.CustomerID) AS TotalCustomers,
-
         COUNT(DISTINCT O.EmployeeID) AS TotalEmployees,
-
         COUNT(DISTINCT O.StoreID) AS TotalStores,
-
         COUNT(DISTINCT OI.ProductID) AS ProductsSold
-
     FROM dbo.[Order] AS O
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON O.OrderID = OI.OrderID
 ),
-
 ReturnSummary AS
 (
     SELECT
-
         COUNT(ReturnID) AS TotalReturns,
-
         SUM(RefundAmount) AS TotalRefundAmount
-
     FROM dbo.[Return]
 ),
-
 InventorySummary AS
 (
     SELECT
-
         SUM(I.QuantityInStock) AS TotalInventory,
-
         SUM(I.QuantityInStock * P.CostPrice) AS InventoryValue
-
     FROM dbo.Inventory AS I
-
     INNER JOIN dbo.Product AS P
-
         ON I.ProductID = P.ProductID
 )
-
 SELECT
-
     ROUND(B.TotalRevenue,2) AS TotalRevenue,
-
     B.TotalOrders,
-
-    ROUND
-    (
-        B.TotalRevenue
-        /
-        NULLIF(B.TotalOrders,0),
-        2
-    ) AS AverageOrderValue,
-
+    ROUND(B.TotalRevenue / NULLIF(B.TotalOrders,0),2) AS AverageOrderValue,
     B.TotalCustomers,
-
     (SELECT COUNT(*) FROM dbo.Product) AS TotalProducts,
-
     B.TotalStores,
-
     B.TotalEmployees,
-
     (SELECT COUNT(*) FROM dbo.Supplier) AS TotalSuppliers,
-
     R.TotalReturns,
-
-    ROUND
-    (
-        R.TotalReturns * 100.0
-        /
-        NULLIF(B.TotalOrders,0),
-        2
-    ) AS ReturnRatePercentage,
-
+    ROUND(R.TotalReturns * 100.0 / NULLIF(B.TotalOrders,0),2) AS ReturnRatePercentage,
     I.TotalInventory,
-
-    ROUND
-    (
-        I.InventoryValue,
-        2
-    ) AS InventoryValue,
-
-    ROUND
-    (
-        ISNULL(R.TotalRefundAmount,0),
-        2
-    ) AS TotalRefundAmount
-
+    ROUND(I.InventoryValue,2) AS InventoryValue,
+    ROUND(ISNULL(R.TotalRefundAmount,0),2) AS TotalRefundAmount
 FROM BusinessSummary AS B
-
 CROSS JOIN ReturnSummary AS R
-
 CROSS JOIN InventorySummary AS I;
 
 PRINT '';
@@ -2207,8 +1985,7 @@ PRINT '';
 KPI 366 : Executive Business Dashboard Dataset
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -2251,159 +2028,80 @@ The query returns
 • Average Order Value
 • Return Rate
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-;WITH SalesSummary AS
+WITH SalesSummary AS
 (
     SELECT
-
         O.StoreID,
-
         COUNT(DISTINCT O.OrderID) AS TotalOrders,
-
         COUNT(DISTINCT O.CustomerID) AS TotalCustomers,
-
         COUNT(DISTINCT O.EmployeeID) AS TotalEmployees,
-
         COUNT(DISTINCT OI.ProductID) AS ProductsSold,
-
         SUM(OI.Quantity) AS QuantitySold,
-
         SUM(OI.LineTotal) AS TotalRevenue
-
     FROM dbo.[Order] AS O
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON O.OrderID = OI.OrderID
-
     GROUP BY
-
         O.StoreID
 ),
-
 ReturnSummary AS
 (
     SELECT
-
         O.StoreID,
-
         COUNT(R.ReturnID) AS TotalReturns,
-
         SUM(R.RefundAmount) AS TotalRefundAmount
-
     FROM dbo.[Return] AS R
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON R.OrderItemID = OI.OrderItemID
-
     INNER JOIN dbo.[Order] AS O
-
         ON OI.OrderID = O.OrderID
-
     GROUP BY
-
         O.StoreID
 ),
-
 InventorySummary AS
 (
     SELECT
-
         StoreID,
-
         SUM(QuantityInStock) AS InventoryUnits,
-
         COUNT(DISTINCT ProductID) AS InventoryProducts
-
     FROM dbo.Inventory
-
     GROUP BY
-
         StoreID
 ),
-
 SupplierSummary AS
 (
     SELECT
-
         COUNT(DISTINCT SupplierID) AS TotalSuppliers
-
     FROM dbo.Supplier
 )
 
 SELECT
-
     S.StoreID,
-
     S.StoreName,
-
     SS.TotalOrders,
-
     SS.TotalCustomers,
-
     SS.TotalEmployees,
-
     SS.ProductsSold,
-
     SS.QuantitySold,
-
-    ROUND
-    (
-        SS.TotalRevenue,
-        2
-    ) AS TotalRevenue,
-
-    ROUND
-    (
-        SS.TotalRevenue
-        /
-        NULLIF(SS.TotalOrders,0),
-        2
-    ) AS AverageOrderValue,
-
+    ROUND(SS.TotalRevenue,2) AS TotalRevenue,
+    ROUND(SS.TotalRevenue / NULLIF(SS.TotalOrders,0),2) AS AverageOrderValue,
     ISNULL(RS.TotalReturns,0) AS TotalReturns,
-
-    ROUND
-    (
-        ISNULL(RS.TotalRefundAmount,0),
-        2
-    ) AS TotalRefundAmount,
-
-    ROUND
-    (
-        ISNULL(RS.TotalReturns,0) * 100.0
-        /
-        NULLIF(SS.TotalOrders,0),
-        2
-    ) AS ReturnRatePercentage,
-
+    ROUND(ISNULL(RS.TotalRefundAmount,0),2) AS TotalRefundAmount,
+    ROUND(ISNULL(RS.TotalReturns,0) * 100.0 / NULLIF(SS.TotalOrders,0),2) AS ReturnRatePercentage,
     ISNULL(ISU.InventoryUnits,0) AS InventoryUnits,
-
     ISNULL(ISU.InventoryProducts,0) AS InventoryProducts,
-
     SUP.TotalSuppliers
-
 FROM dbo.Store AS S
-
 INNER JOIN SalesSummary AS SS
-
     ON S.StoreID = SS.StoreID
-
 LEFT JOIN ReturnSummary AS RS
-
     ON S.StoreID = RS.StoreID
-
 LEFT JOIN InventorySummary AS ISU
-
     ON S.StoreID = ISU.StoreID
-
 CROSS JOIN SupplierSummary AS SUP
-
 ORDER BY
-
     TotalRevenue DESC;
 
 PRINT '';
@@ -2418,8 +2116,7 @@ PRINT '';
 KPI 367 : Business Health Index
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -2474,190 +2171,102 @@ The query returns:
 • Inventory Score
 • Business Health Index
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-;WITH BusinessMetrics AS
+WITH BusinessMetrics AS
 (
     SELECT
-
         SUM(OI.LineTotal) AS TotalRevenue,
-
         COUNT(DISTINCT O.OrderID) AS TotalOrders,
-
         COUNT(DISTINCT O.CustomerID) AS TotalCustomers
-
     FROM dbo.[Order] AS O
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON O.OrderID = OI.OrderID
 ),
-
 ReturnMetrics AS
 (
     SELECT
-
         COUNT(*) AS TotalReturns
-
     FROM dbo.[Return]
 ),
-
 InventoryMetrics AS
 (
     SELECT
-
         SUM(QuantityInStock) AS InventoryUnits
-
     FROM dbo.Inventory
 )
-
 SELECT
-
     BM.TotalRevenue,
-
     BM.TotalOrders,
-
     BM.TotalCustomers,
-
     RM.TotalReturns,
-
-    ROUND
-    (
-        RM.TotalReturns * 100.0
-        /
-        NULLIF(BM.TotalOrders,0),
-        2
-    ) AS ReturnRatePercentage,
-
+    ROUND(RM.TotalReturns * 100.0 / NULLIF(BM.TotalOrders,0),2) AS ReturnRatePercentage,
     IM.InventoryUnits,
-
-    /* Revenue Score */
-
     CASE
-
         WHEN BM.TotalRevenue >= 5000000 THEN 100
         WHEN BM.TotalRevenue >= 3000000 THEN 80
         WHEN BM.TotalRevenue >= 1000000 THEN 60
         ELSE 40
-
     END AS RevenueScore,
-
-    /* Order Score */
-
     CASE
-
         WHEN BM.TotalOrders >= 5000 THEN 100
         WHEN BM.TotalOrders >= 3000 THEN 80
         WHEN BM.TotalOrders >= 1000 THEN 60
         ELSE 40
-
     END AS OrderScore,
-
-    /* Customer Score */
-
     CASE
-
         WHEN BM.TotalCustomers >= 2000 THEN 100
         WHEN BM.TotalCustomers >= 1000 THEN 80
         WHEN BM.TotalCustomers >= 500 THEN 60
         ELSE 40
-
     END AS CustomerScore,
-
-    /* Return Score */
-
     CASE
-
-        WHEN
-            (
-                RM.TotalReturns * 100.0
-                /
-                NULLIF(BM.TotalOrders,0)
-            ) <= 5
-
-            THEN 100
-
-        WHEN
-            (
-                RM.TotalReturns * 100.0
-                /
-                NULLIF(BM.TotalOrders,0)
-            ) <= 10
-
-            THEN 80
-
+        WHEN(RM.TotalReturns * 100.0 / NULLIF(BM.TotalOrders,0)) <= 5 THEN 100
+        WHEN(RM.TotalReturns * 100.0 / NULLIF(BM.TotalOrders,0)) <= 10 THEN 80
         ELSE 60
-
     END AS ReturnScore,
-
-    /* Inventory Score */
-
     CASE
-
         WHEN IM.InventoryUnits >= 10000 THEN 100
         WHEN IM.InventoryUnits >= 5000 THEN 80
         WHEN IM.InventoryUnits >= 2000 THEN 60
         ELSE 40
-
     END AS InventoryScore,
-
-    /* Business Health Index */
-
-    ROUND
-    (
-        (
-
+    ROUND((
         CASE
             WHEN BM.TotalRevenue >= 5000000 THEN 100
             WHEN BM.TotalRevenue >= 3000000 THEN 80
             WHEN BM.TotalRevenue >= 1000000 THEN 60
             ELSE 40
         END
-
         +
-
         CASE
             WHEN BM.TotalOrders >= 5000 THEN 100
             WHEN BM.TotalOrders >= 3000 THEN 80
             WHEN BM.TotalOrders >= 1000 THEN 60
             ELSE 40
         END
-
         +
-
         CASE
             WHEN BM.TotalCustomers >= 2000 THEN 100
             WHEN BM.TotalCustomers >= 1000 THEN 80
             WHEN BM.TotalCustomers >= 500 THEN 60
             ELSE 40
         END
-
         +
-
         CASE
             WHEN (RM.TotalReturns * 100.0 / NULLIF(BM.TotalOrders,0)) <= 5 THEN 100
             WHEN (RM.TotalReturns * 100.0 / NULLIF(BM.TotalOrders,0)) <= 10 THEN 80
             ELSE 60
         END
-
         +
-
         CASE
             WHEN IM.InventoryUnits >= 10000 THEN 100
             WHEN IM.InventoryUnits >= 5000 THEN 80
             WHEN IM.InventoryUnits >= 2000 THEN 60
             ELSE 40
-        END
-
-        ) / 5.0,
-        2
-    ) AS BusinessHealthIndex
-
+        END) / 5.0,2) AS BusinessHealthIndex
 FROM BusinessMetrics AS BM
-
 CROSS JOIN ReturnMetrics AS RM
-
 CROSS JOIN InventoryMetrics AS IM;
 
 PRINT '';
@@ -2672,8 +2281,7 @@ PRINT '';
 KPI 368 : Revenue Efficiency Score
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -2718,135 +2326,37 @@ Good
 Average
 Needs Improvement
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-;WITH BusinessMetrics AS
+WITH BusinessMetrics AS
 (
     SELECT
-
         SUM(OI.LineTotal) AS TotalRevenue,
-
         COUNT(DISTINCT O.CustomerID) AS TotalCustomers,
-
         COUNT(DISTINCT O.EmployeeID) AS TotalEmployees,
-
         COUNT(DISTINCT O.StoreID) AS TotalStores,
-
         COUNT(DISTINCT OI.ProductID) AS TotalProducts
-
     FROM dbo.[Order] AS O
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON O.OrderID = OI.OrderID
 )
-
 SELECT
-
-    ROUND
-    (
-        TotalRevenue,
-        2
-    ) AS TotalRevenue,
-
-    ROUND
-    (
-        TotalRevenue
-        /
-        NULLIF(TotalCustomers,0),
-        2
-    ) AS RevenuePerCustomer,
-
-    ROUND
-    (
-        TotalRevenue
-        /
-        NULLIF(TotalEmployees,0),
-        2
-    ) AS RevenuePerEmployee,
-
-    ROUND
-    (
-        TotalRevenue
-        /
-        NULLIF(TotalStores,0),
-        2
-    ) AS RevenuePerStore,
-
-    ROUND
-    (
-        TotalRevenue
-        /
-        NULLIF(TotalProducts,0),
-        2
-    ) AS RevenuePerProduct,
-
-    ROUND
-    (
-        (
-            (TotalRevenue / NULLIF(TotalCustomers,0))
-            +
-            (TotalRevenue / NULLIF(TotalEmployees,0))
-            +
-            (TotalRevenue / NULLIF(TotalStores,0))
-            +
-            (TotalRevenue / NULLIF(TotalProducts,0))
-        ) / 4.0,
-        2
-    ) AS RevenueEfficiencyScore,
-
+    ROUND(TotalRevenue,2) AS TotalRevenue,
+    ROUND(TotalRevenue / NULLIF(TotalCustomers,0),2) AS RevenuePerCustomer,
+    ROUND(TotalRevenue / NULLIF(TotalEmployees,0),2) AS RevenuePerEmployee,
+    ROUND(TotalRevenue / NULLIF(TotalStores,0),2) AS RevenuePerStore,
+    ROUND(TotalRevenue / NULLIF(TotalProducts,0),2) AS RevenuePerProduct,
+    ROUND(((TotalRevenue / NULLIF(TotalCustomers,0)) + (TotalRevenue / NULLIF(TotalEmployees,0)) + 
+			(TotalRevenue / NULLIF(TotalStores,0)) + (TotalRevenue / NULLIF(TotalProducts,0))) / 4.0,2) AS RevenueEfficiencyScore,
     CASE
-
-        WHEN
-        (
-            (
-                (TotalRevenue / NULLIF(TotalCustomers,0))
-                +
-                (TotalRevenue / NULLIF(TotalEmployees,0))
-                +
-                (TotalRevenue / NULLIF(TotalStores,0))
-                +
-                (TotalRevenue / NULLIF(TotalProducts,0))
-            ) / 4.0
-        ) >= 100000
-
-            THEN 'Excellent'
-
-        WHEN
-        (
-            (
-                (TotalRevenue / NULLIF(TotalCustomers,0))
-                +
-                (TotalRevenue / NULLIF(TotalEmployees,0))
-                +
-                (TotalRevenue / NULLIF(TotalStores,0))
-                +
-                (TotalRevenue / NULLIF(TotalProducts,0))
-            ) / 4.0
-        ) >= 50000
-
-            THEN 'Good'
-
-        WHEN
-        (
-            (
-                (TotalRevenue / NULLIF(TotalCustomers,0))
-                +
-                (TotalRevenue / NULLIF(TotalEmployees,0))
-                +
-                (TotalRevenue / NULLIF(TotalStores,0))
-                +
-                (TotalRevenue / NULLIF(TotalProducts,0))
-            ) / 4.0
-        ) >= 25000
-
-            THEN 'Average'
-
+        WHEN(((TotalRevenue / NULLIF(TotalCustomers,0)) + (TotalRevenue / NULLIF(TotalEmployees,0)) + 
+				(TotalRevenue / NULLIF(TotalStores,0)) + (TotalRevenue / NULLIF(TotalProducts,0))) / 4.0) >= 100000 THEN 'Excellent'
+        WHEN(((TotalRevenue / NULLIF(TotalCustomers,0)) + (TotalRevenue / NULLIF(TotalEmployees,0)) +
+                (TotalRevenue / NULLIF(TotalStores,0)) + (TotalRevenue / NULLIF(TotalProducts,0))) / 4.0) >= 50000 THEN 'Good'
+        WHEN(((TotalRevenue / NULLIF(TotalCustomers,0)) + (TotalRevenue / NULLIF(TotalEmployees,0)) +
+				(TotalRevenue / NULLIF(TotalStores,0)) + (TotalRevenue / NULLIF(TotalProducts,0))) / 4.0) >= 25000 THEN 'Average'
         ELSE 'Needs Improvement'
-
     END AS EfficiencyCategory
-
 FROM BusinessMetrics;
 
 PRINT '';
@@ -2861,8 +2371,7 @@ PRINT '';
 KPI 369 : Profitability Score
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -2907,93 +2416,28 @@ Good
 Average
 Needs Improvement
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-;WITH ProfitMetrics AS
+WITH ProfitMetrics AS
 (
     SELECT
-
         SUM(OI.LineTotal) AS TotalRevenue,
-
         SUM(OI.CostPrice * OI.Quantity) AS TotalProductCost,
-
-        SUM(OI.LineTotal)
-        -
-        SUM(OI.CostPrice * OI.Quantity) AS GrossProfit
-
+        SUM(OI.LineTotal) - SUM(OI.CostPrice * OI.Quantity) AS GrossProfit
     FROM dbo.OrderItem AS OI
 )
-
 SELECT
-
-    ROUND
-    (
-        TotalRevenue,
-        2
-    ) AS TotalRevenue,
-
-    ROUND
-    (
-        TotalProductCost,
-        2
-    ) AS TotalProductCost,
-
-    ROUND
-    (
-        GrossProfit,
-        2
-    ) AS GrossProfit,
-
-    ROUND
-    (
-        GrossProfit * 100.0
-        /
-        NULLIF(TotalRevenue,0),
-        2
-    ) AS GrossProfitMargin,
-
-    ROUND
-    (
-        GrossProfit * 100.0
-        /
-        NULLIF(TotalRevenue,0),
-        2
-    ) AS ProfitabilityScore,
-
+    ROUND(TotalRevenue,2) AS TotalRevenue,
+    ROUND(TotalProductCost,2) AS TotalProductCost,
+    ROUND(GrossProfit,2) AS GrossProfit,
+    ROUND(GrossProfit * 100.0 / NULLIF(TotalRevenue,0),2) AS GrossProfitMargin,
+    ROUND(GrossProfit * 100.0 / NULLIF(TotalRevenue,0),2) AS ProfitabilityScore,
     CASE
-
-        WHEN
-            (
-                GrossProfit * 100.0
-                /
-                NULLIF(TotalRevenue,0)
-            ) >= 40
-
-            THEN 'Excellent'
-
-        WHEN
-            (
-                GrossProfit * 100.0
-                /
-                NULLIF(TotalRevenue,0)
-            ) >= 30
-
-            THEN 'Good'
-
-        WHEN
-            (
-                GrossProfit * 100.0
-                /
-                NULLIF(TotalRevenue,0)
-            ) >= 20
-
-            THEN 'Average'
-
+        WHEN(GrossProfit * 100.0 / NULLIF(TotalRevenue,0)) >= 40 THEN 'Excellent'
+        WHEN(GrossProfit * 100.0 / NULLIF(TotalRevenue,0)) >= 30 THEN 'Good'
+        WHEN(GrossProfit * 100.0 / NULLIF(TotalRevenue,0)) >= 20 THEN 'Average'
         ELSE 'Needs Improvement'
-
     END AS ProfitabilityCategory
-
 FROM ProfitMetrics;
 
 PRINT '';
@@ -3008,8 +2452,7 @@ PRINT '';
 KPI 370 : Customer Satisfaction Index (CSI)
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -3063,196 +2506,57 @@ Good
 Average
 Needs Improvement
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-;WITH CustomerMetrics AS
+WITH CustomerMetrics AS
 (
     SELECT
-
         COUNT(DISTINCT CustomerID) AS TotalCustomers,
-
-        COUNT
-        (
-            DISTINCT
+        COUNT(DISTINCT
             CASE
-                WHEN OrderCount > 1
-                THEN CustomerID
+                WHEN OrderCount > 1 THEN CustomerID
             END
         ) AS RepeatCustomers
-
     FROM
     (
         SELECT
-
             CustomerID,
-
             COUNT(OrderID) AS OrderCount
-
         FROM dbo.[Order]
-
         GROUP BY
-
             CustomerID
-
     ) AS X
 ),
-
 SalesMetrics AS
 (
     SELECT
-
         COUNT(DISTINCT O.OrderID) AS TotalOrders,
-
         SUM(OI.LineTotal) AS TotalRevenue
-
     FROM dbo.[Order] AS O
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON O.OrderID = OI.OrderID
 ),
-
 ReturnMetrics AS
 (
     SELECT
-
         COUNT(*) AS TotalReturns
-
     FROM dbo.[Return]
 )
-
 SELECT
-
     CM.TotalCustomers,
-
     CM.RepeatCustomers,
-
-    ROUND
-    (
-        CM.RepeatCustomers * 100.0
-        /
-        NULLIF(CM.TotalCustomers,0),
-        2
-    ) AS RepeatPurchaseRate,
-
-    ROUND
-    (
-        RM.TotalReturns * 100.0
-        /
-        NULLIF(SM.TotalOrders,0),
-        2
-    ) AS ReturnRate,
-
-    ROUND
-    (
-        SM.TotalRevenue
-        /
-        NULLIF(SM.TotalOrders,0),
-        2
-    ) AS AverageOrderValue,
-
-    ROUND
-    (
-        (
-            (
-                CM.RepeatCustomers * 100.0
-                /
-                NULLIF(CM.TotalCustomers,0)
-            )
-            +
-            (
-                100
-                -
-                (
-                    RM.TotalReturns * 100.0
-                    /
-                    NULLIF(SM.TotalOrders,0)
-                )
-            )
-        ) / 2.0,
-        2
-    ) AS CustomerSatisfactionIndex,
-
+    ROUND(CM.RepeatCustomers * 100.0 / NULLIF(CM.TotalCustomers,0),2) AS RepeatPurchaseRate,
+    ROUND(RM.TotalReturns * 100.0 / NULLIF(SM.TotalOrders,0),2) AS ReturnRate,
+    ROUND(SM.TotalRevenue / NULLIF(SM.TotalOrders,0),2) AS AverageOrderValue,
+    ROUND(((CM.RepeatCustomers * 100.0 / NULLIF(CM.TotalCustomers,0)) + (100 - (RM.TotalReturns * 100.0 / NULLIF(SM.TotalOrders,0)))) / 2.0,2) AS CustomerSatisfactionIndex,
     CASE
-
-        WHEN
-        (
-            (
-                (
-                    CM.RepeatCustomers * 100.0
-                    /
-                    NULLIF(CM.TotalCustomers,0)
-                )
-                +
-                (
-                    100
-                    -
-                    (
-                        RM.TotalReturns * 100.0
-                        /
-                        NULLIF(SM.TotalOrders,0)
-                    )
-                )
-            ) / 2.0
-        ) >= 85
-
-            THEN 'Excellent'
-
-        WHEN
-        (
-            (
-                (
-                    CM.RepeatCustomers * 100.0
-                    /
-                    NULLIF(CM.TotalCustomers,0)
-                )
-                +
-                (
-                    100
-                    -
-                    (
-                        RM.TotalReturns * 100.0
-                        /
-                        NULLIF(SM.TotalOrders,0)
-                    )
-                )
-            ) / 2.0
-        ) >= 70
-
-            THEN 'Good'
-
-        WHEN
-        (
-            (
-                (
-                    CM.RepeatCustomers * 100.0
-                    /
-                    NULLIF(CM.TotalCustomers,0)
-                )
-                +
-                (
-                    100
-                    -
-                    (
-                        RM.TotalReturns * 100.0
-                        /
-                        NULLIF(SM.TotalOrders,0)
-                    )
-                )
-            ) / 2.0
-        ) >= 55
-
-            THEN 'Average'
-
+        WHEN(((CM.RepeatCustomers * 100.0 / NULLIF(CM.TotalCustomers,0)) + (100 -(RM.TotalReturns * 100.0 / NULLIF(SM.TotalOrders,0)))) / 2.0) >= 85 THEN 'Excellent'
+        WHEN(((CM.RepeatCustomers * 100.0 / NULLIF(CM.TotalCustomers,0)) + (100 - (RM.TotalReturns * 100.0 / NULLIF(SM.TotalOrders,0)))) / 2.0) >= 70 THEN 'Good'
+        WHEN(((CM.RepeatCustomers * 100.0 / NULLIF(CM.TotalCustomers,0)) + (100 - (RM.TotalReturns * 100.0 / NULLIF(SM.TotalOrders,0)))) / 2.0) >= 55 THEN 'Average'
         ELSE 'Needs Improvement'
-
     END AS SatisfactionCategory
-
 FROM CustomerMetrics AS CM
-
 CROSS JOIN SalesMetrics AS SM
-
 CROSS JOIN ReturnMetrics AS RM;
 
 PRINT '';
@@ -3267,8 +2571,7 @@ PRINT '';
 KPI 371 : Operational Efficiency Score
 ------------------------------------------------------------------------------*/
 
-/*
-------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 Business Question
 ------------------------------------------------------------------------------
 
@@ -3313,155 +2616,50 @@ Good
 Average
 Needs Improvement
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
-;WITH BusinessMetrics AS
+WITH BusinessMetrics AS
 (
     SELECT
-
         SUM(OI.LineTotal) AS TotalRevenue,
-
         COUNT(DISTINCT O.EmployeeID) AS TotalEmployees,
-
         COUNT(DISTINCT O.StoreID) AS TotalStores,
-
         COUNT(DISTINCT O.OrderID) AS TotalOrders
-
     FROM dbo.[Order] AS O
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON O.OrderID = OI.OrderID
 ),
-
 InventoryMetrics AS
 (
     SELECT
-
         SUM(QuantityInStock) AS TotalInventoryUnits
-
     FROM dbo.Inventory
 ),
-
 ReturnMetrics AS
 (
     SELECT
-
         COUNT(*) AS TotalReturns
-
     FROM dbo.[Return]
 )
-
 SELECT
-
-    ROUND
-    (
-        BM.TotalRevenue
-        /
-        NULLIF(BM.TotalEmployees,0),
-        2
-    ) AS RevenuePerEmployee,
-
-    ROUND
-    (
-        BM.TotalRevenue
-        /
-        NULLIF(BM.TotalStores,0),
-        2
-    ) AS RevenuePerStore,
-
+    ROUND(BM.TotalRevenue / NULLIF(BM.TotalEmployees,0),2) AS RevenuePerEmployee,
+    ROUND(BM.TotalRevenue / NULLIF(BM.TotalStores,0),2) AS RevenuePerStore,
     IM.TotalInventoryUnits,
-
-    ROUND
-    (
-        BM.TotalRevenue
-        /
-        NULLIF(IM.TotalInventoryUnits,0),
-        2
-    ) AS InventoryUtilization,
-
-    ROUND
-    (
-        RM.TotalReturns * 100.0
-        /
-        NULLIF(BM.TotalOrders,0),
-        2
-    ) AS ReturnRatePercentage,
-
-    ROUND
-    (
-        (
-            (BM.TotalRevenue / NULLIF(BM.TotalEmployees,0))
-            +
-            (BM.TotalRevenue / NULLIF(BM.TotalStores,0))
-            +
-            (BM.TotalRevenue / NULLIF(IM.TotalInventoryUnits,0))
-            +
-            (100 -
-             (RM.TotalReturns * 100.0 / NULLIF(BM.TotalOrders,0)))
-        ) / 4.0,
-        2
-    ) AS OperationalEfficiencyScore,
-
+    ROUND(BM.TotalRevenue / NULLIF(IM.TotalInventoryUnits,0),2) AS InventoryUtilization,
+    ROUND(RM.TotalReturns * 100.0 / NULLIF(BM.TotalOrders,0),2) AS ReturnRatePercentage,
+    ROUND(((BM.TotalRevenue / NULLIF(BM.TotalEmployees,0)) + (BM.TotalRevenue / NULLIF(BM.TotalStores,0)) + 
+			(BM.TotalRevenue / NULLIF(IM.TotalInventoryUnits,0)) + (100 -(RM.TotalReturns * 100.0 / NULLIF(BM.TotalOrders,0)))) / 4.0,2) AS OperationalEfficiencyScore,
     CASE
-
-        WHEN
-        (
-            (
-                (BM.TotalRevenue / NULLIF(BM.TotalEmployees,0))
-                +
-                (BM.TotalRevenue / NULLIF(BM.TotalStores,0))
-                +
-                (BM.TotalRevenue / NULLIF(IM.TotalInventoryUnits,0))
-                +
-                (100 -
-                 (RM.TotalReturns * 100.0 / NULLIF(BM.TotalOrders,0)))
-            ) / 4.0
-        ) >= 100000
-
-            THEN 'Excellent'
-
-        WHEN
-        (
-            (
-                (BM.TotalRevenue / NULLIF(BM.TotalEmployees,0))
-                +
-                (BM.TotalRevenue / NULLIF(BM.TotalStores,0))
-                +
-                (BM.TotalRevenue / NULLIF(IM.TotalInventoryUnits,0))
-                +
-                (100 -
-                 (RM.TotalReturns * 100.0 / NULLIF(BM.TotalOrders,0)))
-            ) / 4.0
-        ) >= 50000
-
-            THEN 'Good'
-
-        WHEN
-        (
-            (
-                (BM.TotalRevenue / NULLIF(BM.TotalEmployees,0))
-                +
-                (BM.TotalRevenue / NULLIF(BM.TotalStores,0))
-                +
-                (BM.TotalRevenue / NULLIF(IM.TotalInventoryUnits,0))
-                +
-                (100 -
-                 (RM.TotalReturns * 100.0 / NULLIF(BM.TotalOrders,0)))
-            ) / 4.0
-        ) >= 25000
-
-            THEN 'Average'
-
+        WHEN(((BM.TotalRevenue / NULLIF(BM.TotalEmployees,0)) + (BM.TotalRevenue / NULLIF(BM.TotalStores,0)) + 
+			(BM.TotalRevenue / NULLIF(IM.TotalInventoryUnits,0)) + (100 - (RM.TotalReturns * 100.0 / NULLIF(BM.TotalOrders,0)))) / 4.0 ) >= 100000 THEN 'Excellent'
+        WHEN(((BM.TotalRevenue / NULLIF(BM.TotalEmployees,0)) + (BM.TotalRevenue / NULLIF(BM.TotalStores,0)) +
+                (BM.TotalRevenue / NULLIF(IM.TotalInventoryUnits,0)) + (100 - (RM.TotalReturns * 100.0 / NULLIF(BM.TotalOrders,0)))) / 4.0) >= 50000 THEN 'Good'
+        WHEN(((BM.TotalRevenue / NULLIF(BM.TotalEmployees,0)) + (BM.TotalRevenue / NULLIF(BM.TotalStores,0)) +
+                (BM.TotalRevenue / NULLIF(IM.TotalInventoryUnits,0)) + (100 - (RM.TotalReturns * 100.0 / NULLIF(BM.TotalOrders,0)))) / 4.0) >= 25000 THEN 'Average'
         ELSE 'Needs Improvement'
-
     END AS EfficiencyCategory
-
 FROM BusinessMetrics AS BM
-
 CROSS JOIN InventoryMetrics AS IM
-
 CROSS JOIN ReturnMetrics AS RM;
 
 PRINT '';
@@ -3518,8 +2716,7 @@ The query returns:
 • Return Rate %
 • Profitability Score
 
-------------------------------------------------------------------------------
-*/
+------------------------------------------------------------------------------*/
 
 WITH SalesMetrics AS
 (
@@ -3885,185 +3082,83 @@ Needs Improvement
 WITH BusinessMetrics AS
 (
     SELECT
-
         SUM(OI.LineTotal) AS TotalRevenue,
-
         SUM(OI.CostPrice * OI.Quantity) AS TotalCost,
-
         COUNT(DISTINCT O.OrderID) AS TotalOrders,
-
         COUNT(DISTINCT O.CustomerID) AS TotalCustomers
-
     FROM dbo.[Order] AS O
-
     INNER JOIN dbo.OrderItem AS OI
-
         ON O.OrderID = OI.OrderID
 ),
-
 ReturnMetrics AS
 (
     SELECT
-
         COUNT(*) AS TotalReturns,
-
         SUM(RefundAmount) AS TotalRefundAmount
-
     FROM dbo.[Return]
 )
-
 SELECT
-
     KPIName,
-
     KPIValue,
-
     KPIStatus
-
 FROM
 (
-
-    /*------------------------------------------------------*/
-
     SELECT
-
         'Total Revenue' AS KPIName,
-
         CAST(ROUND(BM.TotalRevenue,2) AS DECIMAL(18,2)) AS KPIValue,
-
         CASE
-
             WHEN BM.TotalRevenue >= 5000000 THEN 'Excellent'
             WHEN BM.TotalRevenue >= 3000000 THEN 'Good'
             WHEN BM.TotalRevenue >= 1000000 THEN 'Average'
             ELSE 'Needs Improvement'
-
         END AS KPIStatus
-
     FROM BusinessMetrics BM
-
     UNION ALL
-
-    /*------------------------------------------------------*/
-
     SELECT
-
         'Gross Profit',
-
-        CAST
-        (
-            ROUND(BM.TotalRevenue - BM.TotalCost,2)
-            AS DECIMAL(18,2)
-        ),
-
+        CAST(ROUND(BM.TotalRevenue - BM.TotalCost,2)AS DECIMAL(18,2)),
         CASE
-
             WHEN ((BM.TotalRevenue-BM.TotalCost)*100.0/NULLIF(BM.TotalRevenue,0)) >= 40 THEN 'Excellent'
             WHEN ((BM.TotalRevenue-BM.TotalCost)*100.0/NULLIF(BM.TotalRevenue,0)) >= 30 THEN 'Good'
             WHEN ((BM.TotalRevenue-BM.TotalCost)*100.0/NULLIF(BM.TotalRevenue,0)) >= 20 THEN 'Average'
             ELSE 'Needs Improvement'
-
         END
-
     FROM BusinessMetrics BM
-
     UNION ALL
-
-    /*------------------------------------------------------*/
-
     SELECT
-
         'Gross Margin %',
-
-        CAST
-        (
-            ROUND
-            (
-                (BM.TotalRevenue-BM.TotalCost)*100.0
-                /
-                NULLIF(BM.TotalRevenue,0),
-                2
-            )
-            AS DECIMAL(18,2)
-        ),
-
+        CAST(ROUND((BM.TotalRevenue-BM.TotalCost)*100.0 / NULLIF(BM.TotalRevenue,0),2)AS DECIMAL(18,2)),
         CASE
-
             WHEN ((BM.TotalRevenue-BM.TotalCost)*100.0/NULLIF(BM.TotalRevenue,0)) >= 40 THEN 'Excellent'
             WHEN ((BM.TotalRevenue-BM.TotalCost)*100.0/NULLIF(BM.TotalRevenue,0)) >= 30 THEN 'Good'
             WHEN ((BM.TotalRevenue-BM.TotalCost)*100.0/NULLIF(BM.TotalRevenue,0)) >= 20 THEN 'Average'
             ELSE 'Needs Improvement'
-
         END
-
     FROM BusinessMetrics BM
-
     UNION ALL
-
-    /*------------------------------------------------------*/
-
     SELECT
-
         'Average Order Value',
-
-        CAST
-        (
-            ROUND
-            (
-                BM.TotalRevenue
-                /
-                NULLIF(BM.TotalOrders,0),
-                2
-            )
-            AS DECIMAL(18,2)
-        ),
-
+        CAST(ROUND(BM.TotalRevenue / NULLIF(BM.TotalOrders,0),2)AS DECIMAL(18,2)),
         CASE
-
             WHEN (BM.TotalRevenue/NULLIF(BM.TotalOrders,0)) >= 500 THEN 'Excellent'
             WHEN (BM.TotalRevenue/NULLIF(BM.TotalOrders,0)) >= 300 THEN 'Good'
             WHEN (BM.TotalRevenue/NULLIF(BM.TotalOrders,0)) >= 150 THEN 'Average'
             ELSE 'Needs Improvement'
-
         END
-
     FROM BusinessMetrics BM
-
     UNION ALL
-
-    /*------------------------------------------------------*/
-
     SELECT
-
         'Return Rate %',
-
-        CAST
-        (
-            ROUND
-            (
-                RM.TotalReturns*100.0
-                /
-                NULLIF(BM.TotalOrders,0),
-                2
-            )
-            AS DECIMAL(18,2)
-        ),
-
+        CAST(ROUND(RM.TotalReturns*100.0 / NULLIF(BM.TotalOrders,0),2)AS DECIMAL(18,2)),
         CASE
-
             WHEN (RM.TotalReturns*100.0/NULLIF(BM.TotalOrders,0)) <= 5 THEN 'Excellent'
             WHEN (RM.TotalReturns*100.0/NULLIF(BM.TotalOrders,0)) <= 10 THEN 'Good'
             WHEN (RM.TotalReturns*100.0/NULLIF(BM.TotalOrders,0)) <= 15 THEN 'Average'
             ELSE 'Needs Improvement'
-
         END
-
     FROM BusinessMetrics BM
-
     CROSS JOIN ReturnMetrics RM
-
 ) AS ExecutiveScorecard
-
 ORDER BY KPIName;
 
 PRINT '';
